@@ -1,0 +1,127 @@
+---
+title: "The course gateway"
+subtitle: "What is real in it, what is simulated, and why it exists"
+---
+
+The repository ships a gateway that speaks both provider dialects and answers from
+rules. Every route points at it by default, which is why the labs, the tests and
+the evaluation harness all work with no API key, no network and no GPU.
+
+```bash
+make gateway                 # or: docker compose up -d gateway
+curl -s localhost:8080/healthz
+```
+
+::: {.callout-important}
+## Read this before quoting a number it produced
+
+Numbers measured against this gateway are numbers about **this simulator**. They
+are correct as measurements of your harness, your guards, your meter and your gates
+— the things this course actually teaches — and they are **not evidence about any
+model's quality**.
+
+Point a route at a real provider (two environment variables, no code change) and
+re-run the same harness when you need that kind of evidence. That substitution
+being a config edit is the whole argument of Module 1, and
+[ADR 003](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/docs/adr/003-the-course-gateway.md)
+records the trade deliberately.
+:::
+
+## What is real
+
+| | Why it matters |
+|---|---|
+| **Both wire contracts** — `POST /v1/chat/completions` and `POST /v1/messages` | your adapters are exercised against the real shapes, including the differences |
+| **Token accounting** | `usage`, `prompt_tokens_details.cached_tokens`, `cache_read_input_tokens` — the meter measures something real |
+| **`finish_reason` control flow** | `length` truncation actually happens when `max_tokens` is too low |
+| **Tool calls** | request, `finish_reason=tool_calls`, correlated `tool_result` messages |
+| **Structured outputs** | `response_format: json_schema` on one dialect, `output_config.format` on the other |
+| **Streaming frames** | SSE deltas, the final usage frame, and Anthropic's typed event stream |
+| **Prompt caching** | keyed on a genuinely byte-stable prefix, with a minimum cacheable length (1024 tokens) and a TTL refreshed on hit |
+| **HTTP error taxonomy** | 429 with `Retry-After`, 529, 503, 504, and 400 for a missing `max_tokens` |
+| **Fault injection** | on a timer, targeted at one model, so the drills are reproducible |
+| **Grounding** | answers are composed from the service directory **that arrives in the prompt**. A fact not in the directory cannot appear in an answer |
+
+That last row is the one that makes the golden set meaningful. The don't-know
+behaviour is not faked: the simulator matches the citizen's question against the
+directory it was given, and when nothing matches it declines — *unless* the prompt
+it was served has no don't-know rule, in which case it guesses. Which is exactly
+why `answer_faq.v6` fails the gate.
+
+## What is simulated
+
+**Quality.** The model tiers differ by rules, not by capability:
+
+| Tier | Guesses a fee when it should decline | Schema failure, first try | Extra on Arabic | Tool-contract fumble |
+|---|---|---|---|---|
+| `course-flagship` | 0% | 6% | +3% | 2% |
+| `course-anthropic` | 0% | 5% | +3% | 2% |
+| `course-small` | 34% | 16% | +8% | 14% |
+| `murshid-onprem` | 45% | 20% | +14% | 22% |
+
+Those degradations are a **hash of the input**, not a random draw, so a run repeats
+exactly and a gate that fires, fires for a reason you can point at.
+
+Latency is simulated too, and compressed by `MOCKGW_SPEED` (default 0.2). Relative
+ordering between routes is meaningful; absolute milliseconds are not.
+
+## The drills
+
+```bash
+make drill-429       # 429 + Retry-After: 2 on the primary model, three minutes
+make drill-outage    # the primary model returns 529 for five minutes
+make drill-off
+make stats
+```
+
+Or directly, with any shape you like:
+
+```bash
+curl -s -X POST localhost:8080/admin/fault -H 'content-type: application/json' \
+  -d '{"mode":"rate_limit","seconds":180,"model":"course-flagship","retry_after":2}'
+```
+
+| Mode | Response |
+|---|---|
+| `rate_limit` | 429 with a `Retry-After` header |
+| `overload` | 529 |
+| `server_error` | 503 |
+| `timeout` | hangs, then 504 |
+| `off` | end the drill |
+
+`model` targets one model id, which is what makes the fallback drill work: the
+primary fails while the on-premise route keeps serving.
+
+## Endpoints
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /v1/chat/completions` | OpenAI dialect: streaming and not, tools, structured outputs |
+| `POST /v1/messages` | Anthropic dialect: top-level `system`, required `max_tokens`, content blocks |
+| `GET /v1/models` | model listing |
+| `POST /admin/fault` | fault injection |
+| `GET /admin/stats` | requests, tokens, cache hits, faults served |
+| `POST /admin/reset` | clear stats, faults and the prompt cache |
+| `GET /healthz` | liveness |
+
+## Knobs
+
+| Variable | Default | Effect |
+|---|---|---|
+| `MOCKGW_SPEED` | `0.2` | wall-clock compression. `1.0` feels like a real hosted model |
+| `MOCKGW_FAST` | unset | `1` disables all sleeping — used by CI |
+| `MOCKGW_MIN_CACHEABLE_TOKENS` | `1024` | minimum prefix length before a cache hit is possible |
+| `MOCKGW_CACHE_TTL_S` | `300` | prompt-cache TTL, refreshed on hit |
+
+## It has its own tests
+
+A simulator you do not test is a simulator you cannot trust to fail a lab honestly.
+
+```bash
+pytest tests/test_gateway_brain.py -q
+```
+
+The retrieval table there is the important one: 25 bilingual questions with their
+expected directory entry, including four that must match **nothing**. An over-broad
+match would turn an out-of-directory question into a confidently wrong answer, and
+the groundedness cases would then pass for entirely the wrong reason.

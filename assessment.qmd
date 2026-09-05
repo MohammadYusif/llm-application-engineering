@@ -1,0 +1,175 @@
+---
+title: "Assessment"
+subtitle: "How the 100 comes together, and the twenty questions it can come from"
+---
+
+| Component | Weight | Evidence |
+|---|---|---|
+| Lab completion — Labs 1–6, checkpoint commits and expected outputs | 40% | tagged commits; a `BENCHMARKS.md` entry per lab |
+| Practical assessments PA-1 and PA-2 | 10% | artefacts plus notes |
+| Quiz — 10 of the 20 below, closed book, 15 minutes | 10% | Day 4, hour 5 |
+| Capstone project and evaluation report | 40% | the [capstone rubric](capstone.qmd#grading-rubric--100-points) |
+
+The labs strand (60%) and the project with its report (40%) match the catalogue
+assessment: *labs; an LLM application project with an evaluation report*.
+
+Badge issuance requires ≥ 70 overall **and** capstone ≥ 70 **and** a green safety
+suite at submission **and** no academic-integrity flags. Identical golden-set edits
+and copied report numbers are checked across repositories, and the holdout run
+exposes fabricated results.
+
+## Practical assessments
+
+### PA-1 — repair a broken branch (30 minutes, end of Day 2)
+
+You are given a Murshid branch with three defects: a tool description that
+misroutes, a schema relaxed to `str`, and a missing repair loop. Restore extraction
+pass rate ≥ 95% and `make tool-smoke` green.
+
+| Scored on | Weight |
+|---|---|
+| Diagnosis notes — what you found, and how you knew | 40% |
+| The fixes | 40% |
+| Verification evidence — the re-run numbers | 20% |
+
+The diagnosis notes carry more weight than the fixes on purpose. Anybody can
+restore a schema; the skill is reading a corpus report and knowing which of three
+things it is telling you.
+
+### PA-2 — review a pull request (30 minutes, end of Day 3)
+
+You are given a PR that "improves" a prompt: friendlier tone, **−9 points
+groundedness on the Arabic slice**, safety green. Write the review: what may merge,
+what must change, and what evidence you demand before it does.
+
+| Scored on | Weight |
+|---|---|
+| Triage correctness — is this blocking, and why | 50% |
+| Use of slice evidence rather than the average | 30% |
+| Review tone and actionability | 20% |
+
+A review that says "this looks fine, tone is subjective" fails. So does one that
+says "rejected" with no evidence and no path forward.
+
+## Quiz bank
+
+Twenty questions; ten per cohort. Answers are for the instructor.
+
+::: {.callout-note collapse="true"}
+## Module 1 — architecture
+
+**Q1.** Rank single-call, workflow, router and agentic loop by failure surface, and
+state the escalation rule.
+→ Smallest to largest in that order. Start at the simplest pattern the use case
+allows; escalate on evidence, not on vocabulary.
+
+**Q2.** Why must application code never import a provider SDK directly?
+→ Provider migration, failover and testing all require the boundary. Direct
+coupling turns config changes into rewrites.
+
+**Q3.** True or false: streaming reduces total generation time.
+→ **False.** It reduces *perceived* latency via time-to-first-token. Generation
+time is unchanged.
+
+**Q4.** A human does not wait for this response. What does that imply?
+→ It is a batch candidate: batch-API pricing, kinder rate limits.
+
+**Q5.** Name the three governors that bound an agentic loop.
+→ Max iterations, a token or spend budget, an allowed-tool list — plus a trace.
+:::
+
+::: {.callout-note collapse="true"}
+## Module 2 — APIs and open weights
+
+**Q6.** Name two of the load-bearing differences between the OpenAI-compatible and
+Anthropic Messages dialects.
+→ Any two of: top-level `system`; required `max_tokens`; typed content blocks;
+`stop_reason` naming. (Bonus: current versions also drop `temperature`.)
+
+**Q7.** Why does temperature 0 not make outputs reproducible, and where does
+determinism actually come from?
+→ Snapshot changes, server-side batching, GPU non-determinism. Determinism comes
+from validation and evaluation.
+
+**Q8.** `finish_reason="length"` — what happened, and what must the application do?
+→ Output truncated at `max_tokens`. Treat it as an error class or raise the budget
+deliberately; never ship the fragment silently.
+
+**Q9.** An Arabic prompt tokenises 1.9× its English twin on your route. Name two
+engineering consequences — and one reason the ratio might be wrong next quarter.
+→ Higher per-turn cost; tighter effective context. The ratio is a property of the
+tokenizer generation and changes when the route changes.
+
+**Q10.** Which two vLLM ideas make self-hosting economical?
+→ PagedAttention (KV-cache paging) and continuous batching.
+:::
+
+::: {.callout-note collapse="true"}
+## Modules 3 and 4 — structure, tools, guards
+
+**Q11.** JSON mode versus strict schema mode — what does each guarantee, and what
+does neither guarantee?
+→ Valid JSON syntax; conformance to your schema; **semantics** — which is
+pydantic's job.
+
+**Q12.** Who executes a tool call, and why is that the security model?
+→ The application, always. The model only requests, so authorisation can live
+outside the token stream.
+
+**Q13.** The model supplies a `national_id` argument for a booking. What decides
+whose booking it is?
+→ The authenticated session. Model arguments are user input by proxy.
+
+**Q14.** Why is prompt injection unsolvable in the SQL-injection sense?
+→ Instructions and data share one token stream; there is no parameterised-query
+equivalent. Layered mitigation only.
+
+**Q15.** Which two numbers must every guard change report, and why the pair?
+→ Attack block rate and legitimate false-positive rate. Either alone can be gamed
+into a broken product.
+
+**Q16.** What is a canary token, and which wall uses it?
+→ A marker planted in every system prompt; the output guard blocks any response
+containing it.
+
+**Q17.** Why do prompts get new versions instead of in-place edits?
+→ Audit trail, rollback, and eval baselines — the version field in the log must
+mean something.
+:::
+
+::: {.callout-note collapse="true"}
+## Modules 5 and 6 — evaluation and cost
+
+**Q18.** Name the three golden-set splits and the reason for the third.
+→ Regression, hill-climbing, holdout. Development contaminates whatever it
+touches; evidence needs an unspent set.
+
+**Q19.** Which assert types may gate safety, and where do judges fit?
+→ Deterministic only. Judges are tracking signals — calibrated, κ ≥ 0.6 — and never
+gate safety alone.
+
+**Q20.** What breaks provider prompt caching, and what discipline prevents it?
+→ Any dynamic byte in the prefix. Stable-first ordering, which versioned immutable
+prompt artefacts give you for free.
+
+**Bonus.** Write the one sentence that governs every optimisation in Module 6.
+→ *Never trade quality you aren't measuring for cost you are.*
+:::
+
+## Wrap-up
+
+Map each capstone requirement to the module that taught it, and let the class see
+the golden thread whole: every lab component is running in the application they
+just demonstrated.
+
+Forward pointers: **SDA-AIE-214** adds retrieval to this exact pipeline — the
+guarded pipeline and the eval harness grow retrieval metrics on the same skeleton.
+**SDA-AIE-215** turns the adaptation question (prompt versus retrieval versus
+fine-tune) into strategy. **SDA-AIE-312/313/315** build LLMOps, security and
+solution architecture on this substrate.
+
+Last word to the room:
+
+> The model will be replaced within a year. Every discipline in this course
+> survives that replacement — and the harness is how you will prove the replacement
+> is an upgrade.

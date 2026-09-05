@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Secrets — never commit a key, not even a mock one you "will rotate"
+.env
+*.key
+
+# Run artefacts
+murshid/eval/out/*
+!murshid/eval/out/.gitkeep
+murshid/logs/
+murshid/out/
+*.jsonl.tmp
+
+# Quarto
+/_site/
+/.quarto/
+
+**/*.quarto_ipynb

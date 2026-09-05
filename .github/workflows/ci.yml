@@ -1,0 +1,144 @@
+name: CI
+
+# Everything here runs with no API key and no network access to any provider.
+# The course gateway is started as a background process; that is the same
+# substitution a deployment makes when it points at a real provider, and it is
+# why this pipeline is free, hermetic and fast.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONUTF8: "1"
+  MURSHID_LOG_LEVEL: CRITICAL
+
+defaults:
+  run:
+    working-directory: murshid
+
+jobs:
+  quality:
+    name: tests, lint, contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: murshid/requirements.lock
+
+      - name: Install pinned dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock
+
+      - name: Lint
+        run: ruff check src tests scripts eval infra
+
+      - name: Output contracts fit the strict-mode subset
+        run: PYTHONPATH=src python scripts/schema_check.py
+
+      - name: Start the course gateway
+        run: |
+          MOCKGW_FAST=1 python -m uvicorn app.main:app --host 127.0.0.1 --port 8080 \
+            --log-level warning --app-dir infra/mockgw &
+          for _ in $(seq 1 40); do
+            curl -sf http://127.0.0.1:8080/healthz >/dev/null && break
+            sleep 0.5
+          done
+          curl -sf http://127.0.0.1:8080/healthz
+
+      - name: Tests
+        run: PYTHONPATH=src python -m pytest -q
+
+  evaluation:
+    name: golden set + regression gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: murshid/requirements.lock
+
+      - name: Install pinned dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock
+
+      - name: Start the course gateway
+        run: |
+          MOCKGW_FAST=1 python -m uvicorn app.main:app --host 127.0.0.1 --port 8080 \
+            --log-level warning --app-dir infra/mockgw &
+          for _ in $(seq 1 40); do
+            curl -sf http://127.0.0.1:8080/healthz >/dev/null && break
+            sleep 0.5
+          done
+
+      - name: The golden set, through the real pipeline
+        run: PYTHONPATH=src python eval/harness.py --label ci
+
+      - name: Guards — block rate and false-positive rate, together
+        run: PYTHONPATH=src python scripts/guard_eval.py
+
+      - name: The semantic cache's near-miss suite
+        run: PYTHONPATH=src python scripts/eval_cache.py
+
+      - name: Judge calibration (the sharpened rubric must clear kappa >= 0.6)
+        run: |
+          PYTHONPATH=src python eval/build_human_labels.py
+          PYTHONPATH=src python eval/calibrate_judge.py --rubric groundedness.v2.md
+
+      - name: Regression gate
+        run: |
+          PYTHONPATH=src python eval/gate.py eval/out/eval_ci.json \
+            --baseline eval/baseline.json --markdown eval/out/gate.md
+
+      - name: Post the slice table on the pull request
+        if: always() && github.event_name == 'pull_request'
+        run: cat eval/out/gate.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the evidence pack, win or lose
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: murshid/eval/out/
+          retention-days: 14
+
+  container:
+    name: docker compose
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build the images
+        run: docker compose build
+
+      - name: The suite, in a clean container
+        run: docker compose run --rm tests
+
+      - name: The application answers over HTTP
+        run: |
+          docker compose up -d app
+          for _ in $(seq 1 40); do
+            curl -sf http://127.0.0.1:8000/healthz >/dev/null && break
+            sleep 1
+          done
+          curl -sf -X POST http://127.0.0.1:8000/v1/ask \
+            -H 'content-type: application/json' \
+            -d '{"message":"How do I renew my commercial licence?"}' | tee /tmp/reply.json
+          grep -q "SAR 200" /tmp/reply.json
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

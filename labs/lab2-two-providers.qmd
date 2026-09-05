@@ -1,0 +1,221 @@
+---
+title: "Lab 2 — Two providers, one interface"
+subtitle: "Day 1, hour 5 · 50 minutes · pairs"
+---
+
+::: {.lab-meta}
+Objective
+: Implement the Anthropic adapter, point the OpenAI-compatible adapter at the
+  open-weight route, add streaming with time-to-first-token, survive a live 429
+  storm, and record the first provider-comparison table.
+
+Setup
+: Lab 1 complete. Gateway running.
+
+You finish with
+: Contract tests green on every adapter, a fault-drill log excerpt, and a
+  `BENCHMARKS.md` seeded with real numbers.
+:::
+
+## 1 · The Anthropic adapter (12 min)
+
+Implement `AnthropicClient.complete()`. Four differences from the OpenAI dialect
+are load-bearing, and the adapter is where each one stops:
+
+| Difference | If you get it wrong |
+|---|---|
+| `system` is a **top-level parameter** | the system prompt is silently ignored |
+| `max_tokens` is **required** | `400 max_tokens: field required` |
+| content is a list of typed **blocks** | tool calls vanish |
+| the finish signal is `stop_reason` | your `finish_reason` control flow never fires |
+
+::: {.callout-warning}
+## And a fifth, which the docs will not warn you about
+
+As of `anthropic` 1.x, `messages.create()` **does not accept `temperature`** —
+sampling moved behind `output_config`. Forwarding it raises a `TypeError`.
+
+Do not delete `temperature` from `LLMRequest` to make the error go away: the
+OpenAI dialect still has it, and the whole point of the normalised type is that
+each adapter absorbs its own dialect's quirks. The comment in
+`anthropic_client.py` tells the next person the same thing.
+
+APIs drift underneath a lesson. Trust an executed run over what should work.
+:::
+
+Then run the contract suite — **the same test class, against every adapter**:
+
+```bash
+pytest tests/llm/test_adapter_contract.py -v
+```
+
+```
+test_adapter_contract.py::TestAdapterContract::test_satisfies_the_protocol[fake] PASSED
+test_adapter_contract.py::TestAdapterContract::test_satisfies_the_protocol[openai_compat] PASSED
+test_adapter_contract.py::TestAdapterContract::test_satisfies_the_protocol[anthropic] PASSED
+test_adapter_contract.py::TestAdapterContract::test_satisfies_the_protocol[vllm] PASSED
+...
+16 passed
+```
+
+"Implements the protocol" is a test, not a docstring claim.
+
+## 2 · The open-weight route, with no code change (8 min)
+
+The route already exists in `configs/murshid.yaml`. Read it, then use it:
+
+```bash
+make ask ROUTE=vllm Q="ما هي خطوات إصدار سجل تجاري؟"
+```
+
+```
+[faq → murshid-onprem via vllm] 431ms, 1674 in (0 cached) / 187 out, 0.304 halalas
+بخصوص إصدار سجل تجاري جديد لمؤسسة فردية: ...
+```
+
+Note the `model_id`: `murshid-onprem`. **Nothing in `src/` changed.** In the
+classroom the same route points at `vllm serve` on the GPU box:
+
+```yaml
+routes:
+  vllm:
+    base_url: "http://gpu-server.classroom.local:8000/v1"
+    residency: on_premise
+```
+
+That single config entry is Module 1's boundary argument, and this is the moment
+it stops being an argument.
+
+::: {.callout-note appearance="simple"}
+## On the real GPU box, watch `nvidia-smi` on the projector
+
+Twenty-four participants hitting one vLLM instance is not a problem to fix. It is
+continuous batching, and it is the best explanation of the idea you will ever give.
+:::
+
+## 3 · Streaming and time-to-first-token (12 min)
+
+Implement `stream()` with `stream_options={"include_usage": True}`.
+
+```bash
+make stream Q="What documents do I need to renew my commercial registration?"
+```
+
+```
+About Renewing a commercial registration (CR): ...
+
+[TTFT 593ms · total 707ms · 1406 in (0 cached) / 138 out]
+```
+
+Record **both** numbers in `BENCHMARKS.md`. Then answer, in one sentence: does
+streaming reduce total latency?
+
+It does not. It reduces *perceived* latency. Generation time is unchanged — which
+is why Module 6 treats TTFT and generation as two separate levers with two
+different fixes.
+
+::: {.callout-important}
+## The bug this task exists to prevent
+
+Without `include_usage`, `usage` never arrives and the cost meter silently
+undercounts the majority of traffic. The contract test asserts the final frame
+carries it:
+
+```python
+assert final.usage is not None, (
+    "losing usage on the final frame is the classic streaming "
+    "cost-accounting bug — the meter silently undercounts most traffic"
+)
+```
+:::
+
+## 4 · The fault drill (10 min)
+
+The instructor fires this without warning. You can also fire it yourself.
+
+```bash
+make drill-429       # 429s with Retry-After: 2 on the primary model, three minutes
+make ask Q="كيف أجدد رخصتي التجارية؟"
+```
+
+Watch the log:
+
+```
+[warning] llm_retry  hop=primary attempt=1 status=429 retry_after=2.0 delay_s=2.0
+[warning] llm_retry  hop=primary attempt=2 status=429 retry_after=2.0 delay_s=2.0
+[warning] fallback_served  hop=fallback:vllm model_id=murshid-onprem
+```
+
+Then:
+
+```bash
+make drill-off
+make stats           # faults_served, and what the gateway saw
+```
+
+Paste the log excerpt into your lab worksheet. Three things to notice:
+
+1. the retry **honoured the header** rather than guessing a backoff;
+2. attempts were **capped** — retries multiply cost and tail latency;
+3. the citizen got an answer, from the on-premise route, and never knew.
+
+A pair whose Lab 1 skipped the `ResilientClient` wiring crashes publicly here. That
+is the lesson; handle it kindly.
+
+Try the harder one too:
+
+```bash
+make drill-outage    # the primary model returns 529 for five minutes
+```
+
+## 5 · The bench table (8 min)
+
+```bash
+make bench
+make token-report
+```
+
+```
+route            p50     p95  p50 ar  p50 en  ar/en tok  hal/call  residency
+----------------------------------------------------------------------------
+primary         103ms    115ms    108ms     99ms       1.16     0.954  cloud
+cheap            50ms     54ms     53ms     47ms       1.16     0.041  cloud
+comparison      121ms    167ms    127ms    117ms       1.16     1.241  cloud
+vllm            109ms    117ms    113ms    107ms       1.16     0.301  on_premise
+```
+
+Commit the table to `BENCHMARKS.md` with **one sentence**: which route would you
+make Murshid's default *today*, and on what evidence?
+
+Then look at the token report and revise whatever you believed about Arabic:
+
+| Encoding | en | ar | ar/en |
+|---|---|---|---|
+| `cl100k_base` | 1022 | 2373 | 2.32× |
+| `o200k_base` | 1022 | 1005 | 0.98× |
+
+The "Arabic costs about twice as much" rule of thumb is a fact about a tokenizer
+generation. On a current vocabulary it is gone. The rule that survives is the one
+underneath: count with the route's own tokenizer.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `400 max_tokens: field required` | the adapter forwarded `None` | `max_tokens` is required in the Messages API — the lesson, live |
+| System prompt ignored on the Anthropic route | sent as a message inside `messages` | split it to the top-level `system` parameter |
+| `TypeError: unexpected keyword argument 'temperature'` | the anthropic 1.x change | do not forward it; the comment in the adapter explains why |
+| `usage` is `None` on streamed calls | missing `stream_options` | add `{"include_usage": True}` and check the final frame |
+| The drill does nothing | a fault targets one model | `make stats` — check `fault` and `faults_served` |
+| vLLM route slow for everyone at once | 24 participants at concurrency 24 | expected. Discuss continuous batching; do not "fix" it |
+
+## If you finish early
+
+Compute the estimate for the Module 6 kickoff. Murshid handles 30,000
+conversations a day, averaging six turns, roughly 900 input and 150 output tokens
+per turn. What does routing 70% of turns to the cheap model save per month at the
+course price sheet's rates?
+
+Check your arithmetic against `make replay-after` on Day 3 — and notice, when you
+do, that your estimate was probably conservative in one direction and wildly
+optimistic in another.

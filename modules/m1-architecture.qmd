@@ -1,0 +1,238 @@
+---
+title: "Module 1 — LLM Application Architecture Patterns"
+subtitle: "Day 1, hours 1–2 · the boundary everything else attaches to"
+---
+
+Most LLM products fail not because the model is weak but because the application
+around it is unengineered: prompts concatenated inline with business logic, no
+boundary between the app and the provider, an agent loop where a single call would
+do, and no way to answer "what changed?" when quality drops.
+
+This module gives you a pattern vocabulary and one architectural discipline —
+**put the model behind a boundary** — so that structure, guards, evaluation and
+cost all have somewhere to attach later in the week.
+
+## 1. LLM applications fail quietly
+
+Classic software fails loudly: exceptions, 500s, red tests. LLM applications keep
+returning 200s while the answers degrade.
+
+| Failure mode | What it looks like | Fixed in |
+|---|---|---|
+| **Non-determinism** | The same input produces different output across calls, snapshots and providers. Anything downstream doing string matching is already broken. | M3 (validate), M5 (assert properties) |
+| **Prompt drift** | A prompt edited casually in code silently changes behaviour for every user. The prompt *is* production logic. | M4 |
+| **Silent quality decay** | A provider rotates a snapshot; accuracy drops six points; nobody notices for a month. | M5 |
+| **Cost surprises** | A prompt edit doubles the bill and no code review flags it. | M6 |
+| **New attack surface** | Users can *talk to* your logic. There is no parameterised-query equivalent. | M4 |
+| **Provider coupling** | Written against one SDK, one model name, one price sheet. Procurement, residency rules and the market all change. | This module |
+
+::: {.callout-note appearance="simple"}
+## The five-minute exercise before any of this
+
+Open a sixty-line "works on stage" chatbot — hardcoded model name, prompt inline,
+no timeout, no state, `print` streaming — and list what breaks in production. A
+room full of engineers finds most of the table above unprompted. Naming them
+afterwards lands better than naming them first.
+:::
+
+## 2. Four patterns, as an escalation ladder
+
+Each rung adds capability *and* cost, latency and failure surface. The
+professional instinct is to stay as low as the use case allows.
+
+```{mermaid}
+flowchart TB
+    A["**Single call**<br/>one prompt → one response<br/>classification · extraction · single-turn Q&A"] --> B
+    B["**Workflow / chain**<br/>fixed DAG: outline → draft → check<br/>multi-step, decomposition KNOWN"] --> C
+    C["**Router**<br/>classify, then dispatch to specialists<br/>heterogeneous traffic"] --> D
+    D["**Agentic loop**<br/>model chooses tools until done<br/>decomposition UNKNOWN at design time"]
+
+    style A fill:#e8f4ea,stroke:#3c8d5a
+    style B fill:#eef3fb,stroke:#4a76b8
+    style C fill:#fdf3e3,stroke:#c78b2c
+    style D fill:#fbeaea,stroke:#b84a4a
+```
+
+| Pattern | Cost/latency | Failure surface | Use when |
+|---|---|---|---|
+| Single call | 1× | smallest | classification, extraction, rewriting, single-turn Q&A |
+| Workflow | n×, but predictable | per step, testable in isolation | multi-step tasks with a *known* decomposition |
+| Router | 1 cheap + 1 handler | mis-routing, and it is measurable | heterogeneous traffic |
+| Agentic loop | unbounded unless capped | largest: loops, tool misuse, runaway cost | you genuinely cannot enumerate the steps in advance |
+
+Three teaching points worth arguing about:
+
+- **Workflows beat agents when the decomposition is known.** A fixed chain is
+  testable step by step, has bounded cost, and fails locally. Start at the simplest
+  pattern; escalate on evidence, not on vocabulary.
+- **Routers are the workhorse.** Murshid's traffic is ~70% FAQ, ~25% transactional,
+  ~5% escalation. Routing is what makes the economics work — and Module 6 turns
+  that into a measured 91% cost reduction.
+- **Agentic loops need governors:** max iterations, a token and spend budget, an
+  allowed-tool list, and a human-readable trace. Murshid's tool loop (Module 3) is
+  a *bounded* agentic loop — the course's only one, deliberately.
+
+### Murshid's target architecture
+
+Keep this on the wall for four days.
+
+```{mermaid}
+flowchart TD
+    U[citizen] --> API[API layer]
+    API --> G1["input guards<br/><small>deterministic · PII mask · classifier</small>"]
+    G1 -->|blocked| R["refusal templates<br/><small>bilingual, designed</small>"]
+    G1 --> RT{router}
+    RT -->|faq ~70%| FAQ["FAQ handler<br/><small>single call · small model · cached</small>"]
+    RT -->|service ~25%| SVC["service workflow<br/><small>+ bounded tool loop</small>"]
+    RT -->|escalate ~5%| H[human handoff]
+    SVC --> T1["check_application_status<br/><small>read-only</small>"]
+    SVC --> T2["book_appointment<br/><small>authorisation gate</small>"]
+    SVC --> T3["escalate_to_agent<br/><small>terminal</small>"]
+    FAQ --> G2[output guard: canary · PII · relay]
+    SVC --> G2
+    G2 --> U
+
+    FAQ -.-> B["**LLMClient boundary**"]
+    SVC -.-> B
+    B --> RC[ResilientClient: retry · fallback]
+    RC --> GW[gateway → commercial APIs]
+    RC --> VL[vLLM → open-weight, on-premise]
+    B -.-> M[cost meter · trace · cache]
+
+    style B fill:#eef3fb,stroke:#4a76b8,stroke-width:3px
+    style G1 fill:#fbeaea,stroke:#b84a4a
+    style G2 fill:#fbeaea,stroke:#b84a4a
+```
+
+## 3. The model boundary
+
+The single most consequential decision in an LLM application is where the model
+boundary sits. The rule: **application code never imports a provider SDK.**
+
+```python
+# src/murshid/llm/interfaces.py — what the application is allowed to know
+class LLMClient(Protocol):
+    def complete(self, request: LLMRequest) -> LLMResponse: ...
+    def stream(self, request: LLMRequest) -> Iterator[StreamChunk]: ...
+```
+
+Three implementations sit behind it: `OpenAICompatClient` (which covers OpenAI
+*and* vLLM *and* most gateways — the chat-completions schema is the de-facto wire
+standard), `AnthropicClient`, and `FakeClient` for tests.
+
+- **Model names are configuration, not code.** `murshid-default` resolves through
+  `configs/murshid.yaml` to a concrete id. Swapping providers, pinning a snapshot,
+  or moving a route on-premise is a YAML edit and an environment variable.
+- **The gateway layer** centralises keys, budgets, rate limiting, logging and
+  failover. In Saudi enterprise practice it is often mandated — it is where PDPL
+  logging controls and per-department cost attribution live. This classroom runs
+  behind one, which is worth pointing at: the classroom *is* the reference
+  architecture.
+- **What crosses the boundary:** a normalised request (messages, tools,
+  response-format, parameters) and a normalised response (text, tool calls, finish
+  reason, usage). Usage crossing the boundary is what makes Module 6's cost meter a
+  one-line change rather than a refactor.
+
+::: {.callout-important}
+## This claim is tested, not asserted
+
+`tests/test_architecture.py` walks the AST of every module under `src/murshid/`
+and fails if anything outside `llm/openai_compat.py` and `llm/anthropic_client.py`
+imports `openai` or `anthropic`. It also fails on an `LLMRequest` constructed
+without `max_tokens`, and on prompt text inlined in Python.
+
+A boundary that nothing checks is a boundary that lasts until the first deadline.
+:::
+
+## 4. State, streaming, and the sync/batch line
+
+**LLM APIs are stateless.** Every request carries the whole conversation. "Memory"
+is an application concern. Three strategies:
+
+| Strategy | Cost per turn | Fails by | Murshid |
+|---|---|---|---|
+| Full history | grows linearly, forever | context overflow mid-conversation, for your most engaged users first | rejected |
+| **Windowed** (last k turns) | flat | forgetting turn 1 — visibly, predictably | **shipped**, k = 8 |
+| Summarised | flat plus one cheap call | a summary that drops the fact that mattered | capstone extension |
+
+**Context budget is an architectural constraint, not an afterthought.** History,
+system prompt, retrieved content, tool schemas and output must fit — and cost
+scales with all of it on *every* turn. Murshid's budget is written down in
+[`docs/context_budget.md`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/docs/context_budget.md);
+you write your own in Lab 1.
+
+**Streaming is UX, not decoration.** A 500 ms time-to-first-token with streaming
+*feels* faster than a four-second complete response at identical total latency.
+Stream user-facing prose; do not stream machine-consumed structured output — you
+cannot validate half a JSON object.
+
+**Sync versus batch:** does a human wait for this response? No → batch candidate,
+where provider batch APIs are typically half price and rate limits are kinder.
+
+## 5. Reliability lives at the boundary, once
+
+Provider APIs fail routinely: 429 rate limits, 500/529 overload, timeouts, and
+content-filter refusals. Policy belongs in the adapter layer, in one file:
+
+```python
+# src/murshid/llm/resilient.py
+ResilientClient(
+    chain=[("primary", commercial), ("on_prem", vllm)],
+    max_attempts=3,       # retries multiply cost and tail latency
+    base_delay=1.0,       # exponential, jittered, Retry-After honoured
+)
+```
+
+- **Timeouts always.** A hung LLM call with no timeout is a hung user.
+- **Retry only what is retryable.** A malformed request retried three times is the
+  same bug, three times slower, at three times the cost.
+- **Fallback chains** end in a *degraded but honest* answer, never an error page —
+  and the fallback hop gets evaluated too (Module 5), or failover becomes silent
+  quality decay.
+- **`max_tokens` always set**, per-conversation spend caps, and a circuit breaker
+  that stops hammering a failing provider.
+
+Run the drill rather than reading about it:
+
+```bash
+make drill-outage        # the primary model returns 529 for five minutes
+make ask Q="How do I renew my commercial licence?"
+# → llm_retry ... then fallback_served hop=fallback:vllm — the citizen never sees it
+make drill-off
+```
+
+## 6. Common mistakes
+
+1. **Agent-first design** for what is a router plus two workflows. Symptoms:
+   unexplainable behaviour, unbounded cost, undebuggable traces.
+2. **SDK calls sprinkled through business logic** — the provider migration that
+   should be a config change becomes a six-week rewrite.
+3. **No `max_tokens`, no timeout, no retry policy** — demo defaults that become
+   production incidents.
+4. **Unbounded conversation history** — cost grows per turn until the context
+   overflows, in production, for the longest conversations first.
+5. **Streaming everything**, including JSON meant for machines, which then gets
+   "parsed" with a regex over partial chunks.
+6. **Ignoring refusals as a response class.** Content-filter refusals are normal
+   API behaviour and need designed UX, not a stack trace.
+
+## Benchmarks after this module
+
+| Metric | Target | How measured |
+|---|---|---|
+| Direct SDK imports outside `llm/` | 0 | `pytest tests/test_architecture.py` |
+| Requests with unbounded `max_tokens` | 0 | AST check, in the same test file |
+| Conversation window respected | ≤ 8 turns in every request | `tests/domain/test_ticket_and_session.py` |
+| Pattern decision recorded | 1 ADR | [`docs/adr/001`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/docs/adr/001-architecture-pattern.md) |
+| Context budget written | all six lines justified | `docs/context_budget.md` |
+
+## Discussion
+
+- Your product manager wants "an agent" because a competitor announced one. The
+  traffic analysis says 78% FAQ. What do you build, and what do you tell them?
+- The fallback model is 20% worse on Arabic. Is failing over still the right call?
+  What evidence would settle it?
+- Which single architectural decision in Murshid makes a data-residency
+  requirement a routing policy instead of a rewrite?
+
+**Next:** [Lab 1 — build the skeleton](../labs/lab1-skeleton.qmd)

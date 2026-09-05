@@ -1,0 +1,242 @@
+---
+title: "Module 5 — Evaluation: Golden Sets, LLM-as-Judge, Metrics"
+subtitle: "Day 3, hour 2 · the module that turns the course from craft into engineering"
+---
+
+Everything built so far changes behaviour when anyone touches a prompt, a model
+alias, a guard pattern — or when a provider rotates a snapshot on a Tuesday.
+Without a harness, nobody finds out until users do.
+
+"How do you know it works?" is the first question every review board, security
+assessor and procurement committee asks about a generative-AI system, and "we tried
+it and it seemed good" ends careers in regulated sectors.
+
+## 1. Golden sets earn their authority from construction
+
+Not from size. Murshid's set is 126 cases.
+
+```{mermaid}
+flowchart LR
+    subgraph S["Strata — 126 cases"]
+      direction TB
+      L["language<br/>ar 64 · en 62"]
+      I["intent<br/>faq 64 · safety 42 · service 12 · escalate 8"]
+      D["difficulty<br/>hard 71 · routine 55"]
+      R["risk<br/>normal 74 · safety 42 · false-positive 10"]
+    end
+    S --> H[harness] --> T[slice table]
+    T --> G[gate on a PR]
+    T --> N[nightly drift alert]
+    G --> F[failures]
+    N --> F
+    F -->|every confirmed miss becomes a case| S
+    style S fill:#eef3fb,stroke:#4a76b8
+```
+
+- **Stratify deliberately.** Mirror the traffic *and* the risks. Safety cases are
+  oversampled relative to traffic, because a 2% failure there outweighs a 10%
+  failure on pleasantries. The set is Arabic-majority, matching Murshid's real
+  callers rather than the developer's comfort.
+- **Sources, in order of value:** real traffic (masked — the PII vault from Module
+  4 pays double here), confirmed failures, expert authorship, and synthetic
+  generation *last*, reviewed before admission.
+- **Every case carries an owner-approved expectation.** An unverified expected
+  answer is a bug you assert against forever. Murshid's fee-bearing cases are
+  checked against the directory by the people who own the directory.
+- **Split the purposes.** A regression set (run on every change), a hill-climbing
+  set (used during development, and therefore *contaminated* as evidence), and a
+  holdout (run rarely, reported officially). Overfitting to your own eval is the
+  LLM-era version of training on the test set, and it happens by default rather
+  than by malice.
+
+```bash
+make golden          # rebuild and print the strata histogram
+```
+
+The histogram's job is to show you where the set is *thin*. `build_golden.py` says
+so out loud when a stratum falls below eight cases.
+
+## 2. A metric for every claim — the cheapest that tests it
+
+| Claim about the output | Metric type | Assert |
+|---|---|---|
+| "valid against the ticket schema" | deterministic | `is-json` + pydantic validation |
+| "routes service questions to `service`" | deterministic | exact match on the router verdict |
+| "refuses and points at the service centre" | deterministic | regex on the refusal marker |
+| "does not leak the canary or PII" | deterministic | `not-contains` |
+| "states no fee the directory does not contain" | deterministic | `python: no_invented_numbers` |
+| "means roughly the same as the reference" | similarity | embedding similarity ≥ threshold |
+| "is grounded and invents no fees" | model-graded | judge with a calibrated rubric |
+| "the Arabic is fluent and appropriately formal" | model-graded | judge, tracking only |
+
+Two disciplines around that table:
+
+- **Exact-string assertions on generative output are banned.** Assert properties,
+  not phrasings.
+- **Every deterministic metric that can replace a judge, should.** Judges cost
+  money, add latency, and drift.
+
+And aggregate correctly: **report per stratum, never only overall.** 94% overall
+with 71% on Arabic emergency cases is a failing system with a passing headline.
+
+## 3. LLM-as-judge: powerful, biased, calibratable
+
+For claims with no deterministic test — groundedness, tone, helpfulness — a strong
+model grades against a rubric. Done casually it is vibes at scale. Done properly it
+is a legitimate instrument.
+
+**Rubric design.** One dimension per judge call. Three-point scales with described
+anchors, not ten-point scales nobody can distinguish. Require the judge to quote
+its evidence — which is Module 3's structured-output machinery grading Module 4's
+prompts. The course eats its own cooking.
+
+**Named biases:** position bias (in pairwise comparison the first or last answer
+wins too often — swap and average), verbosity bias (longer scores higher), self-
+preference (models favour their own outputs — use a different family, or report the
+conflict), and sycophancy toward the reference answer's phrasing.
+
+**Calibrate or it is decoration.**
+
+```bash
+make calibrate
+```
+
+| Rubric | Agreement | Cohen's κ | Verdict |
+|---|---|---|---|
+| `groundedness.v1.md` — no anchors, no evidence requirement | 62% | [0.35]{.measured} | not qualified — do not wire this to anything |
+| `groundedness.v2.md` — anchored, evidence required, don't-know clause | 90% | [0.84]{.measured} | may gate as a tracking metric |
+
+The difference between those rows is a **rubric edit and nothing else**. When the
+judge disagrees with the humans, fix the rubric, not the humans.
+
+::: {.callout-note appearance="simple"}
+## Why κ and not percent agreement
+
+When 90% of labels are 1.0, an instrument that always says 1.0 scores 90%
+agreement and knows nothing. Cohen's κ corrects for chance agreement — which is
+why the calibration set is deliberately imbalanced-but-not-degenerate (22 × 1.0,
+6 × 0.5, 12 × 0.0). Hard negatives are the point: an instrument is qualified by
+what it gets wrong.
+
+Note also the ceiling. Inter-*human* agreement on the labelling bee is typically
+around κ = 0.8. Seeing that number recalibrates everyone's expectations of a judge.
+:::
+
+**Judges never gate alone on safety.** A PII leak or a successful injection must be
+a deterministic assert. Judges *add* signal; they do not own gates.
+
+## 4. The safety and regression suite
+
+The safety stratum is the union of everything the course has been collecting:
+Module 4's attack corpus (including its two recorded misses), the poisoned
+tool-result cases, Module 3's tool-misuse transcripts, and refusal-quality cases.
+
+**Regression means every fixed failure stays fixed.** The suite only grows, and a
+case leaves only by the same governed process that would regenerate the set.
+
+Threshold-setting is engineering, not aspiration. Gate on *no regression relative
+to baseline*, not on absolute bars invented in a meeting:
+
+| Rule | Margin | Blocking |
+|---|---|---|
+| safety stratum | **100%, always** | yes |
+| overall pass rate | ≥ baseline − 2 points | yes |
+| every stratum | ≥ baseline − 3 points | yes |
+| judge scores | trend in the report | **no** |
+
+Distinguish **blocking** asserts from **tracking** metrics deliberately. A gate
+that cries wolf gets disabled within a month, which is worse than no gate.
+
+## 5. The harness and the gate
+
+```bash
+make eval            # the golden set through the REAL pipeline
+make eval-vllm       # the same suite on the open-weight route
+make gate            # compare against the baseline
+```
+
+Two properties of `eval/harness.py` are load-bearing:
+
+1. **It runs the real pipeline.** The same `build_assistant` the CLI and API use —
+   guards, router, tools and all. A harness with its own simplified copy of the
+   request path drifts within weeks, and then it measures the copy.
+2. **It slices.** Language, intent, difficulty, risk class, on every run.
+
+```
+eval | route=default | 126 cases | pass 126/126 (100%) | 14.2s | 65.0 halalas
+  language    ar 100% | en 100%
+  intent      escalate 100% | faq 100% | safety 100% | service 100%
+  difficulty  hard 100% | routine 100%
+  risk        false_positive 100% | normal 100% | safety 100%
+```
+
+### The gate blocking what code review cannot see
+
+`answer_faq.v6` is a friendlier rewrite. It reads better. It also quietly drops the
+don't-know rule:
+
+```bash
+MURSHID_FAQ_PROMPT=answer_faq.v6 make eval LABEL=seeded
+make gate LABEL=seeded
+```
+
+```
+BLOCKED:
+  overall: 89% vs baseline 95% (-6.3pt, margin 2pt)
+  slice:intent=faq: 80% vs baseline 92% (-12.5pt, margin 3pt)
+  slice:difficulty=hard: 87% vs baseline 99% (-11.3pt, margin 3pt)
+```
+
+Code review sees a tone change. The gate sees eight invented fees.
+
+::: {.callout-important}
+## Cost discipline for the harness itself
+
+An eval suite too expensive to run is a suite that stops running. The regression
+set is sized to a token budget; judges run only on the stratum that needs them;
+deterministic asserts carry everything else. Module 6's lesson arrives early.
+:::
+
+**Nightly, against live providers**, the full set runs to catch snapshot drift —
+the strongest argument for a harness needs no pull request at all. Run it against
+the *pinned* snapshot and the provider's default alias, and the delta between those
+two runs is an early-warning channel for exactly the silent-regression incident.
+
+## 6. Common mistakes
+
+1. **Hill-climbing on the holdout.** Every "quick check" spends its evidential
+   value. Schedule holdout runs and log them.
+2. **One overall score.** Averages hide the stratum that matters.
+3. **Uncalibrated judges gating merges.** A κ = 0.3 judge blocking pull requests is
+   a random-number generator with authority.
+4. **Exact-match assertions on prose.** Flaky by design.
+5. **An eval set frozen while the product moves.** New intents, new tools, new
+   attack patterns arrive; the set has an owner and a growth process or it decays
+   into false confidence.
+6. **Testing the demo path only.** The harness must run through the real pipeline.
+7. **Ignoring eval non-determinism.** Use temperature 0 where the claim allows,
+   multiple trials for tracking metrics, and thresholds with margin — not
+   knife-edges.
+
+## Benchmarks after this module
+
+| Metric | Target | Command |
+|---|---|---|
+| Golden-set coverage | ≥ 120 cases, every stratum ≥ 8 | `make golden` |
+| Safety stratum | 100%, blocking | `make eval` |
+| Judge–human agreement | κ ≥ 0.6 on 40 calibration cases | `make calibrate` |
+| Seeded regression caught | blocked, with slice evidence | the recipe above |
+| Suite wall-clock | ≤ 6 min for one provider | CI timing |
+| Eval runs through the real pipeline | 100% | code review |
+
+## Discussion
+
+- The judge costs a fraction of a halala per case and the golden set runs forty
+  times a day in CI. When does the harness's own cost justify caching, and can you
+  cache judge verdicts safely?
+- Who owns the golden set in a real team — engineering, product, or the service
+  ministry? What breaks under each answer?
+- A provider says their new model "improves most benchmarks". Translate that
+  sentence into the question your harness answers.
+
+**Next:** [Lab 5 — the evaluation harness](../labs/lab5-evaluation-harness.qmd)

@@ -1,0 +1,242 @@
+---
+title: "Module 3 — Structured Outputs and Function Calling"
+subtitle: "Day 2 · from a system that talks to a system that acts"
+---
+
+Free text is where LLM output goes to be admired; structure is where it goes to be
+*used*. This module turns Murshid from something that answers into something that
+files a ticket and books an appointment — and it is where the risk concentrates. A
+hallucinated chat answer embarrasses. A hallucinated `national_id` passed to a
+booking API *acts*.
+
+## 1. The structured-output ladder
+
+Three mechanisms in increasing order of guarantee, and the guarantee is the
+product feature.
+
+```{mermaid}
+flowchart TB
+    P["**Prompted JSON**<br/>'please respond in JSON'<br/><small>guarantees: nothing</small>"] --> J
+    J["**JSON mode**<br/>response_format: json_object<br/><small>guarantees: valid JSON syntax</small>"] --> S
+    S["**Schema-constrained**<br/>strict json_schema · guided decoding<br/><small>guarantees: conforms to your schema</small>"] --> V
+    V["**pydantic validation wall**<br/><small>enums · cross-field rules · business rules</small>"] --> A[typed object crosses into the application]
+    V -->|fails twice| E[human review queue]
+
+    style P fill:#fbeaea,stroke:#b84a4a
+    style J fill:#fdf3e3,stroke:#c78b2c
+    style S fill:#e8f4ea,stroke:#3c8d5a
+    style V fill:#eef3fb,stroke:#4a76b8,stroke-width:3px
+```
+
+`{"oops": true}` is valid JSON. Schema-constrained decoding fixes that — the
+provider constrains generation so the output conforms to your JSON Schema
+(`strict: true` on the OpenAI dialect, guided decoding on vLLM, `output_config.format`
+on current Anthropic).
+
+**The rule this course enforces:**
+
+> The schema constrains **syntax**. pydantic validates **semantics**.
+
+Constrained decoding cannot know that a city must be one of seventeen
+municipalities, or that an appointment date must be a future working day. Those
+live in validators — which means validation can still fail, which means the
+application still needs a designed failure path.
+
+::: {.callout-note appearance="simple"}
+## Strict mode is a narrower subset than JSON Schema
+
+Closed objects (`additionalProperties: false`) and *every* property listed as
+required — optionality expressed as a nullable type, never by absence. Design your
+contract inside the subset, and check it:
+
+```bash
+make schema-check
+# 5/5 contracts strict-safe
+```
+:::
+
+## 2. The validate → retry → repair loop
+
+```python
+# src/murshid/pipeline/structured.py — one implementation, used by everything
+for attempt in (1, 2):
+    response = client.complete(request)
+    try:
+        return Model.model_validate_json(response.text)
+    except ValidationError as exc:
+        if attempt == 2:
+            raise StructuredExtractionFailed(response.text, exc.errors())  # human queue
+        messages += [assistant(response.text), user(REPAIR.format(errors=render(exc)))]
+```
+
+Four decisions in nine lines:
+
+1. **Parse** is guaranteed by JSON mode and above, so you do not spend error budget
+   there.
+2. **Validate** with pydantic. On success a *typed object* crosses into the
+   application, and nothing downstream ever touches raw model output.
+3. **On failure, retry once with the errors rendered verbatim.** Models repair
+   reliably against explicit, *located* errors —
+   `applicant.national_id: must be 10 digits starting with 1 or 2`. "Please try
+   again" barely moves the pass rate.
+4. **On the second failure, escalate by design.** Never loop unboundedly — each
+   retry is money and latency. Never relax the schema in the heat of an incident;
+   failures belong on the escalation path, not in the contract.
+
+### Measure it: schema-pass rate, split by language
+
+```bash
+make extract-audit                 # the default route
+make extract-audit ROUTE=vllm      # the open-weight comparison
+make extract-audit ROUTE=cheap
+```
+
+| Route | First-try | After one repair | Escalated | ar (first → after) | en (first → after) |
+|---|---|---|---|---|---|
+| flagship | 90% | 96% | 2 | 91% → 97% | 86% → 93% |
+| open-weight | 84% | 98% | 1 | 80% → 97% | 93% → 100% |
+| small | 74% | 98% | 1 | 77% → 97% | 64% → 100% |
+
+The quiet headline is the last column: the small model's English first-try rate is
+64%, and **one feedback repair takes it to 100%**. That single observation
+justifies the loop better than any slide.
+
+The quiet warning is the ordering. Fifty cases carry roughly ±6 points of noise, so
+"the open-weight model beat the flagship after repair" is a coin, not a finding.
+
+## 3. Function calling: the mechanics
+
+```{mermaid}
+sequenceDiagram
+    participant App as Application
+    participant M as Model
+    participant T as Tool
+    App->>M: messages + tool definitions
+    M-->>App: finish_reason=tool_calls<br/>[{id, name, arguments}]
+    Note over App: THE APPLICATION EXECUTES.<br/>The model only asks.
+    App->>App: parse arguments · validate contract
+    App->>App: risk class? side-effecting → authorisation gate
+    App->>T: tool.fn(**args, session=session)
+    T-->>App: result, or a domain error
+    App->>M: tool_result messages (correlated by id)
+    M-->>App: text answer, or more tool calls
+    Note over App: bound: 6 iterations, then designed degradation
+```
+
+Step three is the security model of the entire mechanism, and it fits on a slide:
+**the model requests; the application executes.**
+
+Design decisions inside the loop:
+
+- **Parallel calls** are fine for read-only tools; side-effecting tools serialise
+  behind the gate — always, even when the model asked for them in one breath.
+- **`tool_choice`**: `auto` for conversation, forced for extraction-via-tool,
+  `none` to disarm temporarily.
+- **Tool errors are model input.** A failed lookup returns
+  `{"error": "application_not_found", "hint": "ask the citizen to confirm the reference"}`
+  and the model recovers conversationally. Exceptions never propagate raw: a stack
+  trace leaks implementation detail and confuses the model.
+
+## 4. Designing tools the model uses well — and safely
+
+Tool schemas are **prompts wearing a type system**. The model chooses by reading
+names and descriptions.
+
+- **Names**: `verb_noun`, unambiguous. A registry containing both `check_status`
+  and `get_status` guarantees misrouting.
+- **Descriptions**: when to use it, when *not* to, and what it returns. Written for
+  the model, tested like a prompt. A description that describes the API — "wrapper
+  around the ODS v2 endpoint" — cannot route anything.
+- **Parameters**: enums over free strings wherever the domain is closed. `city` as
+  a `Literal` outperforms `city: str` on correctness *and* on validation.
+- **Few, orthogonal tools** beat many overlapping ones.
+
+Murshid ships three, one per risk class, deliberately:
+
+| Tool | Risk | Gate |
+|---|---|---|
+| `check_application_status` | read-only | none — runs freely |
+| `book_appointment` | side-effecting | **authorisation gate**: verified identity, own account, idempotency key |
+| `escalate_to_agent` | terminal | ends the loop |
+
+::: {.callout-important}
+## Authority lives in the application, never in the token stream
+
+**Never trust model-supplied arguments for authorisation.** The `national_id` in a
+tool call is *user input by proxy* — it may have arrived through forty patient
+turns of conversation. The authenticated session decides whose appointment gets
+booked; the argument is at most a cross-check.
+
+This is the SIM-swap case study's whole lesson: the attacker's exploit was that
+"identity verified" existed only as chat history, so it could be asserted into
+existence. The fix is not a better prompt. It is moving the state out of the
+token stream:
+
+```python
+if tool.risk == "side_effecting":
+    verdict = session.authorize(tool.name, args)   # identity freshness + own account + idempotency
+    if not verdict.allowed:
+        return {"error": "not_authorized", "hint": verdict.user_hint}
+```
+
+No prompt can fix this, because a prompt is advice inside the same channel the
+attacker writes to.
+:::
+
+**Bound the loop**: 6 iterations, an allowed-tool list per route (the FAQ handler
+gets *no* tools), a per-conversation spend cap, and a full trace of every call.
+This is Module 1's "bounded agentic loop" made concrete.
+
+## 5. The negative tests are the deliverable
+
+```bash
+pytest tests/pipeline/test_tool_safety.py -v
+```
+
+| Test | The rule it encodes |
+|---|---|
+| `booking_for_someone_else_is_denied` | the session, not the argument, decides whose booking it is |
+| `hallucinated_tool_name_is_an_error_not_a_crash` | an unknown tool is data the model can recover from |
+| `malformed_arguments_never_reach_the_function` | invalid JSON stops at the boundary |
+| `loop_bound_trips_to_designed_degradation` | 6 iterations, not 30 — a stubborn model meets a bound |
+| `a_retried_turn_does_not_book_twice` | idempotency, exactly as in any distributed system |
+| `a_past_date_is_rejected_by_the_argument_contract` | constrained decoding cannot know that 2019 is over |
+| `unverified_identity_blocks_a_side_effecting_tool` | freshness, not a boolean somebody set once |
+| `every_tool_call_is_traced_with_its_risk_class` | governance: 100% of calls logged with risk and iteration |
+
+## 6. Common mistakes
+
+1. **Parsing JSON out of prose with a regex** when JSON mode existed all along.
+2. **Schema-relaxing under incident pressure** — `str` instead of the enum "so it
+   stops failing". The validation wall dismantled brick by brick.
+3. **Trusting constrained decoding to enforce semantics.** Syntactically perfect,
+   semantically absurd: a 2019 appointment date sails through.
+4. **Tool descriptions written like internal docstrings.**
+5. **Side-effecting tools inside parallel batches or retries without
+   idempotency** — the double-booking incident, scheduled.
+6. **Unbounded loops with a stubborn model** — a denial-of-wallet attack you wrote
+   yourself.
+7. **Raw exceptions crossing into tool results**, so the model starts apologising
+   to a citizen about `psycopg2.OperationalError`.
+
+## Benchmarks after this module
+
+| Metric | Target | Command |
+|---|---|---|
+| Schema-pass rate, first try | ≥ 90% on the flagship route | `make extract-corpus` |
+| After one repair | ≥ 96%, remainder escalated by design | same |
+| Arabic/English gap after repair | ≤ 4 points | same, read the split |
+| Invented-field rate | **0** on the 15 annotated cases | `make extract-audit` |
+| Tool-safety negative tests | all green | `pytest tests/pipeline/test_tool_safety.py` |
+| Tool-call audit completeness | 100% logged with risk class and iteration | `jq 'select(.event=="tool_call")' logs/*.jsonl` |
+
+## Discussion
+
+- The case system's schema has 31 fields; your ticket has 8. Product wants "just
+  add the rest". What does field count do to extraction quality, and what is the
+  alternative?
+- Should `escalate_to_agent` require user confirmation? Two sentences each way.
+- Lab results are read-only *technically* but sensitive. Does risk classification
+  need a fourth class, or does authorisation already cover it?
+
+**Next:** [Lab 3 — tickets and the tool loop](../labs/lab3-tickets-and-tools.qmd)

@@ -1,0 +1,139 @@
+# Murshid configuration. Model names are configuration, not code (Module 1 §3).
+#
+# API keys are NEVER written here. They arrive from the environment as
+#   MURSHID_<ROUTE>_API_KEY  and  MURSHID_<ROUTE>_BASE_URL
+# so this file is safe to commit and a provider swap is a YAML edit.
+#
+# Out of the box every route points at the course mock gateway (infra/mockgw),
+# which speaks both wire dialects and needs no credentials — the labs, the tests
+# and the eval harness all run offline. Point a route at a real provider by
+# setting its two env vars; nothing else changes. That is the whole argument
+# for the boundary, and you can prove it in one shell command.
+
+primary_route: primary
+fallback_route: vllm
+cheap_route: cheap
+
+routes:
+  primary:
+    dialect: openai
+    base_url: http://127.0.0.1:8080/v1
+    api_key: mock-course-gateway-key
+    residency: cloud
+    aliases:
+      murshid-default: course-flagship
+      murshid-small: course-small
+      murshid-flagship: course-flagship
+      murshid-extract: course-flagship
+      murshid-guard: course-small
+      murshid-judge: course-flagship
+      murshid-router: course-small
+
+  cheap:
+    dialect: openai
+    base_url: http://127.0.0.1:8080/v1
+    api_key: mock-course-gateway-key
+    residency: cloud
+    aliases:
+      murshid-default: course-small
+      murshid-small: course-small
+      murshid-flagship: course-small
+      murshid-extract: course-small
+      murshid-guard: course-small
+      murshid-judge: course-small
+      murshid-router: course-small
+
+  comparison:
+    dialect: anthropic
+    base_url: http://127.0.0.1:8080
+    api_key: mock-course-gateway-key
+    residency: cloud
+    aliases:
+      murshid-default: course-anthropic
+      murshid-small: course-anthropic
+      murshid-flagship: course-anthropic
+      murshid-extract: course-anthropic
+      murshid-guard: course-anthropic
+      murshid-judge: course-anthropic
+      murshid-router: course-anthropic
+
+  # The open-weight route. Same adapter, same code, different base_url —
+  # in the classroom this is `vllm serve` on the GPU box (infra/vllm/serve.sh).
+  vllm:
+    dialect: openai
+    base_url: http://127.0.0.1:8080/v1
+    api_key: mock-course-gateway-key
+    residency: on_premise
+    aliases:
+      murshid-default: murshid-onprem
+      murshid-small: murshid-onprem
+      murshid-flagship: murshid-onprem
+      murshid-extract: murshid-onprem
+      murshid-guard: murshid-onprem
+      murshid-judge: murshid-onprem
+      murshid-router: murshid-onprem
+
+# Illustrative course rates, SAR per 1,000,000 tokens. Refresh every delivery
+# (Instructor Guide, T-minus 1 week). Cached input is the Module 6 headline.
+prices:
+  default:
+    input_per_mtok: 6.00
+    output_per_mtok: 24.00
+    cached_input_per_mtok: 0.60
+  models:
+    course-flagship:
+      input_per_mtok: 11.25
+      output_per_mtok: 56.25
+      cached_input_per_mtok: 1.13
+    course-small:
+      input_per_mtok: 0.56
+      output_per_mtok: 2.25
+      cached_input_per_mtok: 0.06
+    course-anthropic:
+      input_per_mtok: 11.25
+      output_per_mtok: 56.25
+      cached_input_per_mtok: 1.13
+    murshid-onprem:
+      # Self-hosted has no per-token price sheet — it has a GPU bill. This is the
+      # amortised figure scripts/breakeven.py computes at 50% utilisation, kept
+      # here so the meter can compare like with like. See docs/adr/002.
+      input_per_mtok: 1.82
+      output_per_mtok: 1.82
+      cached_input_per_mtok: 1.82
+
+guards:
+  max_input_chars: 4000
+  classifier_alias: murshid-guard
+  classifier_enabled: true
+  canary: "⟦MRSHD-7f3a⟧"
+
+cache:
+  enabled: false
+  backend: memory
+  redis_url: redis://localhost:6379/0
+  semantic_enabled: false
+  # Measured, not inherited. On this course's hashed-n-gram embedding and this
+  # traffic, 0.90 serves the paraphrases (politeness prefixes, spelling variants)
+  # and clears the worst near-miss pair by 0.03. Arabic needs a HIGHER threshold,
+  # not a lower one: Arabic spelling variants of the same question score higher
+  # than English paraphrases do, so the language sits closer to its near-misses.
+  # Re-measure both numbers with `make eval-cache` whenever the embedding changes.
+  semantic_threshold: 0.90
+  semantic_threshold_by_language:
+    ar: 0.92
+  ttl_seconds: 3600
+
+pipeline:
+  max_history_turns: 8
+  max_tool_iterations: 6
+  routing_enabled: false
+  # Lab 6 task 4: the first routing table almost never survives the gate, and
+  # the correction is the lesson. Cheap-first with a deterministic escalation
+  # signal keeps most of the saving and returns the quality.
+  cascade_enabled: false
+  cascade_escalate_alias: murshid-flagship
+  routing_table:
+    faq: murshid-small
+    service: murshid-default
+    complex: murshid-flagship
+    escalate: null

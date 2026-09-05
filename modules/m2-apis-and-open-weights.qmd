@@ -1,0 +1,263 @@
+---
+title: "Module 2 — Working with LLM APIs and Open-Weight Models"
+subtitle: "Day 1, hour 4 · the contract, the tokens, the errors, and the other half of the industry"
+---
+
+Module 1 drew the boundary. This module fills it with competence: the chat/messages
+contract deeply enough to debug it, token accounting you can budget with, the error
+taxonomy as designed behaviour, and an open-weight model served behind the exact
+same interface.
+
+By the end, "which model?" stops being a brand preference and becomes an
+engineering comparison with numbers attached.
+
+## 1. Two wire dialects
+
+```{mermaid}
+flowchart LR
+    subgraph OA["OpenAI chat completions"]
+      direction TB
+      O1["messages: [{role, content}]<br/>system is just the first message"]
+      O2["max_tokens optional"]
+      O3["content is a string"]
+      O4["finish_reason: stop | length |<br/>tool_calls | content_filter"]
+    end
+    subgraph AN["Anthropic Messages"]
+      direction TB
+      A1["system is a TOP-LEVEL parameter"]
+      A2["max_tokens REQUIRED"]
+      A3["content is a list of typed blocks<br/>text · tool_use · tool_result"]
+      A4["stop_reason: end_turn | max_tokens |<br/>tool_use | refusal"]
+    end
+    OA --> N["**Normalised**<br/>LLMRequest / LLMResponse"]
+    AN --> N
+    style N fill:#eef3fb,stroke:#4a76b8,stroke-width:3px
+```
+
+An adapter that pretends the differences do not exist produces subtle bugs. That
+is precisely why Module 1's normalised types exist — and the differences are not
+static:
+
+::: {.callout-warning}
+## A fifth difference, found while building this course
+
+As of `anthropic` 1.x the Messages API **no longer accepts `temperature` or
+`top_p` at all** — sampling moved behind `output_config.effort`, and structured
+outputs moved to `output_config.format`. Forwarding `request.temperature` raises a
+`TypeError`, which is how this was found rather than read.
+
+The normalised `LLMRequest` keeps `temperature`, because the OpenAI dialect still
+has it. The adapter is where the divergence stops, and
+[`anthropic_client.py`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/src/murshid/llm/anthropic_client.py)
+says so in a comment that tells the next person not to "fix" it.
+
+This is the module's real lesson in miniature: **APIs drift underneath your
+lesson.** Trust an executed run over what should work from reading the docs.
+:::
+
+### Read the response as carefully as the request
+
+`finish_reason` is control flow, not metadata:
+
+| Value | What it means | What the application must do |
+|---|---|---|
+| `stop` | the model finished | proceed |
+| `length` | **silently truncated** at `max_tokens` | treat as an error class, or raise the budget deliberately — never ship the fragment |
+| `tool_calls` | the conversation is *not over* | run the tool loop (Module 3) |
+| `refusal` | a content filter fired | designed UX, not a stack trace |
+
+`usage` is the raw material of Module 6. Every adapter surfaces it, always —
+including on streamed responses, where losing it is the classic cost-accounting
+bug.
+
+## 2. Sampling, determinism, and tokens
+
+**Sampling.** `temperature` scales the logits: 0 for extraction and anything
+validated downstream, 0.2–0.5 as a task default, 0.7+ for creative variance.
+Adjust temperature **or** `top_p`, not both — tuning both is folklore, not
+engineering.
+
+::: {.callout-important}
+## Temperature 0 does not mean reproducible
+
+Fixed seed and temperature 0 still do not guarantee bit-identical output across
+snapshots, hardware, or batch composition — GPU non-associativity and server-side
+batching see to that.
+
+Determinism in LLM systems comes from **validation and evaluation** (Modules 3 and
+5), never from sampling settings. Tests that assert exact strings on generative
+output are the flaky-test factory of this field.
+:::
+
+**Tokens.** Models bill, budget and think in tokens. And here the course's own
+handout was wrong, so we measured:
+
+```bash
+make token-report      # 100 parallel Arabic/English sentence pairs
+```
+
+| Encoding | English | Arabic | ar/en | chars per token (en / ar) |
+|---|---|---|---|---|
+| `cl100k_base` — GPT-4 / GPT-3.5 era | 1022 | 2373 | [2.32×]{.measured} | 5.05 / 1.38 |
+| `o200k_base` — GPT-4o era onward | 1022 | 1005 | [0.98×]{.measured} | 5.05 / 3.26 |
+
+The "Arabic costs 1.5–2.5× more" figure that has been in course material for years
+is a fact about a *tokenizer generation*, not about Arabic — and it largely
+vanished between two vocabularies. The rule underneath it survives and is the one
+worth teaching:
+
+> **Count with the route's own tokenizer.** `tiktoken` for OpenAI-dialect models,
+> the provider's count-tokens endpoint for Anthropic, the model's own Hugging Face
+> tokenizer for open weights. Three different answers for the same string, all
+> correct for their model.
+
+`murshid.llm.tokens` maps model ids to encodings for exactly this reason. Counting
+an open-weight model's context with `tiktoken` under- or over-budgets by tens of
+percent, and the symptom is intermittent context-length errors *below* your
+computed budget.
+
+## 3. Streaming, rate limits, and the error taxonomy
+
+**Streaming** is server-sent events: deltas, closed by a final frame carrying
+`finish_reason` and — if you asked for it — `usage`.
+
+```python
+stream_options={"include_usage": True}   # or usage never arrives
+```
+
+Accumulate deltas; surface time-to-first-token and total separately; **make sure
+the last chunk's usage reaches the cost meter.** Streaming also changes the failure
+model: an error mid-stream arrives after the user has seen half an answer, so
+`ResilientClient` deliberately refuses to fail over once a token has been emitted —
+splicing two models' answers together is worse than an honest error.
+
+**Rate limits** are multi-dimensional (requests/minute *and* tokens/minute, per
+model, per key tier). A 429 is normal operation at scale, not an outage: honour
+`Retry-After`, back off with jitter, and shape load upstream.
+
+| Status | Class | Policy |
+|---|---|---|
+| 400 | malformed request — a *bug* | never retry |
+| 401 / 403 | credentials, permissions | page a human |
+| 404 | model name typo | config bug |
+| 413 / `context_length_exceeded` | budget violation | your forecast was wrong |
+| 429 | rate limit | back off, honour `Retry-After`, cap attempts |
+| 500 / 502 / 503 / 529 | provider side | retry, then fail over |
+| timeout | either | retry once, then fail over |
+
+Run it:
+
+```bash
+make drill-429      # 429s with Retry-After: 2 on the primary model, three minutes
+make ask Q="كيف أجدد رخصتي التجارية؟"
+make drill-off
+```
+
+You will see `llm_retry` honouring the header, then `fallback_served` from the
+on-premise route, and a citizen who got an answer.
+
+## 4. Serving open-weight models with vLLM
+
+Two ideas make self-hosting economically real, and both are worth teaching
+properly:
+
+- **PagedAttention** manages the KV cache — the per-sequence attention state that
+  dominates GPU memory during serving — in fixed-size pages rather than contiguous
+  allocations. No fragmentation, many more concurrent sequences per GPU.
+- **Continuous batching** admits and retires sequences from the running batch at
+  every generation step instead of waiting for the whole batch. This is *the*
+  economic argument for self-hosting.
+
+Sizing, roughly: weights ≈ parameters × bytes/parameter (a 7B model ≈ 14 GB at
+bf16, ≈ 4–5 GB at 4-bit), plus KV-cache headroom governed by
+`--gpu-memory-utilization`, with `--max-model-len` bounding per-sequence KV cost.
+
+```bash
+# infra/vllm/serve.sh — one command turns a checkpoint into an OpenAI-compatible API
+vllm serve ALLaM-AI/ALLaM-7B-Instruct-preview \
+  --host 0.0.0.0 --port 8000 \
+  --max-model-len 8192 --gpu-memory-utilization 0.90 \
+  --served-model-name murshid-onprem --api-key "${VLLM_CLASS_KEY}"
+```
+
+The payoff is the config entry, not the command:
+
+```yaml
+routes:
+  vllm:
+    base_url: "http://gpu-server.classroom.local:8000/v1"
+    residency: on_premise
+    aliases: { murshid-default: murshid-onprem }
+```
+
+`OpenAICompatClient` works unchanged. That one line is Module 1's boundary
+argument, proven.
+
+::: {.callout-note appearance="simple"}
+## Benchmark at realistic concurrency
+
+Benchmarking vLLM at concurrency 1 and concluding self-hosting is slow is the most
+common mistake in this section. Continuous batching's benefits appear *under load*.
+Twenty-four participants hitting the class GPU at once is not a problem to fix — it
+is the demonstration.
+:::
+
+## 5. Commercial versus open-weight, decided like an engineer
+
+| Criterion | Commercial API | Self-hosted open weights |
+|---|---|---|
+| Frontier quality | strongest available | gap narrows yearly; task-dependent |
+| Arabic quality | strong on flagships — verify per task | Arabic-centric models competitive on many tasks — **measure** |
+| Data residency / PDPL | depends on provider region and DPA | full control; data never leaves your network |
+| Cost shape | per token, zero idle cost, scales to zero | per GPU-hour; cheap **only** above a utilisation break-even |
+| Ops burden | none — their pagers ring | yours: GPUs, drivers, upgrades, capacity, on-call |
+| Customisation | prompting, provider fine-tunes | full: LoRA, logit control, tokenizer access |
+| Snapshot control | provider deprecates on their schedule | you pin forever |
+
+Four teaching points:
+
+1. **The answer is usually a portfolio, not either/or.** Murshid routes general
+   traffic to a commercial API and residency-classified traffic to vLLM, through
+   one boundary.
+2. **The break-even is computable** — and it has two answers, not one.
+   `make breakeven` compares against *both* hosted tiers: a single-GPU 7B never
+   beats a small hosted model on price, and beats the flagship tier above roughly
+   25% sustained utilisation.
+3. **Quality claims are settled by your golden set**, never by a leaderboard.
+4. **Capability constraints are part of the matrix.** In this course's own
+   measurements the open-weight route loses most on the `service` slice — tool
+   contracts, not prose — which is exactly what shapes the routing table.
+
+Measured on this repository ([`BENCHMARKS.md`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/BENCHMARKS.md)):
+
+| Backend | Overall | ar | safety | service | Cost per suite |
+|---|---|---|---|---|---|
+| flagship | 100% | 100% | 100% | 100% | 65.0 halalas |
+| small | 95% | 95% | 100% | 83% | 2.7 halalas |
+| open-weight | 94% | 92% | 100% | 75% | 26.0 halalas |
+
+## 6. Common mistakes
+
+1. **Retrying 400s.** Three times the bug, three times the cost.
+2. **Losing `usage` on streamed responses.** Cost dashboards undercount the
+   majority of traffic and nobody notices until finance does.
+3. **Tuning temperature *and* `top_p`**, then attributing the change to a prompt
+   edit.
+4. **Assuming temperature 0 is reproducible**, then asserting exact strings.
+5. **Benchmarking vLLM at concurrency 1.**
+6. **Tokenizer mismatch** — counting an open-weight model's tokens with `tiktoken`.
+7. **English-only evaluation of an Arabic-serving product.** This is the failure
+   mode the course's bilingual corpora exist to prevent.
+
+## Benchmarks after this module
+
+| Metric | Target | How measured |
+|---|---|---|
+| Adapter contract tests | every adapter, every contract test green | `pytest tests/llm/test_adapter_contract.py` |
+| Usage accounting coverage | 100% of calls including streamed | contract test asserts the final frame carries usage |
+| Retry policy on 429 | honours `Retry-After`, ≤ 3 attempts, jittered | `pytest tests/llm/test_resilient.py` |
+| Fallback engagement | 100% of drilled requests served | `make drill-429` then read the logs |
+| Token counting per route | the route's own encoding | `make token-report` |
+| Provider comparison recorded | bench table + a default-route rationale | `BENCHMARKS.md` |
+
+**Next:** [Lab 2 — two providers, one interface](../labs/lab2-two-providers.qmd)

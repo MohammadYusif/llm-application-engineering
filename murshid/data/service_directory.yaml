@@ -1,0 +1,314 @@
+# Murshid's ONLY trusted source of service facts.
+#
+# Everything the assistant is allowed to state about fees, documents, timings and
+# steps lives here. If it is not in this file, the correct answer is "I don't
+# know — here is the service centre", and Module 5's groundedness judge scores it
+# 1.0 for saying so. Fees are fictional; this is a fictional authority.
+#
+# Owner: the (fictional) Digital Government Services Authority, service-design team.
+# Changing a fee here is a governed act: it moves golden-set expectations with it.
+
+version: "2026.09"
+service_centre:
+  en: "Any Digital Government Services Authority centre, or the 24/7 line 199."
+  ar: "أي مركز من مراكز هيئة الخدمات الحكومية الرقمية، أو الرقم الموحد ١٩٩ على مدار الساعة."
+
+entries:
+  - id: cr_renewal
+    service_type: commercial_licence
+    title:
+      en: Renewing a commercial registration (CR)
+      ar: تجديد السجل التجاري
+    keywords:
+      en: [renew commercial, renew cr, commercial registration renewal, renew my licence, renew business licence]
+      ar: [تجديد السجل التجاري, تجديد سجل, أجدد رخصتي التجارية, تجديد الرخصة التجارية, تجديد سجلي]
+    fee:
+      en: SAR 200 for each year of renewal
+      ar: ٢٠٠ ريال عن كل سنة تجديد
+    processing_time:
+      en: Same working day once payment clears
+      ar: خلال يوم العمل نفسه بعد سداد الرسوم
+    documents:
+      en: [Valid national ID or Iqama, Current municipality licence, Zakat certificate for the last closed year]
+      ar: [هوية وطنية أو إقامة سارية, رخصة بلدية سارية, شهادة زكاة للسنة المنتهية]
+    steps:
+      en:
+        - Sign in to the portal with your national ID
+        - Open Business Services and choose Renew Commercial Registration
+        - Confirm the activity and the renewal period
+        - Pay through SADAD and download the renewed certificate
+      ar:
+        - سجّل الدخول إلى البوابة برقم الهوية
+        - افتح خدمات الأعمال واختر تجديد السجل التجاري
+        - أكّد النشاط ومدة التجديد
+        - ادفع عبر سداد ونزّل الشهادة المجددة
+
+  - id: cr_new
+    service_type: commercial_licence
+    title:
+      en: Issuing a new commercial registration for a sole proprietorship
+      ar: إصدار سجل تجاري جديد لمؤسسة فردية
+    keywords:
+      en: [issue commercial registration, new cr, open a business, start a company, register a business]
+      ar: [إصدار سجل تجاري, سجل تجاري جديد, فتح مؤسسة, تأسيس مؤسسة فردية, خطوات إصدار سجل]
+    fee:
+      en: SAR 200 issuance fee plus SAR 800 annual activity subscription
+      ar: ٢٠٠ ريال رسوم إصدار و٨٠٠ ريال اشتراك النشاط السنوي
+    processing_time:
+      en: Two working days
+      ar: يومان من أيام العمل
+    documents:
+      en: [Valid national ID, Reserved trade name certificate, National address registration]
+      ar: [هوية وطنية سارية, شهادة حجز الاسم التجاري, تسجيل العنوان الوطني]
+    steps:
+      en:
+        - Reserve a trade name in the portal
+        - Choose the activity from the national activity list
+        - Register the national address of the establishment
+        - Pay the issuance fee and receive the registration number
+      ar:
+        - احجز الاسم التجاري في البوابة
+        - اختر النشاط من الدليل الوطني للأنشطة
+        - سجّل العنوان الوطني للمنشأة
+        - ادفع رسوم الإصدار واستلم رقم السجل
+
+  - id: cr_address_update
+    service_type: commercial_licence
+    title:
+      en: Updating the address on a commercial registration
+      ar: تحديث عنوان السجل التجاري
+    keywords:
+      en: [update address commercial, change business address, update cr address]
+      ar: [تحديث عنوان السجل, تغيير عنوان المنشأة, تحديث عنوان سجلي التجاري]
+    fee:
+      en: No fee
+      ar: بدون رسوم
+    processing_time:
+      en: Immediate once the national address is verified
+      ar: فوري بعد التحقق من العنوان الوطني
+    documents:
+      en: [Updated national address registration]
+      ar: [تسجيل عنوان وطني محدّث]
+    steps:
+      en:
+        - Update the national address first
+        - Open the registration record and choose Update Address
+        - Confirm and download the amended certificate
+      ar:
+        - حدّث العنوان الوطني أولاً
+        - افتح بيانات السجل واختر تحديث العنوان
+        - أكّد ونزّل الشهادة المعدّلة
+
+  - id: civil_id_renewal
+    service_type: civil_records
+    title:
+      en: Renewing a national identity card
+      ar: تجديد بطاقة الهوية الوطنية
+    keywords:
+      en: [renew national id, renew identity card, id card expired]
+      ar: [تجديد الهوية, تجديد بطاقة الهوية, انتهت هويتي, تجديد الهوية الوطنية]
+    fee:
+      en: SAR 100
+      ar: ١٠٠ ريال
+    processing_time:
+      en: Issued at the appointment; delivery within five working days
+      ar: تُصدر في الموعد والتسليم خلال خمسة أيام عمل
+    documents:
+      en: [Expiring identity card, Recent photograph meeting the published specification]
+      ar: [بطاقة الهوية المنتهية, صورة شخصية حديثة وفق المواصفة المعتمدة]
+    steps:
+      en:
+        - Book an appointment at a civil records office
+        - Upload the photograph before the appointment
+        - Attend and pay the fee
+      ar:
+        - احجز موعداً في مكتب الأحوال المدنية
+        - ارفع الصورة قبل الموعد
+        - احضر في الموعد وادفع الرسوم
+
+  - id: birth_certificate
+    service_type: civil_records
+    title:
+      en: Issuing a birth certificate
+      ar: إصدار شهادة ميلاد
+    keywords:
+      en: [birth certificate, register a birth, newborn registration]
+      ar: [شهادة ميلاد, تسجيل مولود, إصدار شهادة الميلاد]
+    fee:
+      en: SAR 50
+      ar: ٥٠ ريال
+    processing_time:
+      en: Three working days
+      ar: ثلاثة أيام عمل
+    documents:
+      en: [Hospital birth notification, Family register, Parents identity documents]
+      ar: [إشعار الولادة من المستشفى, سجل الأسرة, هويات الوالدين]
+    steps:
+      en:
+        - Submit the hospital notification through the portal
+        - Add the newborn to the family register
+        - Pay and download the certificate
+      ar:
+        - قدّم إشعار الولادة عبر البوابة
+        - أضف المولود إلى سجل الأسرة
+        - ادفع الرسوم ونزّل الشهادة
+
+  - id: driving_licence_renewal
+    service_type: traffic_services
+    title:
+      en: Renewing a private driving licence
+      ar: تجديد رخصة القيادة الخاصة
+    keywords:
+      en: [renew driving licence, driving license renewal, renew my licence to drive]
+      ar: [تجديد رخصة القيادة, تجديد رخصة قيادة, تجديد رخصتي]
+    fee:
+      en: SAR 40 for each year of renewal
+      ar: ٤٠ ريالاً عن كل سنة تجديد
+    processing_time:
+      en: Immediate after the medical check is recorded
+      ar: فوري بعد تسجيل الفحص الطبي
+    documents:
+      en: [Valid medical examination result, No outstanding traffic violations]
+      ar: [نتيجة فحص طبي سارية, عدم وجود مخالفات مرورية غير مسددة]
+    steps:
+      en:
+        - Complete the medical examination at an approved centre
+        - Settle any outstanding violations
+        - Renew from Traffic Services and pay through SADAD
+      ar:
+        - أجرِ الفحص الطبي في مركز معتمد
+        - سدّد المخالفات القائمة إن وجدت
+        - جدّد من خدمات المرور وادفع عبر سداد
+
+  - id: vehicle_transfer
+    service_type: traffic_services
+    title:
+      en: Transferring vehicle ownership
+      ar: نقل ملكية مركبة
+    keywords:
+      en: [transfer vehicle ownership, sell my car, change car owner]
+      ar: [نقل ملكية مركبة, نقل ملكية سيارة, بيع سيارتي]
+    fee:
+      en: SAR 150
+      ar: ١٥٠ ريالاً
+    processing_time:
+      en: Immediate once both parties confirm
+      ar: فوري بعد تأكيد الطرفين
+    documents:
+      en: [Valid vehicle inspection certificate, Valid insurance in the buyer name]
+      ar: [شهادة فحص دوري سارية, تأمين ساري باسم المشتري]
+    steps:
+      en:
+        - Seller starts the transfer and selects the buyer
+        - Buyer accepts and adds insurance
+        - Pay the fee and print the new registration
+      ar:
+        - يبدأ البائع طلب النقل ويحدد المشتري
+        - يقبل المشتري ويضيف التأمين
+        - ادفع الرسوم واطبع الاستمارة الجديدة
+
+  - id: building_permit
+    service_type: municipal_permits
+    title:
+      en: Applying for a building permit
+      ar: طلب رخصة بناء
+    keywords:
+      en: [building permit, construction permit, permit to build]
+      ar: [رخصة بناء, تصريح بناء, طلب رخصة بناء]
+    fee:
+      en: SAR 5 per square metre of built area
+      ar: ٥ ريالات لكل متر مربع من مساحة البناء
+    processing_time:
+      en: Ten working days after the engineering review
+      ar: عشرة أيام عمل بعد المراجعة الهندسية
+    documents:
+      en: [Title deed, Approved engineering drawings, Engineering office contract]
+      ar: [صك الملكية, مخططات هندسية معتمدة, عقد مع مكتب هندسي]
+    steps:
+      en:
+        - Submit the drawings through a licensed engineering office
+        - Await the municipal engineering review
+        - Pay the permit fee and download the permit
+      ar:
+        - قدّم المخططات عبر مكتب هندسي مرخص
+        - انتظر المراجعة الهندسية البلدية
+        - ادفع رسوم الرخصة ونزّل الترخيص
+
+  - id: shop_licence
+    service_type: municipal_permits
+    title:
+      en: Issuing a municipal shop licence
+      ar: إصدار رخصة محل بلدية
+    keywords:
+      en: [shop licence, municipal licence, open a shop, restaurant licence]
+      ar: [رخصة محل, رخصة بلدية, فتح محل, رخصة مطعم]
+    fee:
+      en: SAR 300 per year for a retail activity
+      ar: ٣٠٠ ريال سنوياً للنشاط التجاري
+    processing_time:
+      en: Five working days including the site inspection
+      ar: خمسة أيام عمل شاملة الزيارة الميدانية
+    documents:
+      en: [Valid commercial registration, Lease contract registered in Ejar, Civil defence approval]
+      ar: [سجل تجاري ساري, عقد إيجار موثق في إيجار, موافقة الدفاع المدني]
+    steps:
+      en:
+        - Apply from Municipal Services with the registration number
+        - Attach the registered lease contract
+        - Pass the site inspection and pay the annual fee
+      ar:
+        - قدّم الطلب من الخدمات البلدية برقم السجل
+        - أرفق عقد الإيجار الموثق
+        - اجتز الزيارة الميدانية وادفع الرسوم السنوية
+
+  - id: appointment_booking
+    service_type: civil_records
+    title:
+      en: Booking a service-centre appointment
+      ar: حجز موعد في مركز الخدمة
+    keywords:
+      en: [book an appointment, appointment at the centre, reserve a slot, visit the office]
+      ar: [حجز موعد, أريد موعد, احجز لي موعد, موعد في المركز]
+    fee:
+      en: No fee
+      ar: بدون رسوم
+    processing_time:
+      en: Confirmation is immediate
+      ar: التأكيد فوري
+    documents:
+      en: [Nothing beyond a verified account]
+      ar: [لا شيء عدا حساب موثّق]
+    steps:
+      en:
+        - Choose the service and the city
+        - Choose a working day within the next 60 days
+        - Confirm and keep the confirmation number
+      ar:
+        - اختر الخدمة والمدينة
+        - اختر يوم عمل خلال ٦٠ يوماً
+        - أكّد واحتفظ برقم التأكيد
+
+  - id: application_status
+    service_type: other
+    title:
+      en: Checking the status of a submitted application
+      ar: الاستعلام عن حالة طلب مقدم
+    keywords:
+      en: [application status, check my application, where is my request, reference number]
+      ar: [حالة الطلب, الاستعلام عن طلبي, وين وصل طلبي, رقم الطلب]
+    fee:
+      en: No fee
+      ar: بدون رسوم
+    processing_time:
+      en: Immediate
+      ar: فوري
+    documents:
+      en: [The application reference number, two letters followed by eight digits]
+      ar: [رقم الطلب المكوّن من حرفين وثمانية أرقام]
+    steps:
+      en:
+        - Provide the reference number
+        - The assistant looks the status up directly
+      ar:
+        - زوّد رقم الطلب
+        - يستعلم المساعد عن الحالة مباشرة

@@ -1,0 +1,264 @@
+---
+title: "Module 6 — Cost, Latency, and Caching"
+subtitle: "Day 3, hour 4 · unit economics, and the sentence the whole module hangs on"
+---
+
+> **Never trade quality you aren't measuring for cost you are.**
+
+LLM applications are the first mainstream software whose marginal cost per request
+is large enough to bankrupt a feature, and whose latency is dominated by a
+component you do not control. This module makes both engineerable — and every
+optimisation is executed against Module 5's harness, which is why it comes second.
+
+## 1. Meter first. Optimise second.
+
+The pricing model is simple — input tokens × rate + output tokens × rate, output
+typically 3–5× input, cached input at a steep discount, batch at about half. What
+makes it dangerous is the multiplication.
+
+- **Conversation cost compounds.** Every turn resends the window, so turn *n* costs
+  roughly *n* × the average turn's input. Murshid's six-turn conversation costs
+  about 3× the naive single-turn estimate.
+- **The forecast is four numbers multiplied**, each with an error bar: conversations
+  per day × turns × tokens per turn × rate. Multiply the error bars too, and present
+  a range.
+- **Meter before optimising.** The `Usage` object every adapter surfaces (Module 1's
+  foresight) flows into a per-request cost record — route, model id, prompt version,
+  input/cached/output tokens, computed cost.
+
+```bash
+make replay-before        # 200 conversations, metered, nothing optimised
+```
+
+```
+200 conversations | cost/conv: 4.07 halalas | p50 turn 181ms | p95 conversation 1152ms
+by intent (spend): faq 92% | service 6% | guard 1% | router 1%
+by stage:  faq_handler 752.4 | service_workflow 45.9 | input_guard 8.7 | router 7.4
+```
+
+::: {.callout-important}
+## Say where the money goes before you touch anything
+
+This is the module's ritual and it is not optional. Run the replay, aggregate the
+log, and say the answer out loud. Pairs who skip it optimise the 4% line item while
+the 92% one sits unexamined — and the leaderboard shows it.
+
+```bash
+jq -s 'group_by(.intent) | map({intent: .[0].intent, halalas: (map(.cost_halalas)|add)})' \
+   logs/llm_cost_before.jsonl
+```
+
+One JSON object per line is why `jq` is the analytics tool here. Optimising before
+metering is how teams spend a week saving 4%.
+:::
+
+## 2. Latency anatomy
+
+Total latency = **TTFT** (network + queueing + prompt processing, roughly
+proportional to *input* length) + **generation** (output tokens × time per token,
+linear in *output* length).
+
+| What moves TTFT | What moves generation |
+|---|---|
+| shorter prompts | shorter outputs — instruct for concision, `max_tokens` as backstop |
+| prompt caching (a cached prefix is not reprocessed) | faster or smaller models |
+| a geographically closer endpoint | speculative decoding, where the stack offers it |
+| less-loaded models; on vLLM, batch pressure and chunked prefill | nothing retroactively — which is why streaming matters |
+
+**Tails, not averages.** p95 and p99 are where provider queueing spikes, retries
+(each one a full round trip) and cold caches live. The user experience is the
+tail's, which is why every benchmark table in this course reports p50 *and* p95.
+
+**A latency budget is a design artefact:** guards 0.1 ms + 35 ms, router ~50 ms,
+handler TTFT ≤ 1 s, full answer ≤ 5 s p95 — written down and measured per stage, so
+a regression names its stage instead of starting an investigation.
+
+## 3. Provider prompt caching: the free 50–90%
+
+Providers cache the *processed prefix* and charge cached input at a fraction of the
+rate, cutting TTFT with it. The engineering content is **prefix discipline**.
+
+```{mermaid}
+flowchart LR
+    subgraph P["CACHEABLE PREFIX — byte-stable across every request"]
+      S1[versioned system prompt]
+      S2[service directory]
+      S3[tool schemas]
+    end
+    subgraph V["VOLATILE TAIL — per conversation"]
+      V1[windowed history]
+      V2[this turn]
+      V3["today's date, if it belongs anywhere"]
+    end
+    P --> V
+    style P fill:#e8f4ea,stroke:#3c8d5a,stroke-width:3px
+    style V fill:#fdf3e3,stroke:#c78b2c
+```
+
+**Stable content first, volatile content last.** One dynamic byte early in the
+prompt invalidates everything after it. The classic self-inflicted wound is a
+courtesy: a current-date-and-time line at the top of the system prompt.
+
+`answer_faq.v4` has exactly that line. `v5` is the same prompt with the date moved
+into the tail. Diff them, then look at the numbers:
+
+| Prompt version | Prompt-cache share | Cost per conversation |
+|---|---|---|
+| `answer_faq.v4` — timestamp at the top | 55% | 4.07 halalas |
+| `answer_faq.v5` — timestamp in the tail | [72%]{.measured} | [2.98 halalas]{.measured} (−27%) |
+
+**Verify, do not assume.** `usage.cached_input_tokens` — plumbed through since
+Module 1 — is the proof. Same request twice; the second shows most of the input at
+the cached rate and roughly half the TTFT.
+
+Two boundaries worth knowing: caches are TTL-bounded and have a *minimum cacheable
+length* (the course gateway models 1024 tokens, like real providers), and they are
+scoped so tenants cannot read each other's cached content. A cache hit changes your
+bill, not the trust model.
+
+## 4. Response caching: exact, then semantic
+
+**Exact caching** is safe and boring: key = hash(model id, prompt version, rendered
+prompt, parameters); value = the response; TTL by content class. Where it shines is
+deterministic sub-calls — router verdicts, guard classifier verdicts, judge
+verdicts in the harness.
+
+A key that omits the prompt version serves yesterday's behaviour after today's
+deploy. Ours does not:
+
+```python
+ResponseCache.exact_key(model_id, prompt_version, rendered, params)
+```
+
+**Semantic caching** embeds the query and serves a cached answer above a similarity
+threshold. This is a *quality trade* and the module treats it with the suspicion
+one deserves.
+
+::: {.callout-warning}
+## "How do I renew my licence?" and "How do I cancel my licence?" are not the same question
+
+They embed uncomfortably close. A naive threshold serves one as the other.
+
+Discipline: high thresholds tuned on data and never guessed; scope keys that
+include **language, intent and personalisation status**; only impersonal FAQ
+content is ever eligible — anything conditioned on session state is excluded *by
+construction*, not by a condition somebody might later edit.
+:::
+
+```bash
+make eval-cache        # 12 near-miss pairs, bilingual
+```
+
+| Thresholds | Wrong hits | Note |
+|---|---|---|
+| en 0.90 / ar 0.92 — shipped | **0/12** | closest non-hits on the replay: 0.918, 0.909, 0.908 |
+| en 0.85 / ar 0.85 | 1/12 | the Arabic "my record" / "my son's record" pair fires |
+| en 0.75 / ar 0.75 | 5/12 | renew/cancel in both languages |
+
+**Arabic needs a *higher* threshold than English, not a lower one.** Arabic spelling
+variants of the same question score ~0.94 while English paraphrases score ~0.87, so
+Arabic sits closer to its own near-misses. That asymmetry was measured, not assumed
+— and it is the kind of finding a near-miss suite exists to produce.
+
+**Honest metrics: hit rate *and* wrong-hit rate**, per scope. The pairing rule from
+Module 4 has an exact analogue here. A 40% hit rate with one wrong hit per thousand
+is not a saving for a government assistant.
+
+## 5. Routing, cascades, and the break-even
+
+**Routing by predicted difficulty is the single biggest cost lever** in assistant
+workloads — and a routing change is a *quality* change, so it is eval-gated like a
+prompt change.
+
+Which is exactly what happened. The first routing table saved 91% and failed the
+gate:
+
+```
+BLOCKED:
+  slice:intent=faq: 94% vs baseline 100% (-6.3pt, margin 3pt)
+  slice:language=ar: 95% vs baseline 100% (-5.0pt, margin 3pt)
+```
+
+The small model is fine *except* when it should be refusing: on out-of-directory
+questions it stopped saying "I don't know" and started producing a plausible fee.
+
+The reflex is to move the intent up a tier and hand the saving back. The better
+answer is a **cascade** — cheap model first, escalate on a signal that is
+deterministic and actually correlated with being wrong:
+
+```python
+if unsupported_amounts(text, directory):     # the SAME check the gate uses
+    answer = client.complete(request_on_flagship)
+```
+
+| Configuration | Cost/conversation | Δ | Eval verdict |
+|---|---|---|---|
+| Baseline (`v4`, no cache, no routing) | 4.07 hal | — | green (baseline) |
+| + prompt-cache discipline (`v5`) | 2.98 hal | −27% | green |
+| + response cache (exact + semantic) | 1.66 hal | −59% | green, wrong hits 0/12 |
+| + routing table | 0.37 hal | −91% | **BLOCKED** |
+| + routing **and cascade** | **0.37 hal** | **−91%** | green, safety 100% |
+
+The last two rows cost the same, because on this traffic the cascade escalated
+**zero times**. Its insurance premium was nothing, and it is the reason the routing
+table shipped.
+
+::: {.callout-note appearance="simple"}
+## Router or cascade? Traffic shape decides
+
+A router pays one classification on every request. A cascade pays double only on
+escalations. Which wins is a property of your traffic — and the meter is what
+supplies the traffic shape. Reject model self-assessment ("was that hard?") as an
+escalation signal: it is weak and sycophantic. Prefer schema-validation failures
+and calibrated deterministic checks.
+:::
+
+**Self-host break-even, computed not vibed:**
+
+```bash
+make breakeven
+```
+
+Effective cost per million tokens ≈ (GPU-hour price × ops overhead) ÷ (measured
+tokens/hour at *your* achievable utilisation) — using Lab 2's measured throughput,
+not the marketing number.
+
+| Compared against | Crossover |
+|---|---|
+| the flagship tier (20.25 SAR/Mtok) | ~25% sustained utilisation |
+| the cheap tier (0.90 SAR/Mtok) | never |
+
+Both lines matter, and quoting one of them is how this arithmetic gets used
+dishonestly. Residency and control usually decide *whether* self-hosting happens.
+The break-even decides *what traffic* it should carry to be worth the GPUs.
+
+## 6. Common mistakes
+
+1. **Optimising without a meter.** A week of engineering on the 4% line item; the
+   meter is one afternoon.
+2. **A timestamp in the system prompt.** The entire prompt cache, invalidated by a
+   courtesy.
+3. **A semantic cache with no near-miss evaluation.** The renew/cancel wrong hit,
+   shipping alongside a celebratory hit-rate dashboard.
+4. **Cost-cutting unmeasured for quality.** The harness runs in four minutes and
+   nobody ran it.
+5. **Routing on model self-report.**
+6. **Comparing self-host at benchmark utilisation to API at real utilisation.** The
+   GPU does not run at 95%, because your traffic is diurnal.
+7. **Caching personalised content.** A cost optimisation that becomes a
+   data-protection incident. Personalisation status is part of the key schema, or
+   the cache is a breach waiting.
+
+## Benchmarks after this module
+
+| Metric | Target | Command |
+|---|---|---|
+| Cost per conversation | ≥ 60% reduction versus baseline | `make replay-before` / `make replay-after` |
+| Eval after **every** step | green at each one | `make eval && make gate` |
+| Prompt-cache utilisation | ≥ 65% of input tokens at the cached rate | replay output |
+| p95 conversation latency | ≤ 5 s | replay output |
+| Semantic-cache wrong hits | **0** on the near-miss suite | `make eval-cache` |
+| Cost meter coverage | 100% of model calls — guards and router included | log audit |
+| Break-even recorded | ADR updated with the measured crossover | `docs/adr/002` |
+
+**Next:** [Lab 6 — optimise Murshid](../labs/lab6-optimise.qmd)

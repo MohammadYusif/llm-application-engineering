@@ -1,0 +1,78 @@
+name: Publish the course site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "*.qmd"
+      - "modules/**"
+      - "labs/**"
+      - "reference/**"
+      - "_quarto.yml"
+      - "theme.scss"
+      - "assets/**"
+      - ".github/workflows/publish.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.10.18
+
+      # Nothing on the site executes — `execute: enabled: false` in _quarto.yml.
+      # Every number quoted in these pages comes from BENCHMARKS.md, which is
+      # produced by commands in murshid/ and checked by the CI workflow.
+      - name: Render
+        run: quarto render
+
+      - name: Check every internal link resolves
+        run: |
+          python - <<'PY'
+          import pathlib, re, sys
+          site = pathlib.Path("_site")
+          anchor = re.compile(r'<a[^>]+href="([^"]+)"', re.I)
+          image = re.compile(r'<img[^>]+src="([^"]+)"', re.I)
+          broken = []
+          for page in site.rglob("*.html"):
+              html = page.read_text(encoding="utf-8", errors="ignore")
+              for href in anchor.findall(html) + image.findall(html):
+                  if href.startswith(("http://", "https://", "#", "mailto:", "data:")):
+                      continue
+                  target = href.split("#")[0].split("?")[0]
+                  if target and not (page.parent / target).resolve().exists():
+                      broken.append(f"{page.relative_to(site)} -> {href}")
+          if broken:
+              print("broken internal links:")
+              print("\n".join("  " + row for row in broken))
+              sys.exit(1)
+          print("internal links: all resolve")
+          PY
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

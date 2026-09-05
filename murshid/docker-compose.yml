@@ -1,0 +1,107 @@
+# The classroom stack. Three containers, no credentials, works offline.
+#
+#   docker compose up -d              gateway + redis + the application
+#   docker compose run --rm tests     the whole suite, in a clean container
+#   docker compose --profile labs run --rm labs make eval
+#
+# The application container talks to the gateway by service name, which is the
+# same substitution a real deployment makes when it points at a provider: one
+# environment variable per route, no code change.
+
+name: murshid
+
+services:
+  gateway:
+    build:
+      context: ./infra/mockgw
+    image: murshid/course-gateway:1.0.0
+    environment:
+      # 1.0 feels like a real hosted model; the default keeps a lab moving.
+      MOCKGW_SPEED: "${MOCKGW_SPEED:-0.2}"
+      MOCKGW_MIN_CACHEABLE_TOKENS: "1024"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=2).status==200 else 1)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  redis:
+    image: redis:8-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build:
+      context: .
+    image: murshid/app:1.0.0
+    depends_on:
+      gateway:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      MURSHID_PRIMARY_BASE_URL: http://gateway:8080/v1
+      MURSHID_CHEAP_BASE_URL: http://gateway:8080/v1
+      MURSHID_VLLM_BASE_URL: http://gateway:8080/v1
+      MURSHID_COMPARISON_BASE_URL: http://gateway:8080
+      MURSHID_CACHE_ENABLED: "${MURSHID_CACHE_ENABLED:-0}"
+      MURSHID_SEMANTIC_CACHE_ENABLED: "${MURSHID_SEMANTIC_CACHE_ENABLED:-0}"
+      MURSHID_ROUTING_ENABLED: "${MURSHID_ROUTING_ENABLED:-0}"
+      MURSHID_LOG_JSON: "1"
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+
+  # `docker compose run --rm tests` — the suite in a clean container, which is
+  # the only place "it works on my machine" stops being a hypothesis.
+  tests:
+    build:
+      context: .
+    image: murshid/app:1.0.0
+    depends_on:
+      gateway:
+        condition: service_healthy
+    environment:
+      MURSHID_PRIMARY_BASE_URL: http://gateway:8080/v1
+      MURSHID_CHEAP_BASE_URL: http://gateway:8080/v1
+      MURSHID_VLLM_BASE_URL: http://gateway:8080/v1
+      MURSHID_COMPARISON_BASE_URL: http://gateway:8080
+      MURSHID_LOG_LEVEL: CRITICAL
+    volumes:
+      - ./tests:/srv/tests:ro
+      - ./infra:/srv/infra:ro
+    command: ["python", "-m", "pytest", "/srv/tests", "-q"]
+
+  # Everything a lab runs, in the container, against the compose gateway:
+  #   docker compose --profile labs run --rm labs python eval/harness.py
+  #   docker compose --profile labs run --rm labs python scripts/guard_eval.py
+  labs:
+    profiles: ["labs"]
+    build:
+      context: .
+    image: murshid/app:1.0.0
+    depends_on:
+      gateway:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      MURSHID_PRIMARY_BASE_URL: http://gateway:8080/v1
+      MURSHID_CHEAP_BASE_URL: http://gateway:8080/v1
+      MURSHID_VLLM_BASE_URL: http://gateway:8080/v1
+      MURSHID_COMPARISON_BASE_URL: http://gateway:8080
+      MURSHID_LOG_LEVEL: WARNING
+    volumes:
+      - ./eval/out:/srv/eval/out
+      - ./logs:/srv/logs
+    entrypoint: []
+    command: ["python", "eval/harness.py", "--label", "compose"]

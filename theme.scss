@@ -1,0 +1,67 @@
+/*-- scss:defaults --*/
+
+$font-family-sans-serif: "Inter", "Segoe UI", system-ui, -apple-system, "Noto Sans Arabic", sans-serif !default;
+$font-family-monospace: "JetBrains Mono", "Cascadia Code", ui-monospace, SFMono-Regular, Consolas, monospace !default;
+$body-font-size: 1.02rem;
+$line-height-base: 1.65;
+$toc-font-size: 0.86rem;
+
+/*-- scss:rules --*/
+
+/* Arabic runs right-to-left and deserves a face that can render it. The course's
+   test data is bilingual by design, so bilingual rendering is not a nicety. */
+:lang(ar),
+.arabic {
+  font-family: "Noto Naskh Arabic", "Segoe UI", "Traditional Arabic", serif;
+  direction: rtl;
+  text-align: right;
+  line-height: 2;
+}
+
+/* Wide tables scroll inside themselves rather than pushing the page sideways. */
+.table-responsive,
+table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+table th,
+table td {
+  white-space: normal;
+}
+
+/* Callout used for the honest caveats. There are a lot of them, deliberately. */
+.callout.callout-style-default .callout-title {
+  font-weight: 600;
+}
+
+/* The measured-number badge used through the module pages. */
+.measured {
+  display: inline-block;
+  padding: 0.05rem 0.45rem;
+  border-radius: 0.4rem;
+  font-size: 0.8em;
+  font-weight: 600;
+  background: rgba(13, 110, 253, 0.12);
+  color: inherit;
+  border: 1px solid rgba(13, 110, 253, 0.35);
+}
+
+/* Lab objective boxes. */
+.lab-meta {
+  border-left: 3px solid rgba(13, 110, 253, 0.6);
+  padding: 0.6rem 0 0.6rem 1rem;
+  margin: 1.2rem 0;
+}
+
+.lab-meta dt {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+
+.lab-meta dd {
+  margin: 0 0 0.5rem 0;
+}

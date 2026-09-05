@@ -1,0 +1,106 @@
+---
+title: "Troubleshooting"
+subtitle: "Every cross `make doctor` can print, and the things that go wrong at 09:15"
+---
+
+## `make doctor` crosses
+
+### `✗ python 3.12+`
+
+Murshid uses `X | None` syntax and `Literal` in ways that need 3.12. On Windows,
+`python3` may resolve to a Microsoft Store stub — use `python`, or the full path to
+the interpreter you installed.
+
+### `✗ config loads`
+
+The message names the problem. Usually a YAML indentation error in
+`configs/murshid.yaml` after an edit. `python -c "import yaml; yaml.safe_load(open('configs/murshid.yaml'))"`
+gives you the line number.
+
+### `✗ terminal renders Arabic`
+
+Your console cannot encode Arabic, and half this course's test data is Arabic.
+
+- **Windows:** use Windows Terminal or the VS Code integrated terminal, not
+  `cmd.exe` in a legacy window. Set `PYTHONUTF8=1` (the Makefile and `make.ps1`
+  already export it).
+- **macOS/Linux:** check `locale` — you want a UTF-8 locale.
+
+Test it *before* Day 1. A participant discovering this at 09:15 loses the first
+lab.
+
+### `✗ route <name>`
+
+The gateway is not running, or the route points somewhere else.
+
+```bash
+make gateway                       # or: docker compose up -d gateway
+curl -s localhost:8080/healthz
+```
+
+If you set `MURSHID_*_BASE_URL` for a real provider, `doctor` is now telling you
+about that provider. A 401 means the key; a connection error means the URL.
+
+## Things that go wrong during labs
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Every call takes about two seconds | `localhost` resolving to IPv6 first, then falling back | the shipped config uses `127.0.0.1` for exactly this reason — check your override |
+| `TypeError: unexpected keyword argument 'temperature'` | `anthropic` 1.x dropped it | do not forward it from the adapter; see the comment in `anthropic_client.py` |
+| `400 max_tokens: field required` | the Anthropic dialect requires it | the lesson, live — set it always |
+| `usage` is `None` on streamed calls | missing `stream_options={"include_usage": True}` | add it; the contract test asserts the final frame carries usage |
+| Strict mode rejects your schema | an open object, or an optional field without an explicit null type | `make schema-check` names the violation |
+| The repair retry loops on the same error | the feedback message omitted the errors | append the rendered validation errors, not "please fix" |
+| A tool never gets called | the description says what the API *is*, not when to use it | rewrite as task guidance; re-run `make tool-smoke` |
+| A tool gets called for everything | the description contains "any question about…" | the `sim-greedy-tools` shape. Write the *don't* cases |
+| Arabic attack rows sail past the guard | patterns matched against unnormalised text | normalise **before** matching, and match both normalisations |
+| Legitimate questions blocked | over-broad regex | anchor to the imperative form; let the classifier take the ambiguous middle |
+| `cached_input_tokens` stays 0 | a dynamic byte in the prefix, or a prefix below 1024 tokens | hunt the volatile byte — `answer_faq.v4` has the planted one |
+| The gate passes a change you know is bad | the baseline was captured *after* the bad edit | baselines come from a known-good run; promoting one is a governed act |
+| A stratum shows "new" in the gate table | cases were added after the baseline | expected — re-baseline deliberately and say why |
+| The judge scores everything 1.0 | the rubric has no anchors and no evidence requirement | sharpen the rubric, not the humans |
+| Tests pass locally, fail in the container | you are testing against a warm gateway | `docker compose run --rm tests` starts from a clean one — that is the point |
+
+## Docker
+
+```bash
+docker compose ps                    # is anything actually healthy?
+docker compose logs gateway --tail 50
+docker compose down -v && docker compose up -d
+```
+
+The `app` container talks to the gateway by **service name**
+(`http://gateway:8080/v1`), not `localhost`. If you copy environment variables out
+of a compose file into your shell, that URL will not resolve — use `127.0.0.1:8080`
+on the host.
+
+## Ports
+
+| Port | What |
+|---|---|
+| 8080 | the course gateway |
+| 8000 | the Murshid API |
+| 6379 | Redis (Lab 6's exact cache tier) |
+| 4713 | `quarto preview` for this site |
+
+If 8080 is occupied by something else, every route fails at once and `doctor` shows
+four crosses. Check what is listening before assuming the gateway is broken:
+
+```bash
+# Windows
+netstat -ano | findstr :8080
+# macOS / Linux
+lsof -i :8080
+```
+
+## When something is genuinely wrong with the course material
+
+Open an issue on the repository with:
+
+- the command you ran and its full output,
+- `make doctor` output,
+- `make stats` if a route is involved.
+
+Numbers in these pages are reproducible by construction. If a command in a lab does
+not produce roughly the output the lab claims, that is a bug in the material, not in
+you — and it is worth reporting, because the next cohort inherits it.

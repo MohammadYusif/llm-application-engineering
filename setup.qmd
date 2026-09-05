@@ -1,0 +1,147 @@
+---
+title: "Setup"
+subtitle: "Twenty minutes, two days before the course. Not on the morning of Day 1."
+---
+
+You need Python 3.12, git, and either Docker or nothing else at all. There is no
+API key to obtain and no account to create.
+
+## The short version
+
+::: {.panel-tabset}
+
+### Docker (recommended)
+
+```bash
+git clone https://github.com/MohammadYusif/llm-application-engineering
+cd llm-application-engineering/murshid
+docker compose up -d
+docker compose run --rm tests            # 165 tests, about 20 seconds
+curl -s localhost:8000/v1/ask -H 'content-type: application/json' \
+  -d '{"message":"How do I renew my commercial licence?"}'
+```
+
+### macOS / Linux
+
+```bash
+git clone https://github.com/MohammadYusif/llm-application-engineering
+cd llm-application-engineering/murshid
+python3.12 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.lock
+
+# terminal one — the course gateway
+make gateway
+
+# terminal two
+make doctor
+make chat
+```
+
+### Windows
+
+```powershell
+git clone https://github.com/MohammadYusif/llm-application-engineering
+cd llm-application-engineering\murshid
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.lock
+
+# terminal one — the course gateway
+.\make.ps1 gateway
+
+# terminal two
+.\make.ps1 doctor
+.\make.ps1 chat
+```
+
+`make.ps1` has the same target names as the Makefile. If you have `make` (Git Bash,
+WSL, or `scoop install make`), use it instead — everything in these pages is
+written as `make <target>`.
+
+:::
+
+## `make doctor` is the contract
+
+```
+$ make doctor
+murshid doctor
+
+  ✓ python 3.12+ — 3.12.10
+  ✓ config loads — 4 routes
+  ✓ terminal renders Arabic — كيف أجدد رخصتي التجارية؟
+  ✓ prompt registry — 8 versions
+  ✓ route primary — course-flagship in 103ms
+  ✓ route cheap — course-small in 50ms
+  ✓ route comparison — course-anthropic in 121ms
+  ✓ route vllm — murshid-onprem in 109ms
+
+all good — you are ready for Lab 1
+```
+
+Every cross has a fix on the [troubleshooting page](reference/troubleshooting.qmd).
+The two that catch people:
+
+::: {.callout-warning}
+## Windows terminals and Arabic
+
+`✗ terminal renders Arabic` means your console is on a code page that cannot encode
+Arabic, and half this course's test data is Arabic. Use **Windows Terminal** or the
+**VS Code integrated terminal**, and set `PYTHONUTF8=1`. Test it *now* — a
+participant discovering this at 09:15 on Day 1 loses the first lab.
+:::
+
+::: {.callout-warning}
+## `✗ route ...` — the gateway is not running
+
+`make gateway` in another terminal, or `docker compose up -d gateway`. Every route
+points at `http://127.0.0.1:8080/v1` by default.
+:::
+
+## Pointing at a real provider
+
+Nothing in the course requires it. When you want it — for the capstone's model
+comparison, or because you have keys and would rather use them — it is two
+environment variables per route and no code change:
+
+```bash
+cp configs/settings.example.env .env
+
+export MURSHID_PRIMARY_BASE_URL=https://api.openai.com/v1
+export MURSHID_PRIMARY_API_KEY=sk-...
+
+make doctor      # the route now names a real model
+make eval        # the same 126 cases, the same asserts, different evidence
+```
+
+The classroom variant points at the course gateway proxy, which holds the real
+provider keys with per-participant budgets — so you never handle a raw key.
+That arrangement *is* the reference architecture from Module 1; it is worth
+noticing that the classroom is built the way the module says to build.
+
+## What you have installed
+
+| Package | Version | Why |
+|---|---|---|
+| `openai` | 3.8.0 | The OpenAI-compatible adapter — which also covers vLLM and gateways |
+| `anthropic` | 1.4.0 | The Messages dialect, whose differences Module 2 dissects |
+| `pydantic` | 2.13.5 | The output contracts, and the validators the schema cannot express |
+| `langchain-core` | 1.6.2 | Composition only. The logic stays in plain Python |
+| `tiktoken` | 0.14.0 | Token counting, per route, with the route's own encoding |
+| `structlog` | 26.1.0 | One JSON object per line, so `jq` is the analytics tool |
+| `redis` | 8.1.0 | The exact-tier response cache in Lab 6 |
+| `fastapi` / `uvicorn` | 0.141.1 / 0.52.4 | The API layer, and the course gateway |
+
+Pinned in `requirements.lock`, and pinned deliberately: floating installs are how a
+lab breaks for one pair and not the others, twenty minutes in.
+
+## A note on what the gateway is
+
+The course gateway is a **simulator**, not a model. It speaks both wire dialects
+correctly, accounts tokens, caches byte-stable prefixes, injects faults on demand,
+and grounds every answer in the service directory that arrives in the prompt — but
+the difference in *quality* between its "model tiers" is rules, not capability.
+
+That matters when you write your evaluation report. Numbers measured against it are
+true statements about your harness, your guards, your meter and your gates. They
+are not evidence about any model. The [gateway reference](reference/gateway.qmd)
+says exactly what is real and what is not.

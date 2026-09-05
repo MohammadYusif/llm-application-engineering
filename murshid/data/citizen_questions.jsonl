@@ -1,0 +1,500 @@
+{"id": "q001", "text": "Hi — How do I renew my commercial licence? I need this urgently.", "language": "en", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q002", "text": "كيف أجدد رخصتي التجارية؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q003", "text": "من فضلك، كيف أجدد رخصتي التجارية؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q004", "text": "Hello, How do I renew my commercial licence?", "language": "en", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q005", "text": "مساء الخير، كيف أجدد رخصتي التجارية؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q006", "text": "السلام عليكم، كيف أجدد رخصتي التجارية؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q007", "text": "Hi — How much does it cost to renew a commercial registration? Thank you.", "language": "en", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q008", "text": "كم تكلفة تجديد السجل التجاري؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q009", "text": "السلام عليكم، كم تكلفة تجديد السجل التجاري؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q010", "text": "Hello, How much does it cost to renew a commercial registration? I need this urgently.", "language": "en", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q011", "text": "لو سمحت، كم تكلفة تجديد السجل التجاري؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q012", "text": "كم تكلفة تجديد السجل التجاري؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q013", "text": "What documents do I need to renew my commercial registration? I need this urgently.", "language": "en", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q014", "text": "ما المستندات المطلوبة لتجديد السجل التجاري؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q015", "text": "لو سمحت، ما المستندات المطلوبة لتجديد السجل التجاري؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q016", "text": "Hi — What documents do I need to renew my commercial registration?", "language": "en", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q017", "text": "ما المستندات المطلوبة لتجديد السجل التجاري؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q018", "text": "ما المستندات المطلوبة لتجديد السجل التجاري؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q019", "text": "Hello, What are the steps to issue a new commercial registration? Thank you.", "language": "en", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q020", "text": "لو سمحت، ما هي خطوات إصدار سجل تجاري جديد؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q021", "text": "مساء الخير، ما هي خطوات إصدار سجل تجاري جديد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q022", "text": "Hi — What are the steps to issue a new commercial registration? Thank you.", "language": "en", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q023", "text": "لو سمحت، ما هي خطوات إصدار سجل تجاري جديد؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q024", "text": "ما هي خطوات إصدار سجل تجاري جديد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q025", "text": "Please, How long does a new commercial registration take? I need this urgently.", "language": "en", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q026", "text": "مساء الخير، كم يستغرق إصدار سجل تجاري جديد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q027", "text": "كم يستغرق إصدار سجل تجاري جديد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q028", "text": "How long does a new commercial registration take? I need this urgently.", "language": "en", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q029", "text": "لو سمحت، كم يستغرق إصدار سجل تجاري جديد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q030", "text": "لو سمحت، كم يستغرق إصدار سجل تجاري جديد؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q031", "text": "Please, How do I update the address on my commercial registration? Thank you.", "language": "en", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q032", "text": "من فضلك، كيف أحدث عنوان سجلي التجاري؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q033", "text": "لو سمحت، كيف أحدث عنوان سجلي التجاري؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q034", "text": "Please, How do I update the address on my commercial registration? Sorry if this is the wrong place.", "language": "en", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q035", "text": "كيف أحدث عنوان سجلي التجاري؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q036", "text": "كيف أحدث عنوان سجلي التجاري؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q037", "text": "Please, Is there a fee for updating my business address?", "language": "en", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q038", "text": "لو سمحت، هل توجد رسوم لتحديث عنوان المنشأة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q039", "text": "من فضلك، هل توجد رسوم لتحديث عنوان المنشأة؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q040", "text": "Hi — Is there a fee for updating my business address? Sorry if this is the wrong place.", "language": "en", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q041", "text": "السلام عليكم، هل توجد رسوم لتحديث عنوان المنشأة؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q042", "text": "من فضلك، هل توجد رسوم لتحديث عنوان المنشأة؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q043", "text": "Hi — How do I renew my national identity card? Thank you.", "language": "en", "intent": "faq", "service_type": "civil_records"}
+{"id": "q044", "text": "السلام عليكم، كيف أجدد بطاقة الهوية الوطنية؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q045", "text": "كيف أجدد بطاقة الهوية الوطنية؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q046", "text": "How do I renew my national identity card?", "language": "en", "intent": "faq", "service_type": "civil_records"}
+{"id": "q047", "text": "كيف أجدد بطاقة الهوية الوطنية؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q048", "text": "مساء الخير، كيف أجدد بطاقة الهوية الوطنية؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q049", "text": "What is the fee for renewing a national ID? I need this urgently.", "language": "en", "intent": "faq", "service_type": "civil_records"}
+{"id": "q050", "text": "مساء الخير، كم رسوم تجديد الهوية الوطنية؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q051", "text": "مساء الخير، كم رسوم تجديد الهوية الوطنية؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q052", "text": "Good morning, What is the fee for renewing a national ID? Sorry if this is the wrong place.", "language": "en", "intent": "faq", "service_type": "civil_records"}
+{"id": "q053", "text": "لو سمحت، كم رسوم تجديد الهوية الوطنية؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q054", "text": "السلام عليكم، كم رسوم تجديد الهوية الوطنية؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q055", "text": "My identity card expired last month, what should I do? I need this urgently.", "language": "en", "intent": "faq", "service_type": "civil_records"}
+{"id": "q056", "text": "مساء الخير، انتهت هويتي الشهر الماضي، ماذا أفعل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q057", "text": "انتهت هويتي الشهر الماضي، ماذا أفعل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q058", "text": "Hello, My identity card expired last month, what should I do?", "language": "en", "intent": "faq", "service_type": "civil_records"}
+{"id": "q059", "text": "من فضلك، انتهت هويتي الشهر الماضي، ماذا أفعل؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q060", "text": "انتهت هويتي الشهر الماضي، ماذا أفعل؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q061", "text": "Hello, How do I get a birth certificate for my newborn? I need this urgently.", "language": "en", "intent": "faq", "service_type": "civil_records"}
+{"id": "q062", "text": "كيف أصدر شهادة ميلاد لمولودي؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q063", "text": "لو سمحت، كيف أصدر شهادة ميلاد لمولودي؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q064", "text": "Please, How do I get a birth certificate for my newborn? Thank you.", "language": "en", "intent": "faq", "service_type": "civil_records"}
+{"id": "q065", "text": "كيف أصدر شهادة ميلاد لمولودي؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q066", "text": "لو سمحت، كيف أصدر شهادة ميلاد لمولودي؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q067", "text": "Hi — What documents are needed for a birth certificate? Thank you.", "language": "en", "intent": "faq", "service_type": "civil_records"}
+{"id": "q068", "text": "من فضلك، ما المستندات المطلوبة لشهادة الميلاد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q069", "text": "من فضلك، ما المستندات المطلوبة لشهادة الميلاد؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q070", "text": "Good morning, What documents are needed for a birth certificate? I need this urgently.", "language": "en", "intent": "faq", "service_type": "civil_records"}
+{"id": "q071", "text": "لو سمحت، ما المستندات المطلوبة لشهادة الميلاد؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q072", "text": "لو سمحت، ما المستندات المطلوبة لشهادة الميلاد؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q073", "text": "Hello, How do I renew my driving licence? Sorry if this is the wrong place.", "language": "en", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q074", "text": "السلام عليكم، كيف أجدد رخصة القيادة؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q075", "text": "السلام عليكم، كيف أجدد رخصة القيادة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q076", "text": "Hi — How do I renew my driving licence? Sorry if this is the wrong place.", "language": "en", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q077", "text": "من فضلك، كيف أجدد رخصة القيادة؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q078", "text": "لو سمحت، كيف أجدد رخصة القيادة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q079", "text": "Hi — What is the fee for renewing a driving licence? Thank you.", "language": "en", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q080", "text": "كم رسوم تجديد رخصة القيادة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q081", "text": "السلام عليكم، كم رسوم تجديد رخصة القيادة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q082", "text": "Hello, What is the fee for renewing a driving licence? Thank you.", "language": "en", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q083", "text": "مساء الخير، كم رسوم تجديد رخصة القيادة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q084", "text": "كم رسوم تجديد رخصة القيادة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q085", "text": "Do I need a medical check to renew my driving licence? I need this urgently.", "language": "en", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q086", "text": "لو سمحت، هل أحتاج فحصاً طبياً لتجديد رخصة القيادة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q087", "text": "من فضلك، هل أحتاج فحصاً طبياً لتجديد رخصة القيادة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q088", "text": "Do I need a medical check to renew my driving licence?", "language": "en", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q089", "text": "هل أحتاج فحصاً طبياً لتجديد رخصة القيادة؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q090", "text": "مساء الخير، هل أحتاج فحصاً طبياً لتجديد رخصة القيادة؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q091", "text": "Hi — How do I transfer ownership of my car?", "language": "en", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q092", "text": "من فضلك، كيف أنقل ملكية سيارتي؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q093", "text": "مساء الخير، كيف أنقل ملكية سيارتي؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q094", "text": "Hi — How do I transfer ownership of my car? I need this urgently.", "language": "en", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q095", "text": "مساء الخير، كيف أنقل ملكية سيارتي؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q096", "text": "لو سمحت، كيف أنقل ملكية سيارتي؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q097", "text": "What does transferring vehicle ownership cost? I need this urgently.", "language": "en", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q098", "text": "من فضلك، كم تكلفة نقل ملكية المركبة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q099", "text": "من فضلك، كم تكلفة نقل ملكية المركبة؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q100", "text": "What does transferring vehicle ownership cost?", "language": "en", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q101", "text": "من فضلك، كم تكلفة نقل ملكية المركبة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q102", "text": "مساء الخير، كم تكلفة نقل ملكية المركبة؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q103", "text": "Hello, How do I apply for a building permit?", "language": "en", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q104", "text": "مساء الخير، كيف أقدم على رخصة بناء؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q105", "text": "من فضلك، كيف أقدم على رخصة بناء؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q106", "text": "Good morning, How do I apply for a building permit? Sorry if this is the wrong place.", "language": "en", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q107", "text": "كيف أقدم على رخصة بناء؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q108", "text": "مساء الخير، كيف أقدم على رخصة بناء؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q109", "text": "What is the building permit fee per square metre?", "language": "en", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q110", "text": "مساء الخير، كم رسوم رخصة البناء لكل متر مربع؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q111", "text": "مساء الخير، كم رسوم رخصة البناء لكل متر مربع؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q112", "text": "Good morning, What is the building permit fee per square metre? Thank you.", "language": "en", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q113", "text": "من فضلك، كم رسوم رخصة البناء لكل متر مربع؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q114", "text": "من فضلك، كم رسوم رخصة البناء لكل متر مربع؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q115", "text": "Hello, What documents does a building permit need? Sorry if this is the wrong place.", "language": "en", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q116", "text": "من فضلك، ما المستندات المطلوبة لرخصة البناء؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q117", "text": "من فضلك، ما المستندات المطلوبة لرخصة البناء؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q118", "text": "Please, What documents does a building permit need? Sorry if this is the wrong place.", "language": "en", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q119", "text": "من فضلك، ما المستندات المطلوبة لرخصة البناء؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q120", "text": "السلام عليكم، ما المستندات المطلوبة لرخصة البناء؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q121", "text": "Good morning, How do I get a municipal licence for a shop?", "language": "en", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q122", "text": "مساء الخير، كيف أحصل على رخصة بلدية لمحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q123", "text": "كيف أحصل على رخصة بلدية لمحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q124", "text": "Please, How do I get a municipal licence for a shop?", "language": "en", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q125", "text": "السلام عليكم، كيف أحصل على رخصة بلدية لمحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q126", "text": "السلام عليكم، كيف أحصل على رخصة بلدية لمحل؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q127", "text": "What is the annual fee for a shop licence?", "language": "en", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q128", "text": "لو سمحت، كم الرسوم السنوية لرخصة المحل؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q129", "text": "السلام عليكم، كم الرسوم السنوية لرخصة المحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q130", "text": "Please, What is the annual fee for a shop licence? Sorry if this is the wrong place.", "language": "en", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q131", "text": "السلام عليكم، كم الرسوم السنوية لرخصة المحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q132", "text": "السلام عليكم، كم الرسوم السنوية لرخصة المحل؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q133", "text": "Hi — Do I need civil defence approval for a restaurant licence? I need this urgently.", "language": "en", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q134", "text": "من فضلك، هل أحتاج موافقة الدفاع المدني لرخصة مطعم؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q135", "text": "لو سمحت، هل أحتاج موافقة الدفاع المدني لرخصة مطعم؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q136", "text": "Please, Do I need civil defence approval for a restaurant licence?", "language": "en", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q137", "text": "مساء الخير، هل أحتاج موافقة الدفاع المدني لرخصة مطعم؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q138", "text": "مساء الخير، هل أحتاج موافقة الدفاع المدني لرخصة مطعم؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q139", "text": "Please, How long does a shop licence take to issue?", "language": "en", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q140", "text": "من فضلك، كم يستغرق إصدار رخصة المحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q141", "text": "لو سمحت، كم يستغرق إصدار رخصة المحل؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q142", "text": "Good morning, How long does a shop licence take to issue?", "language": "en", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q143", "text": "السلام عليكم، كم يستغرق إصدار رخصة المحل؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q144", "text": "السلام عليكم، كم يستغرق إصدار رخصة المحل؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q145", "text": "Hi — How far ahead can I book an appointment? Sorry if this is the wrong place.", "language": "en", "intent": "faq", "service_type": "civil_records"}
+{"id": "q146", "text": "قبل كم يمكنني حجز الموعد؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q147", "text": "مساء الخير، قبل كم يمكنني حجز الموعد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q148", "text": "How far ahead can I book an appointment?", "language": "en", "intent": "faq", "service_type": "civil_records"}
+{"id": "q149", "text": "السلام عليكم، قبل كم يمكنني حجز الموعد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q150", "text": "مساء الخير، قبل كم يمكنني حجز الموعد؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q151", "text": "Please, Is there a fee for booking an appointment? Thank you.", "language": "en", "intent": "faq", "service_type": "civil_records"}
+{"id": "q152", "text": "من فضلك، هل هناك رسوم لحجز الموعد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q153", "text": "السلام عليكم، هل هناك رسوم لحجز الموعد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q154", "text": "Hello, Is there a fee for booking an appointment? Thank you.", "language": "en", "intent": "faq", "service_type": "civil_records"}
+{"id": "q155", "text": "السلام عليكم، هل هناك رسوم لحجز الموعد؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q156", "text": "السلام عليكم، هل هناك رسوم لحجز الموعد؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q157", "text": "Hello, What is the status of my application CR12345678?", "language": "en", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q158", "text": "لو سمحت، ما حالة طلبي رقم CR12345678؟", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q159", "text": "السلام عليكم، ما حالة طلبي رقم CR12345678؟", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q160", "text": "Good morning, What is the status of my application CR12345678?", "language": "en", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q161", "text": "مساء الخير، ما حالة طلبي رقم CR12345678؟", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q162", "text": "السلام عليكم، ما حالة طلبي رقم CR12345678؟", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q163", "text": "Good morning, What is the status of my application CR12345678?", "language": "en", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q164", "text": "ما حالة طلبي رقم CR12345678؟", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q165", "text": "Can you check application TR11223344 for me?", "language": "en", "intent": "service", "service_type": "traffic_services"}
+{"id": "q166", "text": "من فضلك، هل يمكنك الاستعلام عن الطلب TR11223344؟", "language": "ar", "intent": "service", "service_type": "traffic_services"}
+{"id": "q167", "text": "مساء الخير، هل يمكنك الاستعلام عن الطلب TR11223344؟", "language": "ar", "intent": "service", "service_type": "traffic_services"}
+{"id": "q168", "text": "Hi — Can you check application TR11223344 for me?", "language": "en", "intent": "service", "service_type": "traffic_services"}
+{"id": "q169", "text": "هل يمكنك الاستعلام عن الطلب TR11223344؟", "language": "ar", "intent": "service", "service_type": "traffic_services"}
+{"id": "q170", "text": "مساء الخير، هل يمكنك الاستعلام عن الطلب TR11223344؟", "language": "ar", "intent": "service", "service_type": "traffic_services"}
+{"id": "q171", "text": "Please, Can you check application TR11223344 for me?", "language": "en", "intent": "service", "service_type": "traffic_services"}
+{"id": "q172", "text": "لو سمحت، هل يمكنك الاستعلام عن الطلب TR11223344؟", "language": "ar", "intent": "service", "service_type": "traffic_services"}
+{"id": "q173", "text": "Please, Where has my application MP99887766 got to?", "language": "en", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q174", "text": "من فضلك، وين وصل طلبي MP99887766؟", "language": "ar", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q175", "text": "وين وصل طلبي MP99887766؟", "language": "ar", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q176", "text": "Good morning, Where has my application MP99887766 got to?", "language": "en", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q177", "text": "مساء الخير، وين وصل طلبي MP99887766؟", "language": "ar", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q178", "text": "لو سمحت، وين وصل طلبي MP99887766؟", "language": "ar", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q179", "text": "Hello, Where has my application MP99887766 got to?", "language": "en", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q180", "text": "لو سمحت، وين وصل طلبي MP99887766؟", "language": "ar", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q181", "text": "Hi — I want to book an appointment at civil records in Riyadh", "language": "en", "intent": "service", "service_type": "civil_records"}
+{"id": "q182", "text": "السلام عليكم، أريد حجز موعد في الأحوال المدنية بالرياض", "language": "ar", "intent": "service", "service_type": "civil_records"}
+{"id": "q183", "text": "أريد حجز موعد في الأحوال المدنية بالرياض", "language": "ar", "intent": "service", "service_type": "civil_records"}
+{"id": "q184", "text": "I want to book an appointment at civil records in Riyadh", "language": "en", "intent": "service", "service_type": "civil_records"}
+{"id": "q185", "text": "السلام عليكم، أريد حجز موعد في الأحوال المدنية بالرياض", "language": "ar", "intent": "service", "service_type": "civil_records"}
+{"id": "q186", "text": "لو سمحت، أريد حجز موعد في الأحوال المدنية بالرياض", "language": "ar", "intent": "service", "service_type": "civil_records"}
+{"id": "q187", "text": "Hi — I want to book an appointment at civil records in Riyadh", "language": "en", "intent": "service", "service_type": "civil_records"}
+{"id": "q188", "text": "لو سمحت، أريد حجز موعد في الأحوال المدنية بالرياض", "language": "ar", "intent": "service", "service_type": "civil_records"}
+{"id": "q189", "text": "Please, Book me a traffic services appointment in Jeddah please", "language": "en", "intent": "service", "service_type": "traffic_services"}
+{"id": "q190", "text": "من فضلك، احجز لي موعداً في خدمات المرور بجدة من فضلك", "language": "ar", "intent": "service", "service_type": "traffic_services"}
+{"id": "q191", "text": "لو سمحت، احجز لي موعداً في خدمات المرور بجدة من فضلك", "language": "ar", "intent": "service", "service_type": "traffic_services"}
+{"id": "q192", "text": "Hello, Book me a traffic services appointment in Jeddah please", "language": "en", "intent": "service", "service_type": "traffic_services"}
+{"id": "q193", "text": "لو سمحت، احجز لي موعداً في خدمات المرور بجدة من فضلك", "language": "ar", "intent": "service", "service_type": "traffic_services"}
+{"id": "q194", "text": "لو سمحت، احجز لي موعداً في خدمات المرور بجدة من فضلك", "language": "ar", "intent": "service", "service_type": "traffic_services"}
+{"id": "q195", "text": "Good morning, Book me a traffic services appointment in Jeddah please", "language": "en", "intent": "service", "service_type": "traffic_services"}
+{"id": "q196", "text": "من فضلك، احجز لي موعداً في خدمات المرور بجدة من فضلك", "language": "ar", "intent": "service", "service_type": "traffic_services"}
+{"id": "q197", "text": "Please, I need an appointment for my commercial registration in Dammam", "language": "en", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q198", "text": "أحتاج موعداً بخصوص سجلي التجاري في الدمام", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q199", "text": "أحتاج موعداً بخصوص سجلي التجاري في الدمام", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q200", "text": "Hello, I need an appointment for my commercial registration in Dammam", "language": "en", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q201", "text": "السلام عليكم، أحتاج موعداً بخصوص سجلي التجاري في الدمام", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q202", "text": "أحتاج موعداً بخصوص سجلي التجاري في الدمام", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q203", "text": "Please, I need an appointment for my commercial registration in Dammam", "language": "en", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q204", "text": "لو سمحت، أحتاج موعداً بخصوص سجلي التجاري في الدمام", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q205", "text": "Good morning, Please book a municipal permits appointment in Makkah", "language": "en", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q206", "text": "السلام عليكم، من فضلك احجز موعد الرخص البلدية في مكة", "language": "ar", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q207", "text": "من فضلك احجز موعد الرخص البلدية في مكة", "language": "ar", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q208", "text": "Please, Please book a municipal permits appointment in Makkah", "language": "en", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q209", "text": "من فضلك احجز موعد الرخص البلدية في مكة", "language": "ar", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q210", "text": "من فضلك احجز موعد الرخص البلدية في مكة", "language": "ar", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q211", "text": "Hello, Please book a municipal permits appointment in Makkah", "language": "en", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q212", "text": "من فضلك، من فضلك احجز موعد الرخص البلدية في مكة", "language": "ar", "intent": "service", "service_type": "municipal_permits"}
+{"id": "q213", "text": "Check the status of CR87654321", "language": "en", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q214", "text": "السلام عليكم، استعلم عن حالة CR87654321", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q215", "text": "لو سمحت، استعلم عن حالة CR87654321", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q216", "text": "Please, Check the status of CR87654321", "language": "en", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q217", "text": "مساء الخير، استعلم عن حالة CR87654321", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q218", "text": "من فضلك، استعلم عن حالة CR87654321", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q219", "text": "Please, Check the status of CR87654321", "language": "en", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q220", "text": "لو سمحت، استعلم عن حالة CR87654321", "language": "ar", "intent": "service", "service_type": "commercial_licence"}
+{"id": "q221", "text": "I want to speak to a human agent please", "language": "en", "intent": "escalate", "service_type": "other"}
+{"id": "q222", "text": "أريد التحدث إلى موظف من فضلك", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q223", "text": "أريد التحدث إلى موظف من فضلك", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q224", "text": "I want to speak to a human agent please", "language": "en", "intent": "escalate", "service_type": "other"}
+{"id": "q225", "text": "أريد التحدث إلى موظف من فضلك", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q226", "text": "أريد التحدث إلى موظف من فضلك", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q227", "text": "This is a complaint and I want it escalated", "language": "en", "intent": "escalate", "service_type": "other"}
+{"id": "q228", "text": "هذه شكوى وأريد رفعها لمسؤول", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q229", "text": "هذه شكوى وأريد رفعها لمسؤول", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q230", "text": "This is a complaint and I want it escalated", "language": "en", "intent": "escalate", "service_type": "other"}
+{"id": "q231", "text": "هذه شكوى وأريد رفعها لمسؤول", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q232", "text": "هذه شكوى وأريد رفعها لمسؤول", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q233", "text": "Nobody has answered me for three weeks, put me through to a person", "language": "en", "intent": "escalate", "service_type": "other"}
+{"id": "q234", "text": "لم يرد علي أحد منذ ثلاثة أسابيع، حوّلني لموظف", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q235", "text": "لم يرد علي أحد منذ ثلاثة أسابيع، حوّلني لموظف", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q236", "text": "Nobody has answered me for three weeks, put me through to a person", "language": "en", "intent": "escalate", "service_type": "other"}
+{"id": "q237", "text": "لم يرد علي أحد منذ ثلاثة أسابيع، حوّلني لموظف", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q238", "text": "لم يرد علي أحد منذ ثلاثة أسابيع، حوّلني لموظف", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q239", "text": "Your answers are not helping, get me a representative", "language": "en", "intent": "escalate", "service_type": "other"}
+{"id": "q240", "text": "إجاباتك لا تفيدني، أريد ممثل خدمة", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q241", "text": "إجاباتك لا تفيدني، أريد ممثل خدمة", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q242", "text": "Your answers are not helping, get me a representative", "language": "en", "intent": "escalate", "service_type": "other"}
+{"id": "q243", "text": "إجاباتك لا تفيدني، أريد ممثل خدمة", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q244", "text": "إجاباتك لا تفيدني، أريد ممثل خدمة", "language": "ar", "intent": "escalate", "service_type": "other"}
+{"id": "q245", "text": "I want to book a civil records appointment in Riyadh", "language": "en", "intent": "service", "service_type": "civil_records"}
+{"id": "q246", "text": "أريد حجز موعد في الأحوال المدنية بـالرياض", "language": "ar", "intent": "service", "service_type": "civil_records"}
+{"id": "q247", "text": "I want to book a civil records appointment in Jeddah", "language": "en", "intent": "service", "service_type": "civil_records"}
+{"id": "q248", "text": "أريد حجز موعد في الأحوال المدنية بـجدة", "language": "ar", "intent": "service", "service_type": "civil_records"}
+{"id": "q249", "text": "I want to book a civil records appointment in Makkah", "language": "en", "intent": "service", "service_type": "civil_records"}
+{"id": "q250", "text": "أريد حجز موعد في الأحوال المدنية بـمكة", "language": "ar", "intent": "service", "service_type": "civil_records"}
+{"id": "q251", "text": "I want to book a civil records appointment in Dammam", "language": "en", "intent": "service", "service_type": "civil_records"}
+{"id": "q252", "text": "أريد حجز موعد في الأحوال المدنية بـالدمام", "language": "ar", "intent": "service", "service_type": "civil_records"}
+{"id": "q253", "text": "I want to book a civil records appointment in Madinah", "language": "en", "intent": "service", "service_type": "civil_records"}
+{"id": "q254", "text": "أريد حجز موعد في الأحوال المدنية بـالمدينة", "language": "ar", "intent": "service", "service_type": "civil_records"}
+{"id": "q255", "text": "I want to book a civil records appointment in Abha", "language": "en", "intent": "service", "service_type": "civil_records"}
+{"id": "q256", "text": "أريد حجز موعد في الأحوال المدنية بـأبها", "language": "ar", "intent": "service", "service_type": "civil_records"}
+{"id": "q257", "text": "I want to book a civil records appointment in Tabuk", "language": "en", "intent": "service", "service_type": "civil_records"}
+{"id": "q258", "text": "أريد حجز موعد في الأحوال المدنية بـتبوك", "language": "ar", "intent": "service", "service_type": "civil_records"}
+{"id": "q259", "text": "I want to book a civil records appointment in Buraidah", "language": "en", "intent": "service", "service_type": "civil_records"}
+{"id": "q260", "text": "أريد حجز موعد في الأحوال المدنية بـبريدة", "language": "ar", "intent": "service", "service_type": "civil_records"}
+{"id": "q261", "text": "السلام عليكم, how do I renew my commercial licence؟", "language": "mixed", "intent": "faq", "service_type": "other"}
+{"id": "q262", "text": "السلام عليكم, how do I renew my commercial licence؟", "language": "mixed", "intent": "faq", "service_type": "other"}
+{"id": "q263", "text": "السلام عليكم, how do I renew my commercial licence؟", "language": "mixed", "intent": "faq", "service_type": "other"}
+{"id": "q264", "text": "أريد booking لموعد في Riyadh بكرة", "language": "mixed", "intent": "service", "service_type": "other"}
+{"id": "q265", "text": "أريد booking لموعد في Riyadh بكرة", "language": "mixed", "intent": "service", "service_type": "other"}
+{"id": "q266", "text": "أريد booking لموعد في Riyadh بكرة", "language": "mixed", "intent": "service", "service_type": "other"}
+{"id": "q267", "text": "ما هي الـ documents المطلوبة for a building permit؟", "language": "mixed", "intent": "faq", "service_type": "other"}
+{"id": "q268", "text": "ما هي الـ documents المطلوبة for a building permit؟", "language": "mixed", "intent": "faq", "service_type": "other"}
+{"id": "q269", "text": "ما هي الـ documents المطلوبة for a building permit؟", "language": "mixed", "intent": "faq", "service_type": "other"}
+{"id": "q270", "text": "Hi، أبغى أستعلم عن طلبي رقم CR12345678", "language": "mixed", "intent": "service", "service_type": "other"}
+{"id": "q271", "text": "Hi، أبغى أستعلم عن طلبي رقم CR12345678", "language": "mixed", "intent": "service", "service_type": "other"}
+{"id": "q272", "text": "Hi، أبغى أستعلم عن طلبي رقم CR12345678", "language": "mixed", "intent": "service", "service_type": "other"}
+{"id": "q273", "text": "كم الـ fee لتجديد الهوية الوطنية?", "language": "mixed", "intent": "faq", "service_type": "other"}
+{"id": "q274", "text": "كم الـ fee لتجديد الهوية الوطنية?", "language": "mixed", "intent": "faq", "service_type": "other"}
+{"id": "q275", "text": "كم الـ fee لتجديد الهوية الوطنية?", "language": "mixed", "intent": "faq", "service_type": "other"}
+{"id": "q276", "text": "مساء الخير، كم يستغرق إصدار رخصة المحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q277", "text": "كيف أحصل على رخصة بلدية لمحل؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q278", "text": "كم رسوم تجديد الهوية الوطنية؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q279", "text": "من فضلك، كيف أحدث عنوان سجلي التجاري؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q280", "text": "كيف أصدر شهادة ميلاد لمولودي؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q281", "text": "مساء الخير، كم الرسوم السنوية لرخصة المحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q282", "text": "السلام عليكم، قبل كم يمكنني حجز الموعد؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q283", "text": "لو سمحت، كيف أجدد بطاقة الهوية الوطنية؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q284", "text": "ما هي خطوات إصدار سجل تجاري جديد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q285", "text": "السلام عليكم، كيف أصدر شهادة ميلاد لمولودي؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q286", "text": "السلام عليكم، كم تكلفة تجديد السجل التجاري؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q287", "text": "مساء الخير، ما المستندات المطلوبة لتجديد السجل التجاري؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q288", "text": "لو سمحت، ما هي خطوات إصدار سجل تجاري جديد؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q289", "text": "لو سمحت، كيف أصدر شهادة ميلاد لمولودي؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q290", "text": "ما هي خطوات إصدار سجل تجاري جديد؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q291", "text": "السلام عليكم، هل أحتاج فحصاً طبياً لتجديد رخصة القيادة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q292", "text": "السلام عليكم، كم رسوم تجديد الهوية الوطنية؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q293", "text": "من فضلك، ما المستندات المطلوبة لتجديد السجل التجاري؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q294", "text": "مساء الخير، ما المستندات المطلوبة لشهادة الميلاد؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q295", "text": "لو سمحت، كم تكلفة نقل ملكية المركبة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q296", "text": "لو سمحت، كيف أنقل ملكية سيارتي؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q297", "text": "السلام عليكم، انتهت هويتي الشهر الماضي، ماذا أفعل؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q298", "text": "كيف أصدر شهادة ميلاد لمولودي؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q299", "text": "السلام عليكم، كم يستغرق إصدار سجل تجاري جديد؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q300", "text": "لو سمحت، كم تكلفة تجديد السجل التجاري؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q301", "text": "مساء الخير، كم يستغرق إصدار سجل تجاري جديد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q302", "text": "من فضلك، كيف أصدر شهادة ميلاد لمولودي؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q303", "text": "السلام عليكم، كيف أقدم على رخصة بناء؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q304", "text": "السلام عليكم، كم تكلفة نقل ملكية المركبة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q305", "text": "لو سمحت، كيف أقدم على رخصة بناء؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q306", "text": "مساء الخير، كيف أجدد رخصتي التجارية؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q307", "text": "السلام عليكم، كم رسوم رخصة البناء لكل متر مربع؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q308", "text": "مساء الخير، كيف أصدر شهادة ميلاد لمولودي؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q309", "text": "من فضلك، كم تكلفة نقل ملكية المركبة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q310", "text": "السلام عليكم، كيف أنقل ملكية سيارتي؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q311", "text": "السلام عليكم، كم تكلفة نقل ملكية المركبة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q312", "text": "مساء الخير، كيف أصدر شهادة ميلاد لمولودي؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q313", "text": "من فضلك، كم رسوم رخصة البناء لكل متر مربع؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q314", "text": "ما المستندات المطلوبة لتجديد السجل التجاري؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q315", "text": "من فضلك، كم رسوم تجديد رخصة القيادة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q316", "text": "مساء الخير، ما هي خطوات إصدار سجل تجاري جديد؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q317", "text": "ما المستندات المطلوبة لرخصة البناء؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q318", "text": "السلام عليكم، هل أحتاج موافقة الدفاع المدني لرخصة مطعم؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q319", "text": "السلام عليكم، كم رسوم تجديد رخصة القيادة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q320", "text": "مساء الخير، كيف أحصل على رخصة بلدية لمحل؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q321", "text": "كم يستغرق إصدار رخصة المحل؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q322", "text": "كيف أحصل على رخصة بلدية لمحل؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q323", "text": "كم رسوم تجديد رخصة القيادة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q324", "text": "من فضلك، كم رسوم تجديد رخصة القيادة؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q325", "text": "ما هي خطوات إصدار سجل تجاري جديد؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q326", "text": "كم تكلفة تجديد السجل التجاري؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q327", "text": "انتهت هويتي الشهر الماضي، ماذا أفعل؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q328", "text": "لو سمحت، كم يستغرق إصدار رخصة المحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q329", "text": "مساء الخير، قبل كم يمكنني حجز الموعد؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q330", "text": "مساء الخير، كم يستغرق إصدار رخصة المحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q331", "text": "مساء الخير، كم تكلفة نقل ملكية المركبة؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q332", "text": "من فضلك، كيف أجدد بطاقة الهوية الوطنية؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q333", "text": "كيف أصدر شهادة ميلاد لمولودي؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q334", "text": "مساء الخير، كم يستغرق إصدار سجل تجاري جديد؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q335", "text": "من فضلك، كم تكلفة تجديد السجل التجاري؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q336", "text": "السلام عليكم، كيف أقدم على رخصة بناء؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q337", "text": "ما المستندات المطلوبة لشهادة الميلاد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q338", "text": "لو سمحت، كم رسوم رخصة البناء لكل متر مربع؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q339", "text": "السلام عليكم، كم الرسوم السنوية لرخصة المحل؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q340", "text": "من فضلك، هل أحتاج موافقة الدفاع المدني لرخصة مطعم؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q341", "text": "من فضلك، ما هي خطوات إصدار سجل تجاري جديد؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q342", "text": "السلام عليكم، كم يستغرق إصدار رخصة المحل؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q343", "text": "لو سمحت، ما المستندات المطلوبة لرخصة البناء؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q344", "text": "لو سمحت، كيف أجدد بطاقة الهوية الوطنية؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q345", "text": "لو سمحت، كيف أصدر شهادة ميلاد لمولودي؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q346", "text": "لو سمحت، هل توجد رسوم لتحديث عنوان المنشأة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q347", "text": "السلام عليكم، انتهت هويتي الشهر الماضي، ماذا أفعل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q348", "text": "لو سمحت، كم يستغرق إصدار سجل تجاري جديد؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q349", "text": "لو سمحت، كيف أحصل على رخصة بلدية لمحل؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q350", "text": "مساء الخير، هل هناك رسوم لحجز الموعد؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q351", "text": "السلام عليكم، كم تكلفة تجديد السجل التجاري؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q352", "text": "مساء الخير، كم الرسوم السنوية لرخصة المحل؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q353", "text": "هل أحتاج موافقة الدفاع المدني لرخصة مطعم؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q354", "text": "السلام عليكم، كيف أنقل ملكية سيارتي؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q355", "text": "من فضلك، كيف أجدد بطاقة الهوية الوطنية؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q356", "text": "مساء الخير، كم رسوم تجديد رخصة القيادة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q357", "text": "السلام عليكم، قبل كم يمكنني حجز الموعد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q358", "text": "كيف أحصل على رخصة بلدية لمحل؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q359", "text": "من فضلك، كيف أحدث عنوان سجلي التجاري؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q360", "text": "من فضلك، كيف أنقل ملكية سيارتي؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q361", "text": "لو سمحت، كم تكلفة تجديد السجل التجاري؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q362", "text": "هل أحتاج فحصاً طبياً لتجديد رخصة القيادة؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q363", "text": "مساء الخير، كيف أجدد رخصة القيادة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q364", "text": "من فضلك، كم تكلفة تجديد السجل التجاري؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q365", "text": "كم يستغرق إصدار رخصة المحل؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q366", "text": "السلام عليكم، هل هناك رسوم لحجز الموعد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q367", "text": "مساء الخير، ما المستندات المطلوبة لرخصة البناء؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q368", "text": "لو سمحت، كيف أحدث عنوان سجلي التجاري؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q369", "text": "لو سمحت، كم يستغرق إصدار رخصة المحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q370", "text": "من فضلك، هل هناك رسوم لحجز الموعد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q371", "text": "من فضلك، كم تكلفة تجديد السجل التجاري؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q372", "text": "مساء الخير، ما المستندات المطلوبة لشهادة الميلاد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q373", "text": "السلام عليكم، كم يستغرق إصدار سجل تجاري جديد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q374", "text": "هل توجد رسوم لتحديث عنوان المنشأة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q375", "text": "مساء الخير، كيف أجدد رخصتي التجارية؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q376", "text": "السلام عليكم، كم رسوم تجديد رخصة القيادة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q377", "text": "مساء الخير، كيف أحدث عنوان سجلي التجاري؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q378", "text": "كيف أقدم على رخصة بناء؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q379", "text": "ما المستندات المطلوبة لرخصة البناء؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q380", "text": "لو سمحت، كم رسوم رخصة البناء لكل متر مربع؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q381", "text": "من فضلك، كم رسوم تجديد رخصة القيادة؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q382", "text": "السلام عليكم، كم الرسوم السنوية لرخصة المحل؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q383", "text": "لو سمحت، هل توجد رسوم لتحديث عنوان المنشأة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q384", "text": "السلام عليكم، كيف أحصل على رخصة بلدية لمحل؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q385", "text": "السلام عليكم، هل هناك رسوم لحجز الموعد؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q386", "text": "مساء الخير، ما المستندات المطلوبة لتجديد السجل التجاري؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q387", "text": "كم يستغرق إصدار رخصة المحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q388", "text": "السلام عليكم، كم يستغرق إصدار رخصة المحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q389", "text": "السلام عليكم، قبل كم يمكنني حجز الموعد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q390", "text": "مساء الخير، كيف أحدث عنوان سجلي التجاري؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q391", "text": "من فضلك، كيف أنقل ملكية سيارتي؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q392", "text": "كيف أقدم على رخصة بناء؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q393", "text": "مساء الخير، كيف أصدر شهادة ميلاد لمولودي؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q394", "text": "لو سمحت، ما المستندات المطلوبة لرخصة البناء؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q395", "text": "لو سمحت، كم الرسوم السنوية لرخصة المحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q396", "text": "السلام عليكم، كم يستغرق إصدار سجل تجاري جديد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q397", "text": "السلام عليكم، كم رسوم رخصة البناء لكل متر مربع؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q398", "text": "كم يستغرق إصدار سجل تجاري جديد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q399", "text": "من فضلك، كيف أجدد رخصتي التجارية؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q400", "text": "من فضلك، هل توجد رسوم لتحديث عنوان المنشأة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q401", "text": "مساء الخير، كم رسوم رخصة البناء لكل متر مربع؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q402", "text": "مساء الخير، كم يستغرق إصدار رخصة المحل؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q403", "text": "لو سمحت، كم تكلفة نقل ملكية المركبة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q404", "text": "من فضلك، كيف أحصل على رخصة بلدية لمحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q405", "text": "السلام عليكم، ما هي خطوات إصدار سجل تجاري جديد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q406", "text": "السلام عليكم، كيف أحدث عنوان سجلي التجاري؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q407", "text": "مساء الخير، كيف أحدث عنوان سجلي التجاري؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q408", "text": "من فضلك، كم رسوم رخصة البناء لكل متر مربع؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q409", "text": "من فضلك، كيف أنقل ملكية سيارتي؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q410", "text": "السلام عليكم، كيف أصدر شهادة ميلاد لمولودي؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q411", "text": "من فضلك، ما المستندات المطلوبة لشهادة الميلاد؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q412", "text": "كم يستغرق إصدار سجل تجاري جديد؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q413", "text": "لو سمحت، هل هناك رسوم لحجز الموعد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q414", "text": "لو سمحت، انتهت هويتي الشهر الماضي، ماذا أفعل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q415", "text": "مساء الخير، ما المستندات المطلوبة لرخصة البناء؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q416", "text": "كيف أحصل على رخصة بلدية لمحل؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q417", "text": "لو سمحت، هل أحتاج فحصاً طبياً لتجديد رخصة القيادة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q418", "text": "مساء الخير، كم رسوم رخصة البناء لكل متر مربع؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q419", "text": "لو سمحت، كيف أجدد بطاقة الهوية الوطنية؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q420", "text": "هل أحتاج فحصاً طبياً لتجديد رخصة القيادة؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q421", "text": "السلام عليكم، كيف أنقل ملكية سيارتي؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q422", "text": "من فضلك، هل أحتاج موافقة الدفاع المدني لرخصة مطعم؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q423", "text": "من فضلك، كيف أنقل ملكية سيارتي؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q424", "text": "هل توجد رسوم لتحديث عنوان المنشأة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q425", "text": "لو سمحت، كيف أجدد رخصتي التجارية؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q426", "text": "السلام عليكم، ما هي خطوات إصدار سجل تجاري جديد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q427", "text": "السلام عليكم، قبل كم يمكنني حجز الموعد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q428", "text": "من فضلك، كم تكلفة نقل ملكية المركبة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q429", "text": "من فضلك، هل توجد رسوم لتحديث عنوان المنشأة؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q430", "text": "مساء الخير، قبل كم يمكنني حجز الموعد؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q431", "text": "كم رسوم تجديد رخصة القيادة؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q432", "text": "انتهت هويتي الشهر الماضي، ماذا أفعل؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q433", "text": "السلام عليكم، كيف أجدد رخصتي التجارية؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q434", "text": "السلام عليكم، كيف أصدر شهادة ميلاد لمولودي؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q435", "text": "لو سمحت، هل أحتاج موافقة الدفاع المدني لرخصة مطعم؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q436", "text": "كيف أصدر شهادة ميلاد لمولودي؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q437", "text": "من فضلك، هل أحتاج موافقة الدفاع المدني لرخصة مطعم؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q438", "text": "هل توجد رسوم لتحديث عنوان المنشأة؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q439", "text": "لو سمحت، كيف أحدث عنوان سجلي التجاري؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q440", "text": "من فضلك، قبل كم يمكنني حجز الموعد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q441", "text": "من فضلك، هل هناك رسوم لحجز الموعد؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q442", "text": "كم رسوم تجديد رخصة القيادة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q443", "text": "من فضلك، ما المستندات المطلوبة لشهادة الميلاد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q444", "text": "من فضلك، كم رسوم رخصة البناء لكل متر مربع؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q445", "text": "مساء الخير، انتهت هويتي الشهر الماضي، ماذا أفعل؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q446", "text": "كيف أقدم على رخصة بناء؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q447", "text": "هل أحتاج فحصاً طبياً لتجديد رخصة القيادة؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q448", "text": "كم الرسوم السنوية لرخصة المحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q449", "text": "مساء الخير، كم تكلفة تجديد السجل التجاري؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q450", "text": "لو سمحت، هل هناك رسوم لحجز الموعد؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q451", "text": "مساء الخير، هل أحتاج فحصاً طبياً لتجديد رخصة القيادة؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q452", "text": "لو سمحت، كم تكلفة نقل ملكية المركبة؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q453", "text": "من فضلك، انتهت هويتي الشهر الماضي، ماذا أفعل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q454", "text": "من فضلك، كم تكلفة تجديد السجل التجاري؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q455", "text": "انتهت هويتي الشهر الماضي، ماذا أفعل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q456", "text": "كم يستغرق إصدار سجل تجاري جديد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q457", "text": "لو سمحت، قبل كم يمكنني حجز الموعد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q458", "text": "لو سمحت، كيف أنقل ملكية سيارتي؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q459", "text": "مساء الخير، كيف أجدد رخصة القيادة؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q460", "text": "السلام عليكم، كم رسوم تجديد الهوية الوطنية؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q461", "text": "السلام عليكم، هل هناك رسوم لحجز الموعد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q462", "text": "كيف أجدد رخصتي التجارية؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q463", "text": "ما هي خطوات إصدار سجل تجاري جديد؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q464", "text": "مساء الخير، كيف أجدد رخصتي التجارية؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q465", "text": "السلام عليكم، كيف أجدد رخصة القيادة؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q466", "text": "لو سمحت، كم يستغرق إصدار سجل تجاري جديد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q467", "text": "السلام عليكم، كم رسوم تجديد رخصة القيادة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q468", "text": "لو سمحت، كيف أنقل ملكية سيارتي؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q469", "text": "من فضلك، كم الرسوم السنوية لرخصة المحل؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q470", "text": "مساء الخير، هل أحتاج فحصاً طبياً لتجديد رخصة القيادة؟", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q471", "text": "كم يستغرق إصدار رخصة المحل؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q472", "text": "السلام عليكم، كيف أصدر شهادة ميلاد لمولودي؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q473", "text": "انتهت هويتي الشهر الماضي، ماذا أفعل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q474", "text": "لو سمحت، كيف أقدم على رخصة بناء؟", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q475", "text": "كيف أحصل على رخصة بلدية لمحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q476", "text": "ما المستندات المطلوبة لرخصة البناء؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q477", "text": "من فضلك، كيف أنقل ملكية سيارتي؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q478", "text": "مساء الخير، كيف أحصل على رخصة بلدية لمحل؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q479", "text": "السلام عليكم، ما هي خطوات إصدار سجل تجاري جديد؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q480", "text": "من فضلك، كم يستغرق إصدار رخصة المحل؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q481", "text": "من فضلك، كيف أقدم على رخصة بناء؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q482", "text": "مساء الخير، كم رسوم تجديد رخصة القيادة؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q483", "text": "من فضلك، كيف أقدم على رخصة بناء؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q484", "text": "كم تكلفة تجديد السجل التجاري؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q485", "text": "السلام عليكم، كيف أصدر شهادة ميلاد لمولودي؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q486", "text": "كم الرسوم السنوية لرخصة المحل؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q487", "text": "من فضلك، كم تكلفة تجديد السجل التجاري؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q488", "text": "من فضلك، هل أحتاج موافقة الدفاع المدني لرخصة مطعم؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q489", "text": "مساء الخير، قبل كم يمكنني حجز الموعد؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q490", "text": "ما المستندات المطلوبة لرخصة البناء؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q491", "text": "لو سمحت، قبل كم يمكنني حجز الموعد؟ شكراً لك.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q492", "text": "كم يستغرق إصدار سجل تجاري جديد؟", "language": "ar", "intent": "faq", "service_type": "commercial_licence"}
+{"id": "q493", "text": "السلام عليكم، انتهت هويتي الشهر الماضي، ماذا أفعل؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q494", "text": "لو سمحت، هل هناك رسوم لحجز الموعد؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q495", "text": "من فضلك، انتهت هويتي الشهر الماضي، ماذا أفعل؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q496", "text": "لو سمحت، انتهت هويتي الشهر الماضي، ماذا أفعل؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q497", "text": "ما المستندات المطلوبة لرخصة البناء؟ أعتذر إن كان المكان غير مناسب.", "language": "ar", "intent": "faq", "service_type": "municipal_permits"}
+{"id": "q498", "text": "من فضلك، انتهت هويتي الشهر الماضي، ماذا أفعل؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "civil_records"}
+{"id": "q499", "text": "السلام عليكم، كم رسوم تجديد رخصة القيادة؟ الموضوع عاجل.", "language": "ar", "intent": "faq", "service_type": "traffic_services"}
+{"id": "q500", "text": "مساء الخير، كيف أجدد بطاقة الهوية الوطنية؟", "language": "ar", "intent": "faq", "service_type": "civil_records"}

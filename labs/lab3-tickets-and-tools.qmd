@@ -1,0 +1,244 @@
+---
+title: "Lab 3 — Structured tickets and the tool loop"
+subtitle: "Day 2, hours 2 and 4 · 2 × 50 minutes · pairs"
+---
+
+::: {.lab-meta}
+Objective
+: **Part A** — extract validated `ServiceTicket` objects from messy bilingual
+  citizen messages and measure the schema-pass rate.
+  **Part B** — wire three tools and the bounded loop, and pass the negative-test
+  suite.
+
+Setup
+: Lab 2 complete. `data/citizen_messages_50.jsonl` — bilingual, deliberately
+  messy: dialect, missing hamzas, Arabic-Indic digits, mixed script, one
+  400-word polite ramble.
+
+You finish with
+: Six numbers in `BENCHMARKS.md`, an invented-field audit at zero, and the
+  tool-safety suite green.
+:::
+
+# Part A — the ticket (hour 2)
+
+## 1 · Complete the contract (10 min)
+
+Open [`src/murshid/domain/ticket.py`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/src/murshid/domain/ticket.py).
+The national-ID validator and two enums are blank.
+
+```python
+@field_validator("national_id")
+@classmethod
+def valid_national_id(cls, v: str | None) -> str | None:
+    if v is not None and not (len(v) == 10 and v.isdigit() and v[0] in "12"):
+        raise ValueError("must be 10 digits starting with 1 (citizen) or 2 (resident)")
+    return v
+```
+
+That rule cannot live in a JSON Schema. The schema constrains syntax; pydantic
+validates semantics. Confirm the contract still fits the strict subset:
+
+```bash
+make schema-check
+# 5/5 contracts strict-safe
+```
+
+Break it deliberately — remove `additionalProperties: false` from `_tighten` — and
+watch the check name the violation. Then put it back.
+
+## 2 · The repair loop (15 min)
+
+Implement `extract_ticket` with **one** feedback repair.
+
+```bash
+make ask Q="السلام عليكم، اسمي فيصل العتيبي وأبغى أجدد السجل التجاري حقي في الرياض"
+```
+
+Then read what happens on a message with almost nothing in it:
+
+```python
+extract_ticket(client, "كيف أجدد رخصتي التجارية؟")
+# applicant.national_id  -> None
+# applicant.phone        -> None
+# city                   -> "unknown"
+```
+
+`None` is the correct answer, and `extract_ticket.v3`'s "never invent" rule plus
+its one null example are what earn it. An invented field is a defect; an empty one
+is a fact.
+
+The repair message is the other half:
+
+```
+The JSON you returned failed validation. Fix ONLY these errors and return the
+corrected object, with no commentary:
+- applicant.national_id: must be 10 digits starting with 1 (citizen) or 2 (resident)
+```
+
+Located errors, verbatim. Models repair reliably against those. "Please try again"
+barely moves the pass rate — which you can verify by editing `REPAIR_INSTRUCTION`
+and re-running the corpus.
+
+## 3 · Measure the corpus (15 min)
+
+```bash
+make extract-audit
+```
+
+```
+50 messages | first-try pass: 45/50 (90%) | after repair: 48/50 (96%) | escalated: 2
+   by language: ar 32/35 (91%) → 34/35 (97%) | en 12/14 (86%) → 13/14 (93%)
+   invented-field audit: 0 invented across 15 annotated cases
+   escalated to human review: 2
+```
+
+**Record all six numbers in `BENCHMARKS.md`.** Then notice the two escalations —
+they are not a bug. One repair, then a designed hand-off. A corpus where nothing
+ever escalates is not testing the failure path.
+
+## 4 · The comparison (10 min)
+
+```bash
+make extract-audit ROUTE=vllm
+make extract-audit ROUTE=cheap
+```
+
+| Route | First-try | After repair | ar | en |
+|---|---|---|---|---|
+| flagship | 90% | 96% | 91% → 97% | 86% → 93% |
+| open-weight | 84% | 98% | 80% → 97% | 93% → 100% |
+| small | 74% | 98% | 77% → 97% | 64% → 100% |
+
+Write one sentence in `BENCHMARKS.md`: what does this add to the Module 2 decision
+matrix?
+
+::: {.callout-warning}
+## Then write a second sentence about error bars
+
+The open-weight route "beat" the flagship after repair. Fifty cases carry roughly
+±6 points of noise, so that is a coin, not a finding.
+
+The differences that *are* real here are the first-try rates and the size of the
+gap the repair loop closes. Learning which differences survive their error bars is
+most of what Module 5 is about.
+:::
+
+---
+
+# Part B — the tool loop (hour 4)
+
+## 5 · Tool descriptions route (10 min)
+
+Two of the three descriptions in
+[`tools/registry.py`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/src/murshid/tools/registry.py)
+are blank. Write them: when to use the tool, when **not** to, and what it returns.
+
+```bash
+make tool-smoke
+```
+
+```
+  OK  status lookup with a reference                   called=['check_application_status']
+  OK  documents question — must NOT call a tool        called=[]
+  OK  status question without a reference — must ask   called=[]
+  OK  booking with everything confirmed                called=['book_appointment']
+  OK  asks for a human                                 called=['escalate_to_agent']
+
+5/5 as expected
+```
+
+Now break it on purpose. Change the status tool's description to *"Use for any
+question about applications"* and re-run:
+
+```
+  BAD documents question — must NOT call a tool        called=['check_application_status']
+```
+
+One over-broad sentence and the tool fires on everything. **Descriptions route.**
+Write the `don't` cases.
+
+## 6 · Bounds and the authorisation gate (15 min)
+
+Implement the loop bounds and `_execute`'s gate, then:
+
+```bash
+pytest tests/pipeline/test_tool_safety.py -v
+```
+
+```
+test_booking_for_someone_else_is_denied PASSED
+test_hallucinated_tool_name_is_an_error_not_a_crash PASSED
+test_malformed_arguments_never_reach_the_function PASSED
+test_loop_bound_trips_to_designed_degradation PASSED
+test_a_retried_turn_does_not_book_twice PASSED
+test_a_past_date_is_rejected_by_the_argument_contract PASSED
+test_unverified_identity_blocks_a_side_effecting_tool PASSED
+```
+
+::: {.callout-important}
+## Where else could that identity check live?
+
+Ask the class, and let them list the alternatives: in the prompt; in the tool
+description; in the model's good judgement.
+
+Then ask what happens to each of them under Module 4's injection scenarios. Every
+answer that lives inside the token stream is an answer an attacker can write to.
+The session object is the only one that is not.
+
+```python
+if tool.risk == "side_effecting":
+    verdict = session.authorize(tool.name, args)   # not the model's arguments
+```
+:::
+
+## 7 · End to end (15 min)
+
+```bash
+make chat
+```
+
+```
+you> أريد حجز موعد في الأحوال المدنية بالرياض
+murshid> لأحجز الموعد أحتاج التاريخ (YYYY-MM-DD).
+you> نعم، أكّد الحجز بتاريخ 2026-10-14
+murshid> تم الحجز. رقم التأكيد AP3F2A91C7 في الرياض بتاريخ 2026-10-14.
+   [service · course-flagship · 612ms · 1.204 hal · tools: ['book_appointment']]
+```
+
+Then verify three things:
+
+```bash
+# the audit trail
+jq 'select(.event=="tool_call")' logs/*.jsonl
+```
+
+and, in the same conversation, ask Murshid to *"also book my brother an
+appointment"*. It must refuse with a helpful message — not because the model is
+polite, but because `session.authorize` returned `cross_citizen` and the tool never
+ran.
+
+## 8 · Commit (10 min)
+
+```bash
+git commit -am "feat: validated ticket extraction and the bounded tool loop"
+git tag lab3-done
+```
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Strict mode rejects the schema | an optional field without an explicit null type, or an open object | `make schema-check` names the violation |
+| The model invents a national ID | the prompt lacks the never-invent rule | it is in `extract_ticket.v3` — log the prompt version and check it actually loaded |
+| The repair retry loops on the same error | the feedback omitted the errors | append the rendered errors, not "please fix" |
+| A tool never gets called | the description says what the API is, not when to use it | rewrite as task guidance; re-run `make tool-smoke` |
+| `book_appointment` runs twice on a retried turn | no idempotency key | the session's idempotency key is part of task 6 |
+| Loop never terminates in a test | the fake client is scripted for endless tool calls | that is the point — assert the bound trips at 6 |
+
+## If you finish early
+
+Add parallel execution for read-only calls, and prove side-effecting calls still
+serialise. Then argue about the fourth risk class: lab results are read-only
+*technically* but sensitive. Does the registry need another class, or does
+authorisation already cover it?

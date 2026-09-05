@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.git/
+logs/
+eval/out/*.json
+tests/
+docs/
+*.md
+!requirements.lock
+.env
