@@ -75,7 +75,7 @@ murshid doctor
   ✓ route comparison — course-anthropic in 121ms
   ✓ route vllm — murshid-onprem in 109ms
 
-all good — you are ready for Lab 1
+all good — you are ready for Module 1
 ```
 
 Every cross has a fix on the [troubleshooting page](reference/troubleshooting.qmd).
@@ -128,7 +128,7 @@ noticing that the classroom is built the way the module says to build.
 | `langchain-core` | 1.6.2 | Composition only. The logic stays in plain Python |
 | `tiktoken` | 0.14.0 | Token counting, per route, with the route's own encoding |
 | `structlog` | 26.1.0 | One JSON object per line, so `jq` is the analytics tool |
-| `redis` | 8.1.0 | The exact-tier response cache in Lab 6 |
+| `redis` | 8.1.0 | The exact-tier response cache in Module 6 |
 | `fastapi` / `uvicorn` | 0.141.1 / 0.52.4 | The API layer, and the course gateway |
 
 Pinned in `requirements.lock`, and pinned deliberately: floating installs are how a

@@ -1,6 +1,6 @@
 ---
 title: "Module 1 — LLM Application Architecture Patterns"
-subtitle: "Day 1, hours 1–2 · the boundary everything else attaches to"
+subtitle: "Day 1, hours 1–3 · the boundary everything else attaches to"
 ---
 
 Most LLM products fail not because the model is weak but because the application
@@ -11,6 +11,19 @@ do, and no way to answer "what changed?" when quality drops.
 This module gives you a pattern vocabulary and one architectural discipline —
 **put the model behind a boundary** — so that structure, guards, evaluation and
 cost all have somewhere to attach later in the week.
+
+::: {.session-meta}
+At the keyboard
+: `demo_v0.py` · `make test` · `make ask` · `make chat` · `make drill-outage`
+
+You leave with
+: Murshid answering in both languages from a windowed conversation, every model
+  call behind one interface, and a context budget you can defend line by line.
+
+Before you start
+: `make doctor` all green, and the gateway up (`make gateway`, or
+  `docker compose up -d gateway`). See [Setup](../setup.qmd).
+:::
 
 ## 1. LLM applications fail quietly
 
@@ -26,13 +39,39 @@ returning 200s while the answers degrade.
 | **New attack surface** | Users can *talk to* your logic. There is no parameterised-query equivalent. | M4 |
 | **Provider coupling** | Written against one SDK, one model name, one price sheet. Procurement, residency rules and the market all change. | This module |
 
-::: {.callout-note appearance="simple"}
-## The five-minute exercise before any of this
+### On screen first: the demo that works on stage
 
-Open a sixty-line "works on stage" chatbot — hardcoded model name, prompt inline,
-no timeout, no state, `print` streaming — and list what breaks in production. A
-room full of engineers finds most of the table above unprompted. Naming them
-afterwards lands better than naming them first.
+Before any of that lands as a list, it has to land as a surprise. `demo_v0.py` is
+sixty lines — hardcoded model name, prompt inline, no timeout, no state, `print`
+streaming. It works.
+
+```bash
+cd murshid
+cat demo_v0.py
+```
+
+Read it against the table above and name the defects it ships with. A room full of
+engineers finds five or six unprompted. Then run it:
+
+```bash
+python demo_v0.py "How do I renew my commercial licence?"
+```
+
+```
+Of course — the fee for that service is SAR 250 and it usually takes about three
+working days. You can complete it in the portal.
+```
+
+::: {.callout-important}
+## The directory says SAR 200
+
+The demo invented a fee, fluently, for the exact question it was built to demo —
+because its service facts live in a string literal that nothing checks, and it has
+no rule about what to do when it does not know.
+
+Nobody in the room notices unless they already know the right answer. That is the
+failure mode this entire course is arranged around, and it is on screen in the
+first ten minutes of day one.
 :::
 
 ## 2. Four patterns, as an escalation ladder
@@ -109,6 +148,20 @@ flowchart TD
 The single most consequential decision in an LLM application is where the model
 boundary sits. The rule: **application code never imports a provider SDK.**
 
+The layout is what makes that rule checkable rather than aspirational:
+
+```
+src/murshid/
+  llm/          the boundary: interfaces, adapters, retry policy
+  pipeline/     stages; nothing here imports a provider SDK
+  domain/       the directory, the ticket contract, the session
+  api/          a thin layer over the pipeline
+tests/
+```
+
+Everything the application is allowed to know about a provider is in
+[`llm/interfaces.py`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/src/murshid/llm/interfaces.py):
+
 ```python
 # src/murshid/llm/interfaces.py — what the application is allowed to know
 class LLMClient(Protocol):
@@ -133,6 +186,37 @@ standard), `AnthropicClient`, and `FakeClient` for tests.
   reason, usage). Usage crossing the boundary is what makes Module 6's cost meter a
   one-line change rather than a refactor.
 
+### Reading `OpenAICompatClient.complete()`
+
+Four things the adapter does, each of which is a rule from this module rather than
+a detail of the SDK:
+
+1. it resolves `request.model_alias` **through the route config** — never a literal
+   model id;
+2. it sets `max_tokens`, always;
+3. it sets `max_retries=0` on the SDK client, because *we* own retry policy — an
+   SDK retrying underneath our own retry loop multiplies attempts silently;
+4. it returns the **concrete** `model_id` that answered, plus `usage`, plus latency.
+
+Watch all four arrive in one line of output:
+
+```bash
+make ask Q="How do I renew my commercial licence?"
+```
+
+```
+[faq → course-flagship via primary] 508ms, 1413 in (1180 cached) / 138 out, 0.418 halalas
+About Renewing a commercial registration (CR):
+- Fee: SAR 200 for each year of renewal
+- Processing time: Same working day once payment clears
+...
+```
+
+SAR 200 this time, from the directory, because the answer is composed from facts
+that arrived in the prompt. Every field in that first line matters later:
+`course-flagship` is the concrete model rather than the alias, `1180 cached` is
+Module 6, and `0.418 halalas` is the cost meter already running.
+
 ::: {.callout-important}
 ## This claim is tested, not asserted
 
@@ -140,6 +224,10 @@ standard), `AnthropicClient`, and `FakeClient` for tests.
 and fails if anything outside `llm/openai_compat.py` and `llm/anthropic_client.py`
 imports `openai` or `anthropic`. It also fails on an `LLMRequest` constructed
 without `max_tokens`, and on prompt text inlined in Python.
+
+```bash
+make test
+```
 
 A boundary that nothing checks is a boundary that lasts until the first deadline.
 :::
@@ -155,16 +243,83 @@ is an application concern. Three strategies:
 | **Windowed** (last k turns) | flat | forgetting turn 1 — visibly, predictably | **shipped**, k = 8 |
 | Summarised | flat plus one cheap call | a summary that drops the fact that mattered | capstone extension |
 
+`ConversationState` ships with `max_turns=8`. Hold a bilingual conversation and
+watch history do its job:
+
+```bash
+make chat
+```
+
+```
+you> اسمي فيصل. كيف أجدد رخصتي التجارية؟
+murshid> بخصوص تجديد السجل التجاري:
+- الرسوم: ٢٠٠ ريال عن كل سنة تجديد
+...
+you> ما اسمي؟
+murshid> اسمك فيصل.
+```
+
+::: {.callout-important}
+## The moment statelessness lands — do not skip it
+
+Type nine exchanges, then ask about the first one. The window forgets, on cue.
+
+```
+you> /state
+  window: 16 messages, max 8 turns
+```
+
+There is nothing wrong. LLM APIs are stateless, "memory" is an application
+concern, and a window is a *decision* with a cost curve — not an implementation
+detail. Pinned by
+`tests/domain/test_ticket_and_session.py::test_the_window_forgets_the_oldest_turn`.
+:::
+
+### The context budget
+
 **Context budget is an architectural constraint, not an afterthought.** History,
 system prompt, retrieved content, tool schemas and output must fit — and cost
-scales with all of it on *every* turn. Murshid's budget is written down in
-[`docs/context_budget.md`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/docs/context_budget.md);
-you write your own in Lab 1.
+scales with all of it on *every* turn. Murshid's budget allocates a 16k-token
+request across six lines and justifies each one, in
+[`docs/context_budget.md`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/docs/context_budget.md).
+
+The lines are measured, not guessed:
+
+```bash
+python -c "import sys; sys.path.insert(0,'src'); \
+from murshid.domain.directory import rendered_directory; from murshid.llm.tokens import count; \
+print({lang: count(rendered_directory(lang)) for lang in ('en','ar')})"
+# {'en': 1127, 'ar': 1352}
+```
+
+Two questions the document has to answer, and which you should be able to answer
+about your own capstone:
+
+- At ~600 tokens per turn, which turn overflows a 16k window with *unbounded*
+  history? Show the arithmetic.
+- Which line of the budget is the largest, and is it in the cacheable prefix or the
+  volatile tail? Module 6 will make you care.
+
+### Streaming and the sync/batch line
 
 **Streaming is UX, not decoration.** A 500 ms time-to-first-token with streaming
 *feels* faster than a four-second complete response at identical total latency.
 Stream user-facing prose; do not stream machine-consumed structured output — you
 cannot validate half a JSON object.
+
+```bash
+make stream Q="What documents do I need to renew my commercial registration?"
+```
+
+```
+About Renewing a commercial registration (CR): ...
+
+[TTFT 118ms · total 486ms · 1413 in (1180 cached) / 138 out]
+```
+
+TTFT and total are reported separately on purpose — that distinction is Module 6's
+headline. `stream_options={"include_usage": True}` is what keeps usage on the final
+frame; without it the cost meter silently undercounts every streamed request.
 
 **Sync versus batch:** does a human wait for this response? No → batch candidate,
 where provider batch APIs are typically half price and rate limits are kinder.
@@ -192,7 +347,8 @@ ResilientClient(
 - **`max_tokens` always set**, per-conversation spend caps, and a circuit breaker
   that stops hammering a failing provider.
 
-Run the drill rather than reading about it:
+Run the drill rather than reading about it. The gateway injects the fault, so this
+is a real 529 travelling a real error path:
 
 ```bash
 make drill-outage        # the primary model returns 529 for five minutes
@@ -216,6 +372,22 @@ make drill-off
 6. **Ignoring refusals as a response class.** Content-filter refusals are normal
    API behaviour and need designed UX, not a stack trace.
 
+## Run it yourself, in order
+
+```bash
+cd murshid
+make doctor                                        # every route reachable
+python demo_v0.py "How do I renew my commercial licence?"   # the invented fee
+make test                                          # the boundary, enforced
+make ask Q="How do I renew my commercial licence?"  # the same question, grounded
+make chat                                          # bilingual, windowed, /state
+make drill-outage && make ask Q="..." && make drill-off
+```
+
+Stuck on any of these? [Troubleshooting](../reference/troubleshooting.qmd) has the
+symptom table — the two that catch most rooms are a gateway that is not running,
+and a console code page that cannot render Arabic.
+
 ## Benchmarks after this module
 
 | Metric | Target | How measured |
@@ -235,4 +407,4 @@ make drill-off
 - Which single architectural decision in Murshid makes a data-residency
   requirement a routing policy instead of a rewrite?
 
-**Next:** [Lab 1 — build the skeleton](../labs/lab1-skeleton.qmd)
+**Next:** [Module 2 — provider APIs and open-weight models](m2-apis-and-open-weights.qmd)

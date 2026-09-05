@@ -1,7 +1,7 @@
 # Rubrics
 
 `groundedness.v1.md` is deliberately vague — no anchors, no evidence requirement,
-no don't-know clause. It is the starting point for Lab 5 task 3, and it produces a
+no don't-know clause. It is where Module 5's calibration starts, and it produces a
 judge that agrees with human labels about two thirds of the time (kappa near 0.4),
 which is a random-number generator with an opinion.
 

@@ -1,6 +1,6 @@
 ---
 title: "Module 2 — Working with LLM APIs and Open-Weight Models"
-subtitle: "Day 1, hour 4 · the contract, the tokens, the errors, and the other half of the industry"
+subtitle: "Day 1, hours 4–5 · the contract, the tokens, the errors, and the other half of the industry"
 ---
 
 Module 1 drew the boundary. This module fills it with competence: the chat/messages
@@ -10,6 +10,17 @@ same interface.
 
 By the end, "which model?" stops being a brand preference and becomes an
 engineering comparison with numbers attached.
+
+::: {.session-meta}
+At the keyboard
+: `pytest tests/llm/test_adapter_contract.py` · `make ask ROUTE=vllm` ·
+  `make stream` · `make drill-429` · `make bench` · `make token-report`
+
+You leave with
+: The same contract suite green against four adapters, an open-weight route serving
+  with no change under `src/`, a fault-drill log excerpt, and `BENCHMARKS.md`
+  seeded with numbers you produced.
+:::
 
 ## 1. Two wire dialects
 
@@ -34,9 +45,15 @@ flowchart LR
     style N fill:#eef3fb,stroke:#4a76b8,stroke-width:3px
 ```
 
-An adapter that pretends the differences do not exist produces subtle bugs. That
-is precisely why Module 1's normalised types exist — and the differences are not
-static:
+An adapter that pretends the differences do not exist produces subtle bugs. Four
+of them are load-bearing, and `AnthropicClient.complete()` is where each one stops:
+
+| Difference | If the adapter gets it wrong |
+|---|---|
+| `system` is a **top-level parameter** | the system prompt is silently ignored |
+| `max_tokens` is **required** | `400 max_tokens: field required` |
+| content is a list of typed **blocks** | tool calls vanish |
+| the finish signal is `stop_reason` | your `finish_reason` control flow never fires |
 
 ::: {.callout-warning}
 ## A fifth difference, found while building this course
@@ -49,11 +66,30 @@ outputs moved to `output_config.format`. Forwarding `request.temperature` raises
 The normalised `LLMRequest` keeps `temperature`, because the OpenAI dialect still
 has it. The adapter is where the divergence stops, and
 [`anthropic_client.py`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/src/murshid/llm/anthropic_client.py)
-says so in a comment that tells the next person not to "fix" it.
+says so in a comment that tells the next person not to "fix" it by deleting the
+field.
 
 This is the module's real lesson in miniature: **APIs drift underneath your
 lesson.** Trust an executed run over what should work from reading the docs.
 :::
+
+### One contract suite, every adapter
+
+"Implements the protocol" is a test, not a docstring claim. The same test class is
+parametrised over all four:
+
+```bash
+pytest tests/llm/test_adapter_contract.py -v
+```
+
+```
+test_adapter_contract.py::TestAdapterContract::test_satisfies_the_protocol[fake] PASSED
+test_adapter_contract.py::TestAdapterContract::test_satisfies_the_protocol[openai_compat] PASSED
+test_adapter_contract.py::TestAdapterContract::test_satisfies_the_protocol[anthropic] PASSED
+test_adapter_contract.py::TestAdapterContract::test_satisfies_the_protocol[vllm] PASSED
+...
+16 passed
+```
 
 ### Read the response as carefully as the request
 
@@ -103,8 +139,8 @@ make token-report      # 100 parallel Arabic/English sentence pairs
 
 The "Arabic costs 1.5–2.5× more" figure that has been in course material for years
 is a fact about a *tokenizer generation*, not about Arabic — and it largely
-vanished between two vocabularies. The rule underneath it survives and is the one
-worth teaching:
+vanished between two vocabularies. Revise whatever you believed on the strength of
+that number. The rule underneath it survives and is the one worth teaching:
 
 > **Count with the route's own tokenizer.** `tiktoken` for OpenAI-dialect models,
 > the provider's count-tokens endpoint for Anthropic, the model's own Hugging Face
@@ -125,11 +161,39 @@ computed budget.
 stream_options={"include_usage": True}   # or usage never arrives
 ```
 
-Accumulate deltas; surface time-to-first-token and total separately; **make sure
-the last chunk's usage reaches the cost meter.** Streaming also changes the failure
-model: an error mid-stream arrives after the user has seen half an answer, so
-`ResilientClient` deliberately refuses to fail over once a token has been emitted —
-splicing two models' answers together is worse than an honest error.
+```bash
+make stream Q="What documents do I need to renew my commercial registration?"
+```
+
+```
+About Renewing a commercial registration (CR): ...
+
+[TTFT 593ms · total 707ms · 1406 in (0 cached) / 138 out]
+```
+
+Both numbers go in `BENCHMARKS.md`, because they answer different questions. Does
+streaming reduce total latency? It does not. It reduces *perceived* latency;
+generation time is unchanged — which is why Module 6 treats TTFT and generation as
+two separate levers with two different fixes.
+
+Streaming also changes the failure model: an error mid-stream arrives after the
+user has seen half an answer, so `ResilientClient` deliberately refuses to fail over
+once a token has been emitted — splicing two models' answers together is worse than
+an honest error.
+
+::: {.callout-important}
+## The bug `include_usage` exists to prevent
+
+Without it, `usage` never arrives and the cost meter silently undercounts the
+majority of traffic. The contract test asserts the final frame carries it:
+
+```python
+assert final.usage is not None, (
+    "losing usage on the final frame is the classic streaming "
+    "cost-accounting bug — the meter silently undercounts most traffic"
+)
+```
+:::
 
 **Rate limits** are multi-dimensional (requests/minute *and* tokens/minute, per
 model, per key tier). A 429 is normal operation at scale, not an outage: honour
@@ -145,16 +209,36 @@ model, per key tier). A 429 is normal operation at scale, not an outage: honour
 | 500 / 502 / 503 / 529 | provider side | retry, then fail over |
 | timeout | either | retry once, then fail over |
 
-Run it:
+### The fault drill
+
+Fired without warning in class, and reproducible on your own machine. The gateway
+injects a real 429 with a real `Retry-After` header, so this travels the real error
+path:
 
 ```bash
 make drill-429      # 429s with Retry-After: 2 on the primary model, three minutes
 make ask Q="كيف أجدد رخصتي التجارية؟"
-make drill-off
 ```
 
-You will see `llm_retry` honouring the header, then `fallback_served` from the
-on-premise route, and a citizen who got an answer.
+```
+[warning] llm_retry  hop=primary attempt=1 status=429 retry_after=2.0 delay_s=2.0
+[warning] llm_retry  hop=primary attempt=2 status=429 retry_after=2.0 delay_s=2.0
+[warning] fallback_served  hop=fallback:vllm model_id=murshid-onprem
+```
+
+```bash
+make drill-off
+make stats           # faults_served, and what the gateway saw
+```
+
+Three things to notice in that log:
+
+1. the retry **honoured the header** rather than guessing a backoff;
+2. attempts were **capped** — retries multiply cost and tail latency;
+3. the citizen got an answer, from the on-premise route, and never knew.
+
+The harder drill, `make drill-outage`, holds the primary model at 529 for five
+minutes so the fallback carries every request rather than the tail of a few.
 
 ## 4. Serving open-weight models with vLLM
 
@@ -190,8 +274,22 @@ routes:
     aliases: { murshid-default: murshid-onprem }
 ```
 
-`OpenAICompatClient` works unchanged. That one line is Module 1's boundary
-argument, proven.
+### The boundary argument stops being an argument
+
+The route is already in `configs/murshid.yaml`. Use it:
+
+```bash
+make ask ROUTE=vllm Q="ما هي خطوات إصدار سجل تجاري؟"
+```
+
+```
+[faq → murshid-onprem via vllm] 431ms, 1674 in (0 cached) / 187 out, 0.304 halalas
+بخصوص إصدار سجل تجاري جديد لمؤسسة فردية: ...
+```
+
+The `model_id` is `murshid-onprem`. **Nothing in `src/` changed.**
+`OpenAICompatClient` works unchanged because the chat-completions schema is the
+de-facto wire standard and vLLM speaks it.
 
 ::: {.callout-note appearance="simple"}
 ## Benchmark at realistic concurrency
@@ -199,7 +297,8 @@ argument, proven.
 Benchmarking vLLM at concurrency 1 and concluding self-hosting is slow is the most
 common mistake in this section. Continuous batching's benefits appear *under load*.
 Twenty-four participants hitting the class GPU at once is not a problem to fix — it
-is the demonstration.
+is the demonstration. On the real GPU box, put `nvidia-smi` on the projector while
+it happens.
 :::
 
 ## 5. Commercial versus open-weight, decided like an engineer
@@ -228,13 +327,34 @@ Four teaching points:
    measurements the open-weight route loses most on the `service` slice — tool
    contracts, not prose — which is exactly what shapes the routing table.
 
-Measured on this repository ([`BENCHMARKS.md`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/BENCHMARKS.md)):
+### The bench table
+
+```bash
+make bench
+make token-report
+```
+
+```
+route            p50     p95  p50 ar  p50 en  ar/en tok  hal/call  residency
+----------------------------------------------------------------------------
+primary         103ms    115ms    108ms     99ms       1.16     0.954  cloud
+cheap            50ms     54ms     53ms     47ms       1.16     0.041  cloud
+comparison      121ms    167ms    127ms    117ms       1.16     1.241  cloud
+vllm            109ms    117ms    113ms    107ms       1.16     0.301  on_premise
+```
+
+Latency and cost are only half the decision. Quality by slice, measured on this
+repository ([`BENCHMARKS.md`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/BENCHMARKS.md)):
 
 | Backend | Overall | ar | safety | service | Cost per suite |
 |---|---|---|---|---|---|
 | flagship | 100% | 100% | 100% | 100% | 65.0 halalas |
 | small | 95% | 95% | 100% | 83% | 2.7 halalas |
 | open-weight | 94% | 92% | 100% | 75% | 26.0 halalas |
+
+Put both tables in `BENCHMARKS.md` with **one sentence**: which route would you make
+Murshid's default today, and on what evidence? That sentence is the seed of the
+capstone's model-comparison criterion.
 
 ## 6. Common mistakes
 
@@ -249,6 +369,22 @@ Measured on this repository ([`BENCHMARKS.md`](https://github.com/MohammadYusif/
 7. **English-only evaluation of an Arabic-serving product.** This is the failure
    mode the course's bilingual corpora exist to prevent.
 
+## Run it yourself, in order
+
+```bash
+cd murshid
+pytest tests/llm/test_adapter_contract.py -v      # 16 passed, four adapters
+make ask ROUTE=vllm Q="ما هي خطوات إصدار سجل تجاري؟"
+make stream Q="What documents do I need to renew my commercial registration?"
+make drill-429 && make ask Q="كيف أجدد رخصتي التجارية؟" && make drill-off
+make stats
+make bench && make token-report
+```
+
+Symptoms and fixes for this module — a missing top-level `system`, the
+`temperature` `TypeError`, `usage` arriving as `None` — are in
+[Troubleshooting](../reference/troubleshooting.qmd).
+
 ## Benchmarks after this module
 
 | Metric | Target | How measured |
@@ -260,4 +396,14 @@ Measured on this repository ([`BENCHMARKS.md`](https://github.com/MohammadYusif/
 | Token counting per route | the route's own encoding | `make token-report` |
 | Provider comparison recorded | bench table + a default-route rationale | `BENCHMARKS.md` |
 
-**Next:** [Lab 2 — two providers, one interface](../labs/lab2-two-providers.qmd)
+## Discussion
+
+- Murshid handles 30,000 conversations a day, averaging six turns, roughly 900
+  input and 150 output tokens per turn. At the course price sheet's rates, what
+  does routing 70% of turns to the cheap model save per month? Keep your estimate —
+  Module 6's `make replay-after` will tell you how wrong it was, and in which
+  direction.
+- The open-weight route is 94% overall but 75% on `service`. Does that rule it out,
+  or does it tell you where to route it?
+
+**Next:** [Module 3 — structured outputs and function calling](m3-structured-outputs-and-tools.qmd)

@@ -9,7 +9,7 @@ review board — an architect, a security assessor and a service-delivery direct
 approves the pilot on evidence: a working application, an evaluation report with
 calibrated numbers, and a cost model that survives national-scale arithmetic.
 
-Everything you built in Labs 1–6 is a component. Today is integration, one
+Everything you built across Modules 1–6 is a component. Today is integration, one
 extension, and the defence.
 
 ## Requirements
@@ -80,7 +80,7 @@ an FAQ answer, a tool-completed booking, a refused attack, and a graceful fallba
 
 ## Deliverables
 
-1. **Repository URL** with full history — labs visible as commits, CI green on
+1. **Repository URL** with full history — the week's build visible as commits, CI green on
    `main`.
 2. **`EVALUATION_REPORT.md`** — overall and sliced results for both backends, judge
    calibration evidence, safety suite status, and **known limitations**. Honesty

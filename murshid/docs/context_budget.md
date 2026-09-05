@@ -1,6 +1,6 @@
 # The context budget
 
-Lab 1 task 5. Not an afterthought: history plus system prompt plus retrieved
+Written in Module 1. Not an afterthought: history plus system prompt plus retrieved
 content plus tool schemas plus output must fit the window, and **cost scales with
 all of it on every turn**. A budget written down is a design artefact; a budget
 discovered in production is an incident.

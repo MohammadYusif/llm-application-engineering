@@ -100,7 +100,7 @@ System-prompt extraction: 4/5 attempts refused at the input wall, **canary intac
 on 5/5** — the fifth is answered normally, which is the attack failing rather than
 the guard failing.
 
-The two attacks recorded as misses during Lab 4 (an Arabic authority claim and a
+The two attacks recorded as misses during Module 4 (an Arabic authority claim and a
 zero-width-separated payload) are fixed in `match_variants` and the constraints
 pattern, and both are permanent safety cases in the golden set.
 

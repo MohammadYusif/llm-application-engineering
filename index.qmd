@@ -14,8 +14,8 @@ not a fresh build.
 ## Everything runs offline
 
 No API key, no network, no GPU. The repository ships a course gateway that speaks
-both provider dialects and answers from rules, so every lab, test and evaluation
-run works on a laptop on a plane — and every drill (the rate-limit storm, the
+both provider dialects and answers from rules, so every walkthrough, test and
+evaluation run works on a laptop on a plane — and every drill (the rate-limit storm, the
 provider outage) fires on command instead of when a provider happens to have a bad
 afternoon.
 
@@ -46,8 +46,8 @@ justified. The model boundary. Then two providers behind one interface, streamin
 with time-to-first-token measured, and a retry policy that survives a live 429
 storm.
 
-[Module 1](modules/m1-architecture.qmd) · [Lab 1](labs/lab1-skeleton.qmd) ·
-[Module 2](modules/m2-apis-and-open-weights.qmd) · [Lab 2](labs/lab2-two-providers.qmd)
+[Module 1 — architecture and the boundary](modules/m1-architecture.qmd) ·
+[Module 2 — APIs and open weights](modules/m2-apis-and-open-weights.qmd)
 :::
 
 ::: {.g-col-12 .g-col-md-6}
@@ -57,9 +57,8 @@ validate → retry → repair loop. Then tools: schemas the model uses correctly
 bounded execution loop, and an authorisation gate that no sequence of conversation
 turns can talk its way past.
 
-[Module 3](modules/m3-structured-outputs-and-tools.qmd) ·
-[Lab 3](labs/lab3-tickets-and-tools.qmd) ·
-[Module 4](modules/m4-prompts-and-guardrails.qmd)
+[Module 3 — structured outputs and tools](modules/m3-structured-outputs-and-tools.qmd) ·
+[Module 4 — prompts and guardrails](modules/m4-prompts-and-guardrails.qmd)
 :::
 
 ::: {.g-col-12 .g-col-md-6}
@@ -68,9 +67,9 @@ Prompts as versioned artefacts. Injection defence in layers, measured honestly.
 Golden sets that earn trust, a judge you qualify before you trust, a gate that
 blocks the regression code review cannot see — and only then, optimisation.
 
-[Lab 4](labs/lab4-guarded-pipeline.qmd) · [Module 5](modules/m5-evaluation.qmd) ·
-[Lab 5](labs/lab5-evaluation-harness.qmd) ·
-[Module 6](modules/m6-cost-latency-caching.qmd) · [Lab 6](labs/lab6-optimise.qmd)
+[Module 4, continued](modules/m4-prompts-and-guardrails.qmd) ·
+[Module 5 — evaluation](modules/m5-evaluation.qmd) ·
+[Module 6 — cost, latency and caching](modules/m6-cost-latency-caching.qmd)
 :::
 
 ::: {.g-col-12 .g-col-md-6}

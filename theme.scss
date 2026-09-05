@@ -48,20 +48,20 @@ table td {
   border: 1px solid rgba(13, 110, 253, 0.35);
 }
 
-/* Lab objective boxes. */
-.lab-meta {
+/* Walkthrough header on a lesson page: what you run, what you leave with. */
+.session-meta {
   border-left: 3px solid rgba(13, 110, 253, 0.6);
   padding: 0.6rem 0 0.6rem 1rem;
   margin: 1.2rem 0;
 }
 
-.lab-meta dt {
+.session-meta dt {
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   opacity: 0.75;
 }
 
-.lab-meta dd {
+.session-meta dd {
   margin: 0 0 0.5rem 0;
 }

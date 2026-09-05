@@ -12,11 +12,11 @@ This page is the operating summary and the things that are easy to get wrong.
 
 ## The delivery plan
 
-| Day | Theme | Modules | Theory/Lab | Deliverable by end of day |
+| Day | Theme | Modules | Talk / at the keyboard | Deliverable by end of day |
 |---|---|---|---|---|
 | 1 | From demo to system | M1 · M2 | 50/50 | provider-abstracted skeleton answering via a commercial API **and** the open-weight route |
-| 2 | Structure and control | M3 · M4 (theory) | 45/55 | tool-calling assistant emitting validated ticket objects |
-| 3 | Prove it, then pay less | M4 (lab) · M5 · M6 | 35/65 | guarded pipeline, green harness, measured optimisation in `BENCHMARKS.md` |
+| 2 | Structure and control | M3 · M4 (first half) | 45/55 | tool-calling assistant emitting validated ticket objects |
+| 3 | Prove it, then pay less | M4 (second half) · M5 · M6 | 35/65 | guarded pipeline, green harness, measured optimisation in `BENCHMARKS.md` |
 | 4 | Ship the application | capstone | 15/85 | working application, evaluation report, demo |
 
 Each "hour" is 50 minutes of instruction plus 10 of buffer. Schedule the long break
@@ -28,8 +28,12 @@ Every module extends the **same** Murshid. Never introduce a throwaway chatbot
 example. This is what makes Day 4 achievable: by Thursday morning the "project" is
 assembly plus one extension, not a fresh build.
 
+Every module page carries its own walkthrough — the code is already written, and
+you teach from the page while participants run the same commands beside you. There
+are no separate lab sheets to hand out and nothing to fill in from scratch.
+
 If a pair falls behind, they fast-forward by checking out the reference state
-rather than by skipping a lab. Nobody starts Day 3 without a working Day 2.
+rather than by skipping a section. Nobody starts Day 3 without a working Day 2.
 
 ## Preparation — T minus one week
 
@@ -39,15 +43,15 @@ rather than by skipping a lab. Nobody starts Day 3 without a working Day 2.
       must be green before Day 1**.
 - [ ] `make calibrate` — confirm the v1 → v2 rubric jump still lands (κ 0.35 → 0.84).
 - [ ] Rehearse the two drills (`make drill-429`, `make drill-outage`) and time
-      them. They take five minutes of setup each and belong in lab time, never in
-      theory.
-- [ ] Rehearse the Lab 5 gate demo end to end: baseline, seeded prompt, blocked
+      them. They take five minutes of setup each and belong in the walkthrough,
+      never in the talk.
+- [ ] Rehearse the Module 5 gate demo end to end: baseline, seeded prompt, blocked
       gate, revert, green.
 - [ ] If you have a GPU box: stand up vLLM, run `make bench` against it, and record
-      the throughput for the Lab 6 break-even worksheet. If you do not, the course
+      the throughput for the Module 6 break-even. If you do not, the course
       runs unchanged — say so out loud rather than apologising for it.
 - [ ] Refresh `configs/murshid.yaml`'s price sheet against current provider pricing
-      and sanity-check that the Lab 6 numbers still hold within ±30%.
+      and sanity-check that the Module 6 numbers still hold within ±30%.
 - [ ] Print the posters: the pattern ladder (M1), Murshid's target architecture
       (M1), the tool-execution loop (M3), the guarded pipeline (M4), the caching
       hierarchy (M6). All five are mermaid diagrams on the module pages.
@@ -62,31 +66,32 @@ rather than by skipping a lab. Nobody starts Day 3 without a working Day 2.
 
 ## The five moments that carry the week
 
-1. **Lab 1, the window forgetting.** Nine exchanges, then ask about the first.
+1. **Module 1, the window forgetting.** Nine exchanges, then ask about the first.
    Every pair demonstrates it. Statelessness lands here or it does not land.
-2. **Lab 2, the fault drill.** Fire it unannounced while pairs are on task 4, and
+2. **Module 2, the fault drill.** Fire it unannounced while pairs are mid-command, and
    *announce it afterwards*. Pairs who skipped the `ResilientClient` wiring crash
    publicly; handle it kindly, because that is the lesson.
-3. **Lab 4, the false-positive question.** When a pair announces 100% block rate,
+3. **Module 4, the false-positive question.** When a pair announces 100% block rate,
    ask for their false-positive number before congratulating them. Do it once, in
    public, and the norm sets itself.
-4. **Lab 5, the blocked gate.** Let it land in silence before explaining. Code
+4. **Module 5, the blocked gate.** Let it land in silence before explaining. Code
    review sees a tone change; the gate sees eight invented fees.
-5. **Lab 6, the routing table failing.** The first table almost never survives, and
+5. **Module 6, the routing table failing.** The first table almost never survives, and
    the correction *is* the lesson. Do not let a pair skip to the answer.
 
 ## Timing
 
-- Protect Lab 3 (both parts) and Lab 5 at full length. They carry LO2 and LO4, the
-  two outcomes the capstone rubric weights most.
-- Day 2 hour 5 (M4 theory) can compress to 35 minutes if the day runs hot. Never
+- Protect Module 3 (both the ticket and the tool loop) and Module 5 at full
+  length. They carry LO2 and LO4, the two outcomes the capstone rubric weights most.
+- Module 4's first half can compress to 35 minutes if Day 2 runs hot. Never
   compress the injection demo.
 - **Hard rule:** Day 4 hour 2 (integration) starts on time whatever the state of
   the morning reviews. Capstone assembly time is never traded for discussion.
 - Strong cohort: pull the cascade extension into Day 3 hour 5 as main scope and let
   the leaderboard run competitive.
-- Weak cohort: make Lab 5 task 5 a guided demo rather than pair work — but every
-  pair still *watches* the seeded regression get blocked.
+- Weak cohort: run Module 5's gate section as a guided demo rather than at each
+  pair's keyboard — but every pair still *watches* the seeded regression get
+  blocked.
 
 ## Common student issues
 
@@ -94,7 +99,7 @@ rather than by skipping a lab. Nobody starts Day 3 without a working Day 2.
 |---|---|---|
 | Arabic renders as boxes in a Windows terminal | high | Windows Terminal or VS Code, `PYTHONUTF8=1`; `make doctor` checks it |
 | Two terminals confusion — gateway in one, work in the other | high | say it three times on Day 1; the compose path avoids it entirely |
-| A pair hardcodes a provider SDK "just to test" | medium | `pytest tests/test_architecture.py` catches it; route the discussion to the Lab 2 drill |
+| A pair hardcodes a provider SDK "just to test" | medium | `pytest tests/test_architecture.py` catches it; route the discussion to the Module 2 drill |
 | Strict-mode schema rejections | medium | `make schema-check` names the violation; teach the subset once on the projector |
 | Judge scores drift between runs | medium | temperature 0 and a pinned judge; the residual variance is the lesson about margins |
 | Pairs "improve" golden cases to go green | low | diff against the generator; have the governed-regeneration conversation |

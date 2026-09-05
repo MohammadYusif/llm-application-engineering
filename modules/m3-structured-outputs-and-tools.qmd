@@ -1,6 +1,6 @@
 ---
 title: "Module 3 — Structured Outputs and Function Calling"
-subtitle: "Day 2 · from a system that talks to a system that acts"
+subtitle: "Day 2, hours 1–4 · from a system that talks to a system that acts"
 ---
 
 Free text is where LLM output goes to be admired; structure is where it goes to be
@@ -8,6 +8,21 @@ Free text is where LLM output goes to be admired; structure is where it goes to 
 files a ticket and books an appointment — and it is where the risk concentrates. A
 hallucinated chat answer embarrasses. A hallucinated `national_id` passed to a
 booking API *acts*.
+
+::: {.session-meta}
+At the keyboard
+: `make schema-check` · `make extract-audit` · `make tool-smoke` ·
+  `pytest tests/pipeline/test_tool_safety.py` · `make chat`
+
+You leave with
+: Six extraction numbers in `BENCHMARKS.md`, an invented-field audit at zero, the
+  tool-safety suite green, and a booking that refuses to happen for the wrong
+  citizen.
+
+The corpus
+: `data/citizen_messages_50.jsonl` — bilingual and deliberately messy: dialect,
+  missing hamzas, Arabic-Indic digits, mixed script, one 400-word polite ramble.
+:::
 
 ## 1. The structured-output ladder
 
@@ -42,6 +57,18 @@ municipalities, or that an appointment date must be a future working day. Those
 live in validators — which means validation can still fail, which means the
 application still needs a designed failure path.
 
+Here is a rule that no JSON Schema can express, from
+[`domain/ticket.py`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/src/murshid/domain/ticket.py):
+
+```python
+@field_validator("national_id")
+@classmethod
+def valid_national_id(cls, v: str | None) -> str | None:
+    if v is not None and not (len(v) == 10 and v.isdigit() and v[0] in "12"):
+        raise ValueError("must be 10 digits starting with 1 (citizen) or 2 (resident)")
+    return v
+```
+
 ::: {.callout-note appearance="simple"}
 ## Strict mode is a narrower subset than JSON Schema
 
@@ -53,6 +80,10 @@ contract inside the subset, and check it:
 make schema-check
 # 5/5 contracts strict-safe
 ```
+
+Break it deliberately — remove `additionalProperties: false` from `_tighten` — and
+watch the check name the violation. Then put it back. A contract that only fails at
+the provider, in production, is a contract nobody checked.
 :::
 
 ## 2. The validate → retry → repair loop
@@ -76,17 +107,60 @@ Four decisions in nine lines:
 2. **Validate** with pydantic. On success a *typed object* crosses into the
    application, and nothing downstream ever touches raw model output.
 3. **On failure, retry once with the errors rendered verbatim.** Models repair
-   reliably against explicit, *located* errors —
-   `applicant.national_id: must be 10 digits starting with 1 or 2`. "Please try
-   again" barely moves the pass rate.
+   reliably against explicit, *located* errors. That is what the repair message
+   carries:
+
+   ```
+   The JSON you returned failed validation. Fix ONLY these errors and return the
+   corrected object, with no commentary:
+   - applicant.national_id: must be 10 digits starting with 1 (citizen) or 2 (resident)
+   ```
+
+   "Please try again" barely moves the pass rate — verifiable by editing
+   `REPAIR_INSTRUCTION` and re-running the corpus.
 4. **On the second failure, escalate by design.** Never loop unboundedly — each
    retry is money and latency. Never relax the schema in the heat of an incident;
    failures belong on the escalation path, not in the contract.
+
+### What "we don't know" looks like
+
+```bash
+make ask Q="السلام عليكم، اسمي فيصل العتيبي وأبغى أجدد السجل التجاري حقي في الرياض"
+```
+
+Then a message with almost nothing in it:
+
+```python
+extract_ticket(client, "كيف أجدد رخصتي التجارية؟")
+# applicant.national_id  -> None
+# applicant.phone        -> None
+# city                   -> "unknown"
+```
+
+`None` is the correct answer, and `extract_ticket.v3`'s "never invent" rule plus
+its one null example are what earn it. **An invented field is a defect; an empty one
+is a fact.**
 
 ### Measure it: schema-pass rate, split by language
 
 ```bash
 make extract-audit                 # the default route
+```
+
+```
+50 messages | first-try pass: 45/50 (90%) | after repair: 48/50 (96%) | escalated: 2
+   by language: ar 32/35 (91%) → 34/35 (97%) | en 12/14 (86%) → 13/14 (93%)
+   invented-field audit: 0 invented across 15 annotated cases
+   escalated to human review: 2
+```
+
+All six numbers go in `BENCHMARKS.md`. The two escalations are not a bug: one
+repair, then a designed hand-off. **A corpus where nothing ever escalates is not
+testing the failure path.**
+
+Then the same corpus through the other two routes:
+
+```bash
 make extract-audit ROUTE=vllm      # the open-weight comparison
 make extract-audit ROUTE=cheap
 ```
@@ -101,8 +175,16 @@ The quiet headline is the last column: the small model's English first-try rate 
 64%, and **one feedback repair takes it to 100%**. That single observation
 justifies the loop better than any slide.
 
-The quiet warning is the ordering. Fifty cases carry roughly ±6 points of noise, so
-"the open-weight model beat the flagship after repair" is a coin, not a finding.
+::: {.callout-warning}
+## Now the sentence about error bars
+
+The open-weight route "beat" the flagship after repair. Fifty cases carry roughly
+±6 points of noise, so that is a coin, not a finding.
+
+The differences that *are* real here are the first-try rates and the size of the
+gap the repair loop closes. Learning which differences survive their error bars is
+most of what Module 5 is about.
+:::
 
 ## 3. Function calling: the mechanics
 
@@ -159,6 +241,36 @@ Murshid ships three, one per risk class, deliberately:
 | `book_appointment` | side-effecting | **authorisation gate**: verified identity, own account, idempotency key |
 | `escalate_to_agent` | terminal | ends the loop |
 
+### Descriptions route — watch one sentence break it
+
+The smoke suite asserts *which* tools fire, including the cases where none should:
+
+```bash
+make tool-smoke
+```
+
+```
+  OK  status lookup with a reference                   called=['check_application_status']
+  OK  documents question — must NOT call a tool        called=[]
+  OK  status question without a reference — must ask   called=[]
+  OK  booking with everything confirmed                called=['book_appointment']
+  OK  asks for a human                                 called=['escalate_to_agent']
+
+5/5 as expected
+```
+
+Now break it on purpose. In
+[`tools/registry.py`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/src/murshid/tools/registry.py),
+change the status tool's description to *"Use for any question about
+applications"* and re-run:
+
+```
+  BAD documents question — must NOT call a tool        called=['check_application_status']
+```
+
+One over-broad sentence and the tool fires on everything. **Descriptions route** —
+which is why the `don't` cases in a description are not padding.
+
 ::: {.callout-important}
 ## Authority lives in the application, never in the token stream
 
@@ -167,11 +279,6 @@ tool call is *user input by proxy* — it may have arrived through forty patient
 turns of conversation. The authenticated session decides whose appointment gets
 booked; the argument is at most a cross-check.
 
-This is the SIM-swap case study's whole lesson: the attacker's exploit was that
-"identity verified" existed only as chat history, so it could be asserted into
-existence. The fix is not a better prompt. It is moving the state out of the
-token stream:
-
 ```python
 if tool.risk == "side_effecting":
     verdict = session.authorize(tool.name, args)   # identity freshness + own account + idempotency
@@ -179,8 +286,15 @@ if tool.risk == "side_effecting":
         return {"error": "not_authorized", "hint": verdict.user_hint}
 ```
 
-No prompt can fix this, because a prompt is advice inside the same channel the
-attacker writes to.
+Ask the room where else that check could live: in the prompt; in the tool
+description; in the model's good judgement. Then ask what happens to each under
+Module 4's injection scenarios. **Every answer that lives inside the token stream is
+an answer an attacker can write to.** The session object is the only one that is
+not.
+
+This is the SIM-swap case study's whole lesson: the attacker's exploit was that
+"identity verified" existed only as chat history, so it could be asserted into
+existence. The fix is not a better prompt.
 :::
 
 **Bound the loop**: 6 iterations, an allowed-tool list per route (the FAQ handler
@@ -193,6 +307,16 @@ This is Module 1's "bounded agentic loop" made concrete.
 pytest tests/pipeline/test_tool_safety.py -v
 ```
 
+```
+test_booking_for_someone_else_is_denied PASSED
+test_hallucinated_tool_name_is_an_error_not_a_crash PASSED
+test_malformed_arguments_never_reach_the_function PASSED
+test_loop_bound_trips_to_designed_degradation PASSED
+test_a_retried_turn_does_not_book_twice PASSED
+test_a_past_date_is_rejected_by_the_argument_contract PASSED
+test_unverified_identity_blocks_a_side_effecting_tool PASSED
+```
+
 | Test | The rule it encodes |
 |---|---|
 | `booking_for_someone_else_is_denied` | the session, not the argument, decides whose booking it is |
@@ -203,6 +327,30 @@ pytest tests/pipeline/test_tool_safety.py -v
 | `a_past_date_is_rejected_by_the_argument_contract` | constrained decoding cannot know that 2019 is over |
 | `unverified_identity_blocks_a_side_effecting_tool` | freshness, not a boolean somebody set once |
 | `every_tool_call_is_traced_with_its_risk_class` | governance: 100% of calls logged with risk and iteration |
+
+### End to end, then try to break it
+
+```bash
+make chat
+```
+
+```
+you> أريد حجز موعد في الأحوال المدنية بالرياض
+murshid> لأحجز الموعد أحتاج التاريخ (YYYY-MM-DD).
+you> نعم، أكّد الحجز بتاريخ 2026-10-14
+murshid> تم الحجز. رقم التأكيد AP3F2A91C7 في الرياض بتاريخ 2026-10-14.
+   [service · course-flagship · 612ms · 1.204 hal · tools: ['book_appointment']]
+```
+
+Two checks on that one booking. The audit trail:
+
+```bash
+jq 'select(.event=="tool_call")' logs/*.jsonl
+```
+
+And, in the same conversation, ask Murshid to *"also book my brother an
+appointment"*. It refuses with a helpful message — not because the model is polite,
+but because `session.authorize` returned `cross_citizen` and **the tool never ran**.
 
 ## 6. Common mistakes
 
@@ -218,6 +366,19 @@ pytest tests/pipeline/test_tool_safety.py -v
    yourself.
 7. **Raw exceptions crossing into tool results**, so the model starts apologising
    to a citizen about `psycopg2.OperationalError`.
+
+## Run it yourself, in order
+
+```bash
+cd murshid
+make schema-check                                  # 5/5 contracts strict-safe
+make extract-audit                                 # six numbers for BENCHMARKS.md
+make extract-audit ROUTE=vllm && make extract-audit ROUTE=cheap
+make tool-smoke                                    # 5/5 as expected
+pytest tests/pipeline/test_tool_safety.py -v
+make chat                                          # book one, then try the brother
+jq 'select(.event=="tool_call")' logs/*.jsonl
+```
 
 ## Benchmarks after this module
 
@@ -239,4 +400,4 @@ pytest tests/pipeline/test_tool_safety.py -v
 - Lab results are read-only *technically* but sensitive. Does risk classification
   need a fourth class, or does authorisation already cover it?
 
-**Next:** [Lab 3 — tickets and the tool loop](../labs/lab3-tickets-and-tools.qmd)
+**Next:** [Module 4 — the prompt pipeline and guardrails](m4-prompts-and-guardrails.qmd)

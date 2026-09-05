@@ -7,7 +7,7 @@ project in `murshid/`. Read this before changing either.
 
 **Every number in this repository is reproducible by a command in this repository.**
 
-`BENCHMARKS.md`, the module pages, the lab pages, the ADRs — none of them may quote
+`BENCHMARKS.md`, the module pages, the ADRs — none of them may quote
 a figure that a reader cannot regenerate. If you change a threshold, a corpus, a
 prompt version or a price, **re-run the command and update the number**. A stale
 number in a teaching repository is worse than no number: it teaches the wrong thing
@@ -62,11 +62,11 @@ four versions and each one exists for a reason:
 
 | Version | Why it exists |
 |---|---|
-| `v4` | the cache-killer — a per-request timestamp at the top of the prefix. Lab 6 task 2 hunts it |
+| `v4` | the cache-killer — a per-request timestamp at the top of the prefix. Module 6 hunts it |
 | `v5` | the shipped one. Same prompt, timestamp moved to the volatile tail |
-| `v6` | the seeded regression — friendlier, and quietly drops the don't-know rule. Lab 5 task 5 |
+| `v6` | the seeded regression — friendlier, and quietly drops the don't-know rule. Module 5's gate blocks it |
 
-Deleting any of them breaks a lab. Editing `v5` in place breaks the baseline and
+Deleting any of them breaks a module walkthrough. Editing `v5` in place breaks the baseline and
 the audit trail at once — which is the exact failure `sim-prompt-drift` teaches.
 
 Every version file needs front matter with a **changelog line**; a test checks.
@@ -81,14 +81,14 @@ make baseline LABEL=x   # promote a run to eval/baseline.json
 
 Edit the **seeds**, never the generated file. Regenerating a corpus or promoting a
 baseline is deliberate, diffable, and explained in the commit message. That is the
-same discipline the labs demand of participants, and the repository holds itself to
+same discipline the modules demand of participants, and the repository holds itself to
 it — a golden set edited to make a failure pass is the anti-pattern the capstone
 rubric caps a criterion for.
 
 ## Two attacks are supposed to be hard
 
 The attack corpus contains a zero-width-separated payload and an Arabic authority
-claim. They are the two misses Lab 4 records and Lab 5 fixes, and the fixes close a
+claim. They are the two misses Module 4 records and Module 5 fixes, and the fixes close a
 *shape* rather than adding strings to a blocklist:
 
 - `match_variants()` checks both normalisations, because deleting zero-width

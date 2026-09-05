@@ -41,7 +41,7 @@ curl -s localhost:8080/healthz
 If you set `MURSHID_*_BASE_URL` for a real provider, `doctor` is now telling you
 about that provider. A 401 means the key; a connection error means the URL.
 
-## Things that go wrong during labs
+## Things that go wrong mid-walkthrough
 
 | Symptom | Cause | Fix |
 |---|---|---|
@@ -80,7 +80,7 @@ on the host.
 |---|---|
 | 8080 | the course gateway |
 | 8000 | the Murshid API |
-| 6379 | Redis (Lab 6's exact cache tier) |
+| 6379 | Redis (Module 6's exact cache tier) |
 | 4713 | `quarto preview` for this site |
 
 If 8080 is occupied by something else, every route fails at once and `doctor` shows

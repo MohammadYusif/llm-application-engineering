@@ -5,13 +5,15 @@ subtitle: "How the 100 comes together, and the twenty questions it can come from
 
 | Component | Weight | Evidence |
 |---|---|---|
-| Lab completion — Labs 1–6, checkpoint commits and expected outputs | 40% | tagged commits; a `BENCHMARKS.md` entry per lab |
+| Daily build — the six modules worked through on your own checkout | 40% | a checkpoint commit and a `BENCHMARKS.md` entry per module |
 | Practical assessments PA-1 and PA-2 | 10% | artefacts plus notes |
 | Quiz — 10 of the 20 below, closed book, 15 minutes | 10% | Day 4, hour 5 |
 | Capstone project and evaluation report | 40% | the [capstone rubric](capstone.qmd#grading-rubric--100-points) |
 
-The labs strand (60%) and the project with its report (40%) match the catalogue
-assessment: *labs; an LLM application project with an evaluation report*.
+The practical strand (60%) and the project with its report (40%) match the
+catalogue assessment: *labs; an LLM application project with an evaluation report*.
+The lab work is the daily build itself — each module's walkthrough is run on your
+own checkout, and its numbers land in your `BENCHMARKS.md`.
 
 Badge issuance requires ≥ 70 overall **and** capstone ≥ 70 **and** a green safety
 suite at submission **and** no academic-integrity flags. Identical golden-set edits
@@ -159,7 +161,7 @@ prompt artefacts give you for free.
 ## Wrap-up
 
 Map each capstone requirement to the module that taught it, and let the class see
-the golden thread whole: every lab component is running in the application they
+the golden thread whole: every component built during the week is running in the application they
 just demonstrated.
 
 Forward pointers: **SDA-AIE-214** adds retrieval to this exact pipeline — the

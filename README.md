@@ -30,7 +30,7 @@ Windows without `make`: `.\make.ps1 doctor` — same target names.
 
 | Path | What |
 |---|---|
-| `index.qmd`, `modules/`, `labs/`, `reference/` | the course site (Quarto → GitHub Pages) |
+| `index.qmd`, `modules/`, `reference/` | the course site (Quarto → GitHub Pages) |
 | `murshid/` | the golden-thread project: the application, the harness, the corpora, 165 tests |
 | `murshid/infra/mockgw/` | the course gateway — both wire dialects, fault injection, a simulator |
 | `course/` | the source instructor package and the catalogue training content |
