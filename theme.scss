@@ -65,3 +65,22 @@ table td {
 .session-meta dd {
   margin: 0 0 0.5rem 0;
 }
+
+/* Bootstrap ships a bare `code { background: #f8f9fa }`, and Quarto only
+   overrides it for `p code`, `li code` and `td code`. Inline code anywhere else
+   keeps that light chip in BOTH bundles — so in dark mode the walkthrough
+   header's commands rendered white on white, at a contrast ratio of 1.05.
+   This file compiles into the light and the dark bundle alike, so the fix has to
+   be one value that reads on either ground rather than a colour per theme. */
+.session-meta dd code:not(.sourceCode) {
+  background-color: rgba(128, 128, 128, 0.2);
+}
+
+h1 code:not(.sourceCode),
+h2 code:not(.sourceCode),
+h3 code:not(.sourceCode),
+h4 code:not(.sourceCode),
+h5 code:not(.sourceCode),
+h6 code:not(.sourceCode) {
+  background-color: transparent;
+}
