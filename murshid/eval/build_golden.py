@@ -1,4 +1,4 @@
-"""Build the golden set from curated cases plus the corpora the labs produced.
+"""Build the golden set from curated cases plus the corpora the modules produced.
 
     python eval/build_golden.py
 
@@ -9,7 +9,7 @@ Construction, not size, is where a golden set gets its authority. This one is:
   pleasantries;
 * **Arabic-majority**, matching Murshid's real traffic rather than the developer's
   comfort;
-* **absorbing**: Lab 3's extraction corpus, Lab 4's attack and legitimate corpora,
+* **absorbing**: Module 3's extraction corpus, Module 4's attack and legitimate corpora,
   and every confirmed miss end up here. The set only grows, and a case leaves only
   by the same governed process that would regenerate it.
 

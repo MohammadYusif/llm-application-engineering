@@ -1,4 +1,4 @@
-"""Lab 6: replay 200 conversations through the real pipeline and meter everything.
+"""Module 6: replay 200 conversations through the real pipeline and meter everything.
 
     python scripts/replay.py --label before
     python scripts/replay.py --label after --cache --semantic --routing
@@ -41,7 +41,7 @@ def main() -> int:
     args = parser.parse_args()
 
     # Environment first: the settings object and the FAQ prompt are read at import
-    # time by design, so that a lab can change behaviour without editing code.
+    # time by design, so that a walkthrough can change behaviour without editing code.
     if args.prompt:
         os.environ["MURSHID_FAQ_PROMPT"] = args.prompt
     if args.cache or args.semantic:

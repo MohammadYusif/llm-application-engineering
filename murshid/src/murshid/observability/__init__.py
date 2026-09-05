@@ -41,7 +41,7 @@ def _add_trace_id(_logger, _name, event_dict):
 
 def configure_logging(*, json_lines: bool | None = None, path: str | Path | None = None) -> None:
     """Console-friendly by default; JSON lines when ``MURSHID_LOG_JSON=1`` or a path
-    is given. The labs read the JSON form with ``jq``; humans read the other one."""
+    is given. The walkthroughs read the JSON form with ``jq``; humans read the other one."""
     global _configured
     json_lines = (
         json_lines if json_lines is not None else os.environ.get("MURSHID_LOG_JSON") == "1"

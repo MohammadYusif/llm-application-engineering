@@ -1,4 +1,4 @@
-"""Lab 2 task 5: the same twenty bilingual prompts against every configured route.
+"""Module 2: the same twenty bilingual prompts against every configured route.
 
 Output feeds ``BENCHMARKS.md``, then the Module 5 eval and the Module 6 cost model.
 Report p50 *and* p95: the user experience is the tail's, and an average hides the

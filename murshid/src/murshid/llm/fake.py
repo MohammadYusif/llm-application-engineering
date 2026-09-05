@@ -2,7 +2,7 @@
 makes the test suite fast, free and deterministic.
 
 It is scripted, not clever: you tell it what to return, in order. Everything a
-lab needs to test — a tool call, a malformed argument, an endless loop, a 429
+walkthrough needs to test — a tool call, a malformed argument, an endless loop, a 429
 storm, a schema violation the repair loop must fix — is a one-line script here.
 
 This is the payoff of Module 1's protocol that participants feel first: you can

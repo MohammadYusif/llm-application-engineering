@@ -2,7 +2,7 @@
 
     python scripts/breakeven.py --tokens-per-sec 950
 
-Use *your* measured throughput from Lab 2, not a marketing number, and price the
+Use *your* measured throughput from Module 2, not a marketing number, and price the
 ops overhead honestly — patching, upgrades, capacity, on-call.
 
 The comparison is run against **two** hosted tiers on purpose, because "is
@@ -56,7 +56,7 @@ def main() -> int:
         "--tokens-per-sec",
         type=float,
         default=950.0,
-        help="measured in Lab 2 at realistic concurrency, not at concurrency 1",
+        help="measured in Module 2 at realistic concurrency, not at concurrency 1",
     )
     parser.add_argument(
         "--ops-overhead",

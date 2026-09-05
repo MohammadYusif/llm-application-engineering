@@ -1,6 +1,6 @@
 """One adapter, three deployments: OpenAI cloud, the course gateway, and the
 classroom vLLM server. The ``base_url`` is the only difference — that is the whole
-of Module 1's boundary argument, and Lab 2 task 2 proves it with a config edit.
+of Module 1's boundary argument, and Module 2 proves it with a config edit.
 """
 
 from __future__ import annotations

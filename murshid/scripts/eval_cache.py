@@ -1,4 +1,4 @@
-"""Lab 6 task 3: the semantic cache's safety suite.
+"""Module 6: the semantic cache's safety suite.
 
     python scripts/eval_cache.py
     python scripts/eval_cache.py --threshold 0.75      # watch a wrong hit appear

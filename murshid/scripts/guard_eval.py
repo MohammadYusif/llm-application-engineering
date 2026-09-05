@@ -1,4 +1,4 @@
-"""Lab 4 task 3: the two numbers, side by side, always.
+"""Module 4: the two numbers, side by side, always.
 
     python scripts/guard_eval.py
 

@@ -66,14 +66,14 @@ INJECTION_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"أنت\s*الآن\s*(مساعد|نظام|مطور|مدير)"),
     re.compile(r"تعليمات\s*(جديدة|محدثة)\s*:"),
     re.compile(r"تصرف\s*ك(نظام|مطور|مدير)"),
-    # The second Lab 4 miss: an authority claim carrying an instruction to drop
+    # The second Module 4 miss: an authority claim carrying an instruction to drop
     # your own constraints. "Who is asking" is never the question — what is being
     # asked is. A ministry cannot ask an assistant to ignore its limits either.
     re.compile(r"تجاهل\s*(كل\s*)?(قيودك|حدودك|قواعدك|ضوابطك)"),
     re.compile(r"\bignore\s+(all\s+)?(your\s+)?(limits|constraints|restrictions|rules)\b", re.I),
 ]
 
-#: The carve-out that Lab 4 task 5 earns: a citizen asking for the *instructions
+#: The carve-out Module 4 earns: a citizen asking for the *instructions
 #: for a service* is a citizen, not an attack. Without this line the guard blocks
 #: three questions in the legitimate corpus and the false-positive rate is 5%.
 LEGITIMATE_CONTEXT = re.compile(
@@ -161,7 +161,7 @@ def match_variants(text: str) -> list[str]:
     the guard stops choosing: patterns run against the deleted form *and* the form
     where each invisible separator became a space.
 
-    This is one of the two misses recorded in Lab 4 and fixed in Lab 5. Note what
+    This is one of the two misses recorded in Module 4 and fixed in Module 5. Note what
     the fix is not: it is not a new payload string added to a blocklist. Blocklists
     grow one attack at a time; this closes the shape.
     """

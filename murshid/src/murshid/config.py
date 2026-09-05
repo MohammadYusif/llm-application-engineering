@@ -80,7 +80,7 @@ class CacheSettings(BaseModel):
     redis_url: str = "redis://localhost:6379/0"
     semantic_enabled: bool = False
     semantic_threshold: float = 0.90
-    #: Arabic morphology puts near-misses closer together; Lab 6 task 3 finds this.
+    #: Arabic morphology puts near-misses closer together; Module 6 measures this.
     semantic_threshold_by_language: dict[str, float] = Field(default_factory=dict)
     ttl_seconds: int = 3600
 
@@ -96,7 +96,7 @@ class PipelineSettings(BaseModel):
             "escalate": None,
         }
     )
-    routing_enabled: bool = False  # Lab 6 turns this on, eval-gated
+    routing_enabled: bool = False  # Module 6 turns this on, eval-gated
     #: Cheap-first, escalate on a deterministic failure signal. The router pays
     #: one classification everywhere; the cascade pays double only on escalation.
     #: Traffic shape picks the winner, and the meter supplies the traffic shape.

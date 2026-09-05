@@ -20,7 +20,7 @@ is integration and one extension rather than a fresh build.
 git clone https://github.com/MohammadYusif/llm-application-engineering
 cd llm-application-engineering/murshid
 docker compose up -d              # gateway + redis + the application
-docker compose run --rm tests     # 165 tests, about 20 seconds
+docker compose run --rm tests     # 159 tests, about 20 seconds
 make doctor && make chat
 ```
 
@@ -31,7 +31,7 @@ Windows without `make`: `.\make.ps1 doctor` — same target names.
 | Path | What |
 |---|---|
 | `index.qmd`, `modules/`, `reference/` | the course site (Quarto → GitHub Pages) |
-| `murshid/` | the golden-thread project: the application, the harness, the corpora, 165 tests |
+| `murshid/` | the golden-thread project: the application, the harness, the corpora, 159 tests |
 | `murshid/infra/mockgw/` | the course gateway — both wire dialects, fault injection, a simulator |
 | `course/` | the source instructor package and the catalogue training content |
 | `.github/workflows/` | CI (tests, lint, eval gate, docker) and the site publish |

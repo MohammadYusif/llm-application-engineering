@@ -2,11 +2,11 @@
 
 A bilingual citizen-services assistant for a fictional Saudi digital-government
 portal, and the single artefact the whole of **SDA-AIE-213 — LLM Application
-Engineering** is built around. Every lab adds one component to this project; by
+Engineering** is built around. Every module adds one component to this project; by
 the end of the course it is a complete, evaluated, cost-managed LLM application.
 
 It runs with **no API key, no network and no GPU**. The course gateway in
-`infra/mockgw` speaks both provider dialects and answers from rules, so the labs,
+`infra/mockgw` speaks both provider dialects and answers from rules, so the walkthroughs,
 the tests and the evaluation harness all work on a laptop on a plane. Read
 [`docs/adr/003`](docs/adr/003-the-course-gateway.md) for what that buys and what it
 costs before you quote a number it produced.
@@ -76,7 +76,7 @@ src/murshid/
   api/            a thin FastAPI layer over the same pipeline
 infra/mockgw/     the course gateway: both dialects, fault injection, a simulator
 eval/             the golden set, the harness, the gate, judge calibration
-scripts/          every measurement the labs take
+scripts/          every measurement the modules take
 data/             corpora: questions, attacks, legitimate traps, near-misses, replay
 ```
 
@@ -85,8 +85,8 @@ data/             corpora: questions, attacks, legitimate traps, near-misses, re
 ```bash
 make help              # all of them, one line each
 
-make doctor            # before every lab
-make test              # 165 tests, offline, no keys
+make doctor            # before every session
+make test              # 147 offline; 159 with the gateway up, no keys either way
 make schema-check      # every output contract still fits the strict subset
 
 make bench             # Module 2: 20 bilingual prompts x 4 routes
@@ -131,7 +131,7 @@ make stats           # what the gateway saw
 Part of **SDA-AIE-213 — Large Language Model Application Engineering** (هندسة
 تطبيقات النماذج اللغوية الكبيرة), a specialist module of **SDAIA Academy** —
 <https://github.com/SDAIAAcademy>. The course site, with the module notes and the
-labs, is in the repository root.
+walkthroughs, is in the repository root.
 
 Your capstone is evaluated partly on its repository, so treat this one as the
 worked example of the shape: a description, a runbook a stranger can follow,

@@ -1,4 +1,4 @@
-"""Lab 3 task 3: schema-pass rate over the 50-case corpus, split by language.
+"""Module 3: schema-pass rate over the 50-case corpus, split by language.
 
     python scripts/extract_corpus.py                 # the default route
     python scripts/extract_corpus.py --route vllm    # the open-weight model

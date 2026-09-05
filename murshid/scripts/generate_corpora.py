@@ -1,7 +1,7 @@
 """Build every corpus the course uses, deterministically, from curated seeds.
 
 Run it after editing a seed; the outputs are committed so a cohort never depends
-on regenerating anything mid-lab, and so a diff to a corpus is reviewable.
+on regenerating anything mid-session, and so a diff to a corpus is reviewable.
 
     python scripts/generate_corpora.py
 

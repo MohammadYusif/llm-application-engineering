@@ -44,7 +44,7 @@ murshid/
 ├─ eval/                  golden set · harness · gate · judge calibration · report
 ├─ scripts/               every measurement the labs take
 ├─ data/                  corpora, all generated from curated seeds
-└─ tests/                 165 tests, offline
+└─ tests/                 147 offline, 159 with the gateway up
 ```
 
 ## The rule

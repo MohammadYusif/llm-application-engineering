@@ -50,7 +50,7 @@ def extract_ticket(
 
 
 class CorpusReport(BaseModel):
-    """The six numbers Lab 3 task 3 asks for, plus the per-language split."""
+    """The six numbers Module 3 asks for, plus the per-language split."""
 
     total: int = 0
     first_try: int = 0

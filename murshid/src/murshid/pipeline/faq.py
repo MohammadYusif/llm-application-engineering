@@ -31,7 +31,7 @@ from murshid.prompts.registry import PromptArtifact, load_prompt
 
 log = get_logger(__name__)
 
-#: Overridable so a lab can serve a different prompt version without a code edit:
+#: Overridable so a walkthrough can serve a different prompt version without a code edit:
 #:     MURSHID_FAQ_PROMPT=answer_faq.v4 make replay     # the cache-killer version
 #:     MURSHID_FAQ_PROMPT=answer_faq.v6 make eval       # the seeded regression
 DEFAULT_FAQ_PROMPT = os.environ.get("MURSHID_FAQ_PROMPT", "answer_faq.v5")

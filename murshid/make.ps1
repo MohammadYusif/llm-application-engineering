@@ -11,7 +11,7 @@
 .NOTES
     Same target names as the Makefile, same behaviour. If you have make (Git Bash,
     WSL, or scoop install make), use that instead — this exists so that not having
-    it never costs anybody lab time.
+    it never costs anybody class time.
 #>
 [CmdletBinding()]
 param(

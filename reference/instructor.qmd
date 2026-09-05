@@ -38,7 +38,7 @@ rather than by skipping a section. Nobody starts Day 3 without a working Day 2.
 ## Preparation — T minus one week
 
 - [ ] `docker compose build && docker compose run --rm tests` on the machine you
-      will teach from. 165 tests, no keys.
+      will teach from. 159 tests, no keys.
 - [ ] `make eval` on the reference solution — **every threshold in this package
       must be green before Day 1**.
 - [ ] `make calibrate` — confirm the v1 → v2 rubric jump still lands (κ 0.35 → 0.84).

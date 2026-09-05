@@ -6,7 +6,7 @@ groundedness rubric as the ground truth an answer is graded against.
 
 Rendering is deliberately deterministic: the same directory renders byte-identical
 every time. A rendering that sorted a dict or stamped a date would quietly destroy
-the prompt cache — which is precisely the bug Lab 6 task 2 hunts.
+the prompt cache — which is precisely the bug Module 6 hunts.
 """
 
 from __future__ import annotations

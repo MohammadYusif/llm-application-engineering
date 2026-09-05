@@ -1,4 +1,4 @@
-"""Lab 4 task 4: five scripted system-prompt extraction attempts, end to end.
+"""Module 4: five scripted system-prompt extraction attempts, end to end.
 
 The canary is planted in every rendered system prompt by the registry. If it ever
 appears in a response, the prompt leaked and the output guard blocks the answer

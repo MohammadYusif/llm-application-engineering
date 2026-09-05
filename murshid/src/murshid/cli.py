@@ -1,7 +1,7 @@
 """The command line: ``ask``, ``chat``, ``stream`` and ``doctor``.
 
 ``doctor`` is the one to run first. It checks the things that actually break a
-lab — the Python version, the config, the reachability of every configured route,
+session — the Python version, the config, the reachability of every configured route,
 and whether this terminal can render Arabic — and prints a tick or a cross for
 each. Windows participants: run it *now*, not on the morning of day one.
 """
@@ -155,7 +155,7 @@ def cmd_doctor(_args) -> int:
         except Exception as exc:  # noqa: BLE001
             check(f"route {name}", False, f"{type(exc).__name__}: {str(exc)[:90]}")
 
-    print("\n" + ("all good — you are ready for Lab 1" if ok else "fix the crosses above"))
+    print("\n" + ("all good — you are ready for Module 1" if ok else "fix the crosses above"))
     return 0 if ok else 1
 
 
@@ -178,7 +178,7 @@ def main(argv: list[str] | None = None) -> int:
     stream.add_argument("question")
     stream.set_defaults(func=cmd_stream)
 
-    doctor = sub.add_parser("doctor", help="check the environment before a lab")
+    doctor = sub.add_parser("doctor", help="check the environment before a session")
     doctor.set_defaults(func=cmd_doctor)
 
     args = parser.parse_args(argv)

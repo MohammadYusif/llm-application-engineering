@@ -1,6 +1,6 @@
 # Murshid — the SDA-AIE-213 golden-thread project.
 #
-#   make doctor        check your environment before a lab starts
+#   make doctor        check your environment before a session starts
 #   make help          every target, with one line each
 #
 # No target here needs an API key. Everything runs against the course gateway in

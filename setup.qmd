@@ -16,7 +16,7 @@ API key to obtain and no account to create.
 git clone https://github.com/MohammadYusif/llm-application-engineering
 cd llm-application-engineering/murshid
 docker compose up -d
-docker compose run --rm tests            # 165 tests, about 20 seconds
+docker compose run --rm tests            # 159 tests, about 20 seconds
 curl -s localhost:8000/v1/ask -H 'content-type: application/json' \
   -d '{"message":"How do I renew my commercial licence?"}'
 ```

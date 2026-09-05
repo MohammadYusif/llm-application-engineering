@@ -1,4 +1,4 @@
-"""Lab 3 task 5: a scripted conversation that should trigger exactly one tool call.
+"""Module 3: a scripted conversation that should trigger exactly one tool call.
 
 Exactly one. A tool description that says "use for any question about applications"
 fires on everything; a description written as API documentation fires on nothing.

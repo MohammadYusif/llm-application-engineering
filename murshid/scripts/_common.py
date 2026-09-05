@@ -1,4 +1,4 @@
-"""Shared plumbing for the lab scripts. Nothing clever lives here on purpose."""
+"""Shared plumbing for the measurement scripts. Nothing clever lives here on purpose."""
 
 from __future__ import annotations
 
