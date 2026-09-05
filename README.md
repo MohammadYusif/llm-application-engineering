@@ -75,8 +75,23 @@ CI runs the tests, the lint, the strict-schema check, the golden set, the guard
 corpora, the judge calibration, the regression gate, and a full `docker compose`
 build with the suite in a clean container. All of it without a provider key.
 
+## Programme
+
+Built for **SDA-AIE-213 — Large Language Model Application Engineering**
+(هندسة تطبيقات النماذج اللغوية الكبيرة), a four-day, 20-hour specialist module of
+**SDAIA Academy** — <https://github.com/SDAIAAcademy>. Prerequisite SDA-AIE-111;
+next in the sequence is SDA-AIE-214.
+
+Every capstone in this programme is evaluated partly on its repository: a clear
+project description, a professional README with a runbook, real technical
+documentation, meaningful incremental commits, a `.gitignore` that excludes
+secrets and generated files, a statement of the training programme it was
+completed under, and a link to SDAIA Academy's GitHub. This repository is held to
+the same bar it asks of participants — if you are looking for the shape of a
+submission, it is this one.
+
 ## Licence and attribution
 
 Course material for SDAIA Academy's SDA-AIE-213. Murshid, the Digital Government
-Services Authority, and every service, fee and citizen in the corpora are
-fictional.
+Services Authority, and every service, fee, citizen and message in the corpora
+are fictional.

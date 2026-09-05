@@ -126,8 +126,14 @@ make stats           # what the gateway saw
   about and why.
 - [`docs/context_budget.md`](docs/context_budget.md) — where the 16k goes.
 
-## Course
+## Programme
 
 Part of **SDA-AIE-213 — Large Language Model Application Engineering** (هندسة
-تطبيقات النماذج اللغوية الكبيرة), SDAIA Academy. The course site, with the module
-notes and the labs, is in the repository root.
+تطبيقات النماذج اللغوية الكبيرة), a specialist module of **SDAIA Academy** —
+<https://github.com/SDAIAAcademy>. The course site, with the module notes and the
+labs, is in the repository root.
+
+Your capstone is evaluated partly on its repository, so treat this one as the
+worked example of the shape: a description, a runbook a stranger can follow,
+`BENCHMARKS.md` and `EVALUATION_REPORT.md` carrying real measured numbers, ADRs
+for the decisions, incremental commits, and no secret anywhere near git.
