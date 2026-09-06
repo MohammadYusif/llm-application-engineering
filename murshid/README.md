@@ -31,6 +31,13 @@ make doctor          # checks python, config, Arabic rendering, every route
 make chat
 ```
 
+The six labs are notebooks in [`../labs/`](../labs), committed with their outputs
+and runnable in Docker:
+
+```bash
+docker compose --profile notebooks up notebooks   # then open localhost:8888
+```
+
 `make doctor` is the first thing to run and the first thing to run again when
 anything is odd. Windows participants without `make` have `.\make.ps1 <target>`
 with the same target names.

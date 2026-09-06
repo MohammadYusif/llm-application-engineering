@@ -81,6 +81,36 @@ services:
       - ./infra:/srv/infra:ro
     command: ["python", "-m", "pytest", "/srv/tests", "-q"]
 
+  # The lab notebooks, served from the container against the compose gateway:
+  #   docker compose --profile notebooks up notebooks
+  # then open the printed URL. The notebooks in labs/ are committed WITH their
+  # outputs; running them here reproduces those outputs rather than trusting them.
+  notebooks:
+    profiles: ["notebooks"]
+    build:
+      context: .
+      dockerfile: Dockerfile.notebooks
+    depends_on:
+      gateway:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      MURSHID_PRIMARY_BASE_URL: http://gateway:8080/v1
+      MURSHID_CHEAP_BASE_URL: http://gateway:8080/v1
+      MURSHID_VLLM_BASE_URL: http://gateway:8080/v1
+      MURSHID_COMPARISON_BASE_URL: http://gateway:8080
+      REDIS_URL: redis://redis:6379/0
+      PYTHONPATH: /srv/src
+    ports:
+      - "8888:8888"
+    volumes:
+      - ../labs:/srv/labs
+      - ./eval/out:/srv/eval/out
+      - ./logs:/srv/logs
+    command: ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser",
+              "--allow-root", "--ServerApp.token=", "--notebook-dir=/srv"]
+
   # Everything a lab runs, in the container, against the compose gateway:
   #   docker compose --profile labs run --rm labs python eval/harness.py
   #   docker compose --profile labs run --rm labs python scripts/guard_eval.py

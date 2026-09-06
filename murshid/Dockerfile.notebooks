@@ -1,0 +1,15 @@
+# The lab notebooks, in the classroom image plus Jupyter.
+#
+# Separate from Dockerfile so the application image stays small: nothing that
+# serves traffic needs JupyterLab. This one also carries demo_v0.py and tests/,
+# which the labs read and run and the runtime image deliberately omits.
+FROM murshid/app:1.0.0
+
+USER root
+COPY requirements-notebooks.txt .
+RUN /opt/venv/bin/pip install --no-cache-dir -r requirements-notebooks.txt
+COPY demo_v0.py ./
+COPY tests ./tests
+ENV PYTHONPATH=/srv/src PYTHONUTF8=1
+EXPOSE 8888
+ENTRYPOINT []

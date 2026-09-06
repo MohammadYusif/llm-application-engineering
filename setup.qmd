@@ -21,6 +21,43 @@ curl -s localhost:8000/v1/ask -H 'content-type: application/json' \
   -d '{"message":"How do I renew my commercial licence?"}'
 ```
 
+## Running the labs
+
+Each lab is a notebook. It ships **with its outputs saved**, so you can read it
+before you run it — and every one of those outputs came from running the notebook
+against the compose stack, not from anyone typing them in.
+
+Two ways to run them yourself:
+
+```bash
+# In Docker, alongside the gateway and redis — nothing to install
+cd murshid
+docker compose --profile notebooks up notebooks
+# then open http://localhost:8888 and pick a lab from labs/
+```
+
+```bash
+# Or locally, in the same virtual environment as the project
+cd murshid
+pip install -r requirements.lock -r requirements-notebooks.txt
+docker compose up -d gateway redis     # or: make gateway
+jupyter lab ../labs
+```
+
+The first cell of every lab finds the project, puts `src` on the path, and prints
+whether the gateway is answering. It reads the gateway's address from
+`MURSHID_PRIMARY_BASE_URL`, which is why the same notebook works on a laptop
+(`127.0.0.1`) and inside compose (`gateway`) with no edit.
+
+::: {.callout-note appearance="simple"}
+## Re-running a lab changes its numbers slightly, and that is fine
+
+Cost per conversation moves a percent or two with how warm the gateway's prompt
+cache is, and latency moves more than that. The counts, rates and ratios are the
+reproducible part; if your run disagrees with the page on a millisecond, the page
+is not wrong and neither are you.
+:::
+
 ### macOS / Linux
 
 ```bash

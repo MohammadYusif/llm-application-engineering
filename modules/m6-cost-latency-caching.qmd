@@ -61,10 +61,10 @@ make replay-before        # 200 conversations, metered, nothing optimised
 
 ```
   cache=off, semantic=off, routing=off, cascade=off, faq_prompt=answer_faq.v4
-200 conversations | cost/conv: 4.04 halalas | p50 turn 180ms | p95 conversation 1143ms | wall 99.5s
+200 conversations | cost/conv: 4.12 halalas | p50 turn 191ms | p95 conversation 1200ms | wall 105.0s
 by intent (spend): {'faq': '92%', 'service': '6%', 'guard': '1%', 'router': '1%'}
 by intent (turns): {'faq': 428, 'service': 114, 'escalate': 24}   blocked: 0   tool calls: 65
-prompt cache: 56% of input tokens at the cached rate
+prompt cache: 55% of input tokens at the cached rate
 
   spend by stage: faq_handler 745.3, service_workflow 45.9, input_guard 8.7, router 7.4
 ```
@@ -137,8 +137,8 @@ into the tail. Diff them, then look at the numbers:
 
 | Prompt version | Prompt-cache share | Cost per conversation |
 |---|---|---|
-| `answer_faq.v4` — timestamp at the top | 56% | 4.04 halalas |
-| `answer_faq.v5` — timestamp in the tail | [71%]{.measured} | [3.00 halalas]{.measured} (−26%) |
+| `answer_faq.v4` — timestamp at the top | 55% | 4.12 halalas |
+| `answer_faq.v5` — timestamp in the tail | [72%]{.measured} | [2.98 halalas]{.measured} (−28%) |
 
 **Verify, do not assume.** `usage.cached_input_tokens` — plumbed through since
 Module 1 — is the proof. Same request twice; the second shows most of the input at
@@ -312,8 +312,8 @@ is a measurement, not an assumption.
 
 | Configuration | Cost/conversation | Δ | Eval verdict |
 |---|---|---|---|
-| Baseline (`v4`, no cache, no routing) | 4.04 hal | — | green (baseline) |
-| + prompt-cache discipline (`v5`) | 3.00 hal | −26% | green |
+| Baseline (`v4`, no cache, no routing) | 4.12 hal | — | green (baseline) |
+| + prompt-cache discipline (`v5`) | 2.98 hal | −28% | green |
 | + response cache (exact + semantic) | 1.66 hal | −59% | green, wrong hits 0/12 |
 | + routing table | 0.37 hal | −91% | **BLOCKED** |
 | + routing **and cascade** | **0.37 hal** | **−91%** | green, safety 100% |
@@ -368,286 +368,6 @@ The break-even decides *what traffic* it should carry to be worth the GPUs.
    data-protection incident. Personalisation status is part of the key schema, or
    the cache is a breach waiting.
 
-# Lab — Optimise Murshid
-
-*Day 3, hour 5 · 50 minutes · pairs, then a leaderboard*
-
-::: {.session-meta}
-Objective
-: Meter the real cost and latency, then cut both with prompt caching, a two-tier
-  response cache and a routing table — proving after **every** step that the
-  evaluation suite stays green.
-
-Setup
-: Module 5's lab complete, with a baseline committed. Redis from the compose stack.
-  `data/replay_200.jsonl` — 200 conversations, intent-weighted 70/25/5.
-
-You finish with
-: A before/after table in `BENCHMARKS.md` where every row carries its eval verdict
-  beside its saving.
-:::
-
-::: {.callout-important}
-### The rule, before you touch anything
-
-> Never trade quality you aren't measuring for cost you are.
-
-The leaderboard at the end of this lab ranks the **cheapest green** Murshid. A red
-suite is disqualified regardless of cost, however good the number beside it looks.
-:::
-
-## 1 · Meter first, and name where the money goes (8 min)
-
-```bash
-make replay-before
-```
-
-```
-  cache=off, semantic=off, routing=off, cascade=off, faq_prompt=answer_faq.v4
-200 conversations | cost/conv: 4.04 halalas | p50 turn 180ms | p95 conversation 1143ms | wall 99.5s
-by intent (spend): {'faq': '92%', 'service': '6%', 'guard': '1%', 'router': '1%'}
-by intent (turns): {'faq': 428, 'service': 114, 'escalate': 24}   blocked: 0   tool calls: 65
-prompt cache: 56% of input tokens at the cached rate
-
-  spend by stage: faq_handler 745.3, service_workflow 45.9, input_guard 8.7, router 7.4
-```
-
-Then aggregate the log yourself:
-
-```bash
-jq -s 'group_by(.intent) | map({intent: .[0].intent, halalas: (map(.cost_halalas)|add)})' \
-   logs/llm_cost_before.jsonl
-```
-
-**Name where the money goes before you touch anything** — say it to your pair, so
-you are committed to an answer. This is the module in miniature: 92% of the spend
-is the FAQ route's resent prompt, and skipping this step is how an hour goes into
-optimising the 1%.
-
-## 2 · Prompt-cache discipline (10 min)
-
-The baseline runs `answer_faq.v4`. Diff it against `v5`:
-
-```bash
-diff src/murshid/prompts/library/answer_faq/v{4,5}.md
-```
-
-```diff
--required_vars: [service_directory, now]
-+required_vars: [service_directory]
--Current date and time: {now}.
--
-```
-
-One line, at the top of the prompt, changing every second. Everything after it is
-uncacheable — which is the entire prefix.
-
-```bash
-make replay LABEL=s1-prefix
-```
-
-| | Prompt cache | Cost/conversation |
-|---|---|---|
-| `v4` — timestamp at the top | 56% | 4.04 hal |
-| `v5` — timestamp in the tail | [71%]{.measured} | [3.00 hal]{.measured} (−26%) |
-
-Verify it directly rather than trusting the aggregate: run the same request twice
-and watch `cached_input_tokens` go from 0 to most of the input, with TTFT roughly
-halving.
-
-```bash
-make ask Q="How do I renew my commercial licence?"    # 1413 in (0 cached)
-make ask Q="How do I renew my commercial licence?"    # 1413 in (1378 cached)
-```
-
-::: {.callout-note appearance="simple"}
-### Two boundaries worth knowing
-
-Providers only cache prefixes past a **minimum length** (the course gateway models
-1024 tokens, like real ones), and caches are **TTL-bounded**, refreshed on hit. A
-short system prompt never caches at all, however stable it is — which is one reason
-Murshid's directory travels in the prefix rather than being fetched per request.
-:::
-
-Then run `make eval && make gate`. Green. Record the row.
-
-## 3 · The response cache, and its safety suite (12 min)
-
-The exact tier serves the router and guard-classifier calls; the semantic tier
-serves impersonal FAQ only:
-
-```bash
-make replay LABEL=s2-cache CACHE=1 SEMANTIC=1
-```
-
-```
-  cache=on, semantic=on, routing=off, cascade=off, faq_prompt=answer_faq.v5
-200 conversations | cost/conv: 1.66 halalas | p50 turn 133ms | p95 conversation 854ms | wall 72.9s
-prompt cache: 66% of input tokens at the cached rate
-response cache: lookups 428 | exact 210 | semantic 2 | hit rate 50% | wrong hits 0/0 | closest non-hits [0.918, 0.909, 0.908, 0.906, 0.902]
-```
-
-Now the part that is not optional:
-
-```bash
-make eval-cache          # 12 near-miss pairs, bilingual
-```
-
-```
-  ok        0.776 [en] How do I renew my commercial licen || How do I cancel my commercial lice
-  ok        0.783 [ar] كيف أجدد سجلي التجاري؟ || كيف ألغي سجلي التجاري؟
-  ok        0.836 [ar] كيف أجدد سجلي التجاري؟ || كيف أجدد سجل ابني التجاري؟
-
-near-miss suite: wrong hits 0/12
-```
-
-Then break it deliberately and watch a wrong hit appear:
-
-```bash
-python scripts/eval_cache.py --threshold 0.85 --threshold-ar 0.85
-# WRONG HIT 0.836 [ar] كيف أجدد سجلي التجاري؟ || كيف أجدد سجل ابني التجاري؟
-```
-
-"My commercial record" and "my *son's* commercial record" are not the same
-question, and at 0.85 one citizen's answer is served to another.
-
-::: {.callout-warning}
-### The threshold decision, made with numbers instead of instinct
-
-Look at `closest non-hits`: real replay traffic sitting at 0.918, 0.909, 0.908 —
-just under the Arabic threshold of 0.92. Dropping to 0.90 converts them into hits
-and leaves **0.03** of margin above the worst near-miss pair.
-
-Take the trade or refuse it, but do it explicitly and write down which, because
-that margin is the whole argument. This course refuses it: for a government
-assistant a wrong hit is not a slightly worse answer.
-
-And note the asymmetry, which is easy to get backwards: **Arabic needs a higher
-threshold than English.** Arabic spelling variants of the same question score ~0.94 while
-English paraphrases score ~0.87, so Arabic sits closer to its own near-misses. The
-suite measured that; instinct would have got it backwards.
-:::
-
-`make eval && make gate` → green, wrong hits 0. Record the row.
-
-## 4 · The routing table, and the correction (12 min)
-
-Now the routing table, run against the **full** suite through the routed pipeline:
-
-```bash
-MURSHID_ROUTING_ENABLED=1 make eval LABEL=routed
-make gate LABEL=routed
-```
-
-```
-BLOCKED:
-  overall: overall 97% vs baseline 100% (-3.2pt, margin 2pt)
-  slice:language=ar: language=ar 95% vs baseline 100% (-4.7pt, margin 3pt)
-  slice:intent=faq: intent=faq 94% vs baseline 100% (-6.2pt, margin 3pt)
-  slice:difficulty=hard: difficulty=hard 94% vs baseline 100% (-5.6pt, margin 3pt)
-  slice:risk=normal: risk=normal 95% vs baseline 100% (-5.4pt, margin 3pt)
-```
-
-The saving was 91%. The gate says no.
-
-::: {.callout-important}
-### This is the point of the hour
-
-The reflex is to move `faq` up a tier and hand the saving back. Resist it for two
-minutes and read what the gate actually said: the failures are all
-**out-of-directory** questions. The small model is fine *except* when it should be
-refusing — it stopped saying "I don't know" and started producing a plausible fee.
-
-That is not "the small model is bad". It is a specific, cheap-to-detect condition.
-:::
-
-So detect it. Cheap model first; escalate when the answer states an amount that is
-not in the directory — the **same deterministic check the gate uses**:
-
-```bash
-MURSHID_ROUTING_ENABLED=1 MURSHID_CASCADE_ENABLED=1 make eval LABEL=routed-cascade
-make gate LABEL=routed-cascade
-```
-
-```
-eval | route=default | 126 cases | pass 126/126 (100%) | 11.2s | 12.4 halalas
-PASS: overall +0.0pt | worst stratum difficulty=hard +0.0pt | safety 100%
-```
-
-```bash
-make replay-after
-```
-
-```
-  cache=on, semantic=on, routing=on, cascade=on, faq_prompt=answer_faq.v5
-200 conversations | cost/conv: 0.37 halalas | p50 turn 118ms | p95 conversation 674ms | wall 59.9s
-prompt cache: 66% of input tokens at the cached rate
-cascade: 0 escalations (0% of FAQ turns paid twice)
-
-  spend by stage: service_workflow 45.9, faq_handler 11.9, input_guard 8.7, router 7.4
-```
-
-**The cascade cost nothing on this traffic and bought back every point.** Its
-insurance premium was zero, and it is the only reason the routing table shipped.
-
-The transferable rule: a cascade needs an escalation signal that is cheap,
-deterministic and correlated with being wrong. A schema-validation failure or a
-groundedness check qualifies. "Was that hard?" does not — model self-assessment is
-weak and sycophantic.
-
-## 5 · The break-even, and the ADR (5 min)
-
-```bash
-make breakeven
-```
-
-```
-vs the flagship tier: crossover at roughly 25% sustained utilisation
-vs the cheap tier: self-hosting never wins on these numbers
-```
-
-Write the three-line recommendation into `docs/adr/002`. Both lines belong in it:
-quoting only the flagship comparison is how this arithmetic gets used dishonestly,
-and quoting only the cheap one is how a residency requirement gets argued away.
-
-## 6 · The leaderboard (3 min)
-
-Post your final table. Cheapest **green** wins.
-
-| Configuration | Cost/conv | Δ | p50 turn | p95 conv | Eval verdict |
-|---|---|---|---|---|---|
-| Baseline (`v4`) | 4.04 hal | — | 180 ms | 1143 ms | green (baseline) |
-| + prompt-cache discipline | 3.00 hal | −26% | 177 ms | 1106 ms | green |
-| + response cache | 1.66 hal | −59% | 133 ms | 854 ms | green, wrong hits 0/12 |
-| + routing | 0.37 hal | −91% | 119 ms | 682 ms | **BLOCKED** |
-| + routing and cascade | **0.37 hal** | **−91%** | 118 ms | 674 ms | green, safety 100% |
-
-Every row carries its eval verdict beside its saving. A row without one does not go
-on the board.
-
-```bash
-git commit -am "perf: cost/latency optimisation, eval-verified at every step"
-```
-
-## Troubleshooting
-
-| Symptom | Cause | Fix |
-|---|---|---|
-| `cached_input_tokens` stays 0 | a dynamic byte in the prefix, or the prefix is below the minimum cacheable length | hunt the volatile byte — `v4`'s timestamp line is the planted one |
-| Hit rate 100% and everything stale | no TTL, or the replay reused one conversation | set per-class TTLs; check the replay loaded 200 rows |
-| The near-miss suite shows a wrong hit | the threshold is too generous for Arabic morphology | raise the `ar` threshold specifically, and note the asymmetry |
-| The routed suite fails `service` | the small model cannot hold the tool contract | that intent moves up a tier — the eval told you the table's true shape |
-| p95 got worse after caching | the cache lookup was added serially to the *miss* path | a cache must be cheap to miss |
-| The cascade escalates constantly | the escalation signal is too broad | it should fire on unsupported *amounts*, not on any number |
-
-## If you finish early — the forecast
-
-Murshid launches nationally: 250,000 conversations a day, same intent mix. Using
-your *after* numbers, forecast monthly spend with a ±30% band, name the two biggest
-line items, and say which single further optimisation you would fund.
-
-One page, written for a director who will read the first paragraph and the table.
-
 # After this module
 
 ## Benchmarks after this module
@@ -662,4 +382,5 @@ One page, written for a director who will read the first paragraph and the table
 | Cost meter coverage | 100% of model calls — guards and router included | log audit |
 | Break-even recorded | ADR updated with the measured crossover | `docs/adr/002` |
 
-**Next:** [the capstone](../capstone.qmd)
+
+**Next:** [Lab 6 — optimise Murshid](../labs/lab6-optimise.ipynb), then [the capstone](../capstone.qmd)

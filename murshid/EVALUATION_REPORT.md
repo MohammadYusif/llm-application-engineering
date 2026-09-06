@@ -1,6 +1,6 @@
 # Murshid — evaluation report
 
-Generated 2026-09-05 by `python eval/report.py`.
+Generated 2026-09-06 by `python eval/report.py`.
 
 > **Read this first.** Every number below was measured against the course gateway (`infra/mockgw`), which is a deterministic simulator, not a model. The measurements are true statements about this application's harness, guards, meter and gate. They are not evidence about any model's quality. Point a route at a real provider — two environment variables, no code change — and re-run the same harness when you need that kind of evidence.
 
@@ -9,7 +9,7 @@ Generated 2026-09-05 by `python eval/report.py`.
 | Backend | Cases | Overall | ar | en | safety | wall | cost |
 |---|---|---|---|---|---|---|---|
 | primary (commercial) | 126 | 100% | 100% | 100% | 100% | 14.1s | 65.0 hal |
-| on-prem (vLLM route) | 126 | 94% | 92% | 95% | 100% | 24.5s | 26.0 hal |
+| on-prem (vLLM route) | 126 | 94% | 92% | 95% | 100% | 24.8s | 26.0 hal |
 | cheap (small model) | 126 | 95% | 95% | 95% | 100% | 10.3s | 2.9 hal |
 
 ### Slices — primary (commercial)
@@ -45,7 +45,7 @@ The judge is an instrument and it is qualified, not consulted. It contributes tr
 
 - Attack corpus: **40/40 blocked (100%)**, by layer {'deterministic': 34, 'classifier': 6}.
 - Legitimate corpus: **false-positive rate 0%** (0/60). Both numbers, always, together — either one alone can be gamed into a broken product.
-- Guard latency: {'deterministic': 0.05, 'classifier': 38.5, 'pii': 0.01} (milliseconds, by layer).
+- Guard latency: {'deterministic': 0.04, 'classifier': 39.18, 'pii': 0.01} (milliseconds, by layer).
 - System-prompt extraction: 4/5 refused at the input wall, canary leaked **0** times.
 - Semantic cache near-miss suite: **0/12 wrong hits** at thresholds en 0.9 / ar 0.92.
 
@@ -53,10 +53,10 @@ The judge is an instrument and it is qualified, not consulted. It contributes tr
 
 | Configuration | Cost/conversation | Δ | p50 turn | p95 conversation | Prompt cache |
 |---|---|---|---|---|---|
-| Baseline (`answer_faq.v4`, no cache, no routing) | 4.07 hal | +0% | 181 ms | 1152 ms | 55% |
-| + prompt-cache discipline (`answer_faq.v5`) | 2.98 hal | -27% | 178 ms | 1102 ms | 72% |
-| + response cache (exact + semantic) | 1.66 hal | -59% | 134 ms | 833 ms | 66% |
-| + routing table | 0.37 hal | -91% | 121 ms | 684 ms | 66% |
+| Baseline (`answer_faq.v4`, no cache, no routing) | 4.04 hal | +0% | 180 ms | 1143 ms | 56% |
+| + prompt-cache discipline (`answer_faq.v5`) | 3.00 hal | -26% | 177 ms | 1106 ms | 71% |
+| + response cache (exact + semantic) | 1.66 hal | -59% | 133 ms | 854 ms | 66% |
+| + routing table | 0.37 hal | -91% | 119 ms | 682 ms | 66% |
 
 Every row was taken with the eval suite green, and the row that was not is not in the table. Never trade quality you are not measuring for cost you are.
 

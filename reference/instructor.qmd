@@ -28,11 +28,16 @@ Every module extends the **same** Murshid. Never introduce a throwaway chatbot
 example. This is what makes Day 4 achievable: by Thursday morning the "project" is
 assembly plus one extension, not a fresh build.
 
-Every module page is **theory first, then its lab** — one page, two parts. You
-teach the theory from the page, then run the lab from the same page while
-participants work through it beside you. The code is already written in `murshid/`,
-so the lab is reading, running and measuring rather than filling in blanks; nothing
-gets handed out separately.
+Every module is **theory then lab**: the module page carries the teaching, and the
+lab is a notebook in `labs/` that sits directly beneath it in the sidebar. You
+teach from the module page, then open the notebook and run it cell by cell while
+participants do the same. The code is already written in `murshid/`, so the lab is
+reading, running and measuring rather than filling in blanks.
+
+Every notebook is committed **with its outputs**, produced by executing it against
+the compose stack (`docker compose --profile notebooks`). That means you can teach
+from a lab without a working gateway if you have to — and it means a participant
+whose environment is broken can still follow what should have happened.
 
 If a pair falls behind, they fast-forward by checking out the reference state
 rather than by skipping a lab. Nobody starts Day 3 without a working Day 2.

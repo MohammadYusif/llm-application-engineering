@@ -6,6 +6,7 @@ on:
     paths:
       - "*.qmd"
       - "modules/**"
+      - "labs/**"
       - "reference/**"
       - "_quarto.yml"
       - "theme.scss"

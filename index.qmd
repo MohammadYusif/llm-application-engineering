@@ -32,7 +32,7 @@ and you will perform it rather than be told about it.
 | **Structure** | Validated `ServiceTicket` extraction and a bounded tool loop | Schema-pass rate by language; four negative safety tests |
 | **Guardrails** | A three-layer input wall and a canary output wall | Block rate **and** false-positive rate, reported together, always |
 | **Evaluation** | A 126-case stratified bilingual golden set, a calibrated judge, a CI gate | A seeded prompt regression blocked with slice evidence |
-| **Cost** | A meter, prompt-cache discipline, a two-tier cache, routing with a cascade | 4.04 → 0.37 halalas per conversation, green at every step |
+| **Cost** | A meter, prompt-cache discipline, a two-tier cache, routing with a cascade | 4.12 → 0.37 halalas per conversation, green at every step |
 | **Comparison** | The same suite against commercial and open-weight backends | A routing recommendation with a break-even, not a leaderboard quote |
 
 ## The four days
