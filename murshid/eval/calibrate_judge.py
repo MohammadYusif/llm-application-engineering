@@ -8,7 +8,7 @@ instrument that always says 1.0 scores 90% agreement and knows nothing. Cohen's
 kappa corrects for the agreement you would get by chance, which is why the course
 bar is stated in kappa (>= 0.6) and not in percent.
 
-Two things participants should notice while running this:
+Two things to notice while running this:
 
 * the inter-*human* agreement measured in the labelling bee is the ceiling for any
   judge. Seeing kappa(human, human) near 0.8 permanently recalibrates expectations

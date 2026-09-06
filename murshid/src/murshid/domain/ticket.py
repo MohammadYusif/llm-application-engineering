@@ -1,6 +1,6 @@
 """``ServiceTicket`` — the structured object Murshid files into the case system.
 
-The division of labour that Module 3 exists to teach:
+The division of labour Module 3 is about:
 
 * the **JSON Schema** constrains *syntax* — the provider's strict mode guarantees
   the shape, the enums and that no extra keys appear;

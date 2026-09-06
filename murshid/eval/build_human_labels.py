@@ -2,11 +2,10 @@
 
     python eval/build_human_labels.py
 
-In the classroom these labels come from the labelling bee in Lab 5 task 3: each
-pair labels ten answers, the pool is argued in public, and the disagreements
-between *humans* get discussed before anyone looks at the judge. The file this
-script writes is the instructor's reference set — used to prepare the session, to
-check a cohort's pooled labels against, and to keep this repository's own
+In Lab 5 these labels come from the labelling round your cohort runs: ten answers
+each, the pool argued out loud, and the disagreements between *humans* settled
+before anyone looks at the judge. The file this script writes is the reference set
+to compare your pooled labels against, and it is what keeps this repository's own
 calibration reproducible in CI.
 
 Construction matters. The labels are deliberately **imbalanced but not degenerate**

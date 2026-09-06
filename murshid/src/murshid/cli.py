@@ -3,7 +3,7 @@
 ``doctor`` is the one to run first. It checks the things that actually break a
 session — the Python version, the config, the reachability of every configured route,
 and whether this terminal can render Arabic — and prints a tick or a cross for
-each. Windows participants: run it *now*, not on the morning of day one.
+each. On Windows, run it *now* rather than on the morning of day one.
 """
 
 from __future__ import annotations

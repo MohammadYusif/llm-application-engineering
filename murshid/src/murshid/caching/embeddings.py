@@ -1,4 +1,4 @@
-"""A small, local, deterministic embedding — enough to teach semantic caching.
+"""A small, local, deterministic embedding — enough to demonstrate semantic caching.
 
 It hashes character n-grams into a fixed-width vector and normalises. That is not
 a sentence embedding and it is not pretending to be one: it has no idea that

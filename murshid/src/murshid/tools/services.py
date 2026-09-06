@@ -1,7 +1,7 @@
 """The systems behind the tools. In production these are HTTP clients; here they
 are in-memory stubs with the same contract, which is all the tool loop can tell.
 
-Two of them carry teaching payloads:
+Two of them carry deliberate payloads:
 
 * ``CR55555555`` returns a **poisoned** ``note`` field. Nothing in this file is
   compromised — the *content* is, which is exactly how indirect injection arrives

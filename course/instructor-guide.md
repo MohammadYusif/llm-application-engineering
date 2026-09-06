@@ -1,7 +1,10 @@
----
-title: "Instructor guide"
-subtitle: "Delivery plan, preparation, and the moments that carry the week"
----
+# Instructor guide — SDA-AIE-213
+
+**Delivery plan, preparation, and the moments that carry the week.**
+
+Trainer-facing, and deliberately not published to the course site: the site is
+written to the participant throughout, and a page addressed to whoever is
+teaching reads as the course talking past the person reading it.
 
 ::: {.callout-note appearance="simple"}
 The full instructor package — module-by-module technical content, case studies,
@@ -128,7 +131,7 @@ rather than by skipping a lab. Nobody starts Day 3 without a working Day 2.
 ## Grading
 
 Grade from the artefacts first, the demo second. The
-[capstone rubric](../capstone.qmd#grading-rubric--100-points) has the bands; the
+[capstone rubric](../capstone.qmd) has the bands; the
 four anti-pattern flags that cap a criterion at 70% are worth reading aloud to the
 cohort on Day 4 hour 1, before anybody is tempted.
 

@@ -34,6 +34,7 @@ Windows without `make`: `.\make.ps1 doctor` — same target names.
 | `labs/` | the six labs, as notebooks committed with their executed outputs |
 | `murshid/` | the golden-thread project: the application, the harness, the corpora, 159 tests |
 | `murshid/infra/mockgw/` | the course gateway — both wire dialects, fault injection, a simulator |
+| `course/instructor-guide.md` | delivery plan, timing, the moments that carry the week — trainer-facing, deliberately not published to the site |
 | `course/` | the source instructor package and the catalogue training content |
 | `.github/workflows/` | CI (tests, lint, eval gate, docker) and the site publish |
 

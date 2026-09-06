@@ -81,7 +81,6 @@ website:
           - reference/gateway.qmd
           - reference/architecture.qmd
           - reference/troubleshooting.qmd
-          - reference/instructor.qmd
 
   page-footer:
     left: "SDA-AIE-213 · هندسة تطبيقات النماذج اللغوية الكبيرة · SDAIA Academy"

@@ -2,14 +2,14 @@
 
     python demo_v0.py "How do I renew my commercial licence?"
 
-Sixty lines, one afternoon, and it demonstrates beautifully. It is also the
-starting point of Lab 1, where the exercise is to list what breaks in production
-*before* anybody names the failure modes formally. A room full of engineers finds
-most of them unprompted, which is why the list is not printed here.
+Sixty lines, one afternoon, and it demonstrates beautifully. It is also where
+Lab 1 starts: read it and list what would break in production, before anything
+below names the failure modes for you. Most of them are findable from the code
+alone, which is why the list is not printed here.
 
-Six defects are marked `# SMELL`. There are more than six. Do not read the markers
-until you have made your own list — the point of the exercise is the list you write,
-not the one you agree with.
+Six defects are marked `# SMELL`. There are more than six. Write your own list
+before you read the markers — the list you produce is worth more than the one you
+agree with.
 
 Nothing in this file is imported by the application. It exists to be deleted, and
 the commit that deletes it is the first commit of the course.

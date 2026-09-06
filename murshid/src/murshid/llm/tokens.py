@@ -4,7 +4,7 @@ Used by the context-budget check and by the Module 6 cost forecast. The rule thi
 module exists to enforce: **count with the route's own tokenizer**, never with a
 convenient one. ``sim-tokenizer-mismatch`` is what happens when you don't.
 
-A finding worth teaching, and one the course measures rather than asserts: the
+A finding the course measures rather than asserts: the
 Arabic token premium is a property of the *tokenizer generation*, not of Arabic.
 On ``cl100k_base`` (the GPT-4 / GPT-3.5 era) Arabic costs ~2.5x its English twin.
 On ``o200k_base`` (GPT-4o era and after) the same corpus costs ~1.05x. Run
