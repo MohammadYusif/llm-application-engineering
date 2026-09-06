@@ -5,6 +5,7 @@ project:
     - "*.qmd"
     - "modules/*.qmd"
     - "labs/*.ipynb"
+    - "!labs/_build/"
     - "reference/*.qmd"
     - "!murshid/"
     - "!course/"
