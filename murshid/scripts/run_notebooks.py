@@ -10,7 +10,10 @@ and not a laptop-only result. A notebook that fails here fails for a participant
 too, which is the whole point of running it in the container rather than trusting
 a local venv that has drifted.
 """
-import pathlib, sys, nbformat
+import pathlib
+import sys
+
+import nbformat
 from nbclient import NotebookClient
 
 fails = {}
