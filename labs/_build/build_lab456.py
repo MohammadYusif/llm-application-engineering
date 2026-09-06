@@ -421,7 +421,7 @@ run("eval/harness.py", "--label", "routed")
 
     md("""
 ::: {.callout-important}
-## This is the point of the hour
+## Read which slice failed before you hand the saving back
 
 The saving was 91%. The gate says no.
 
@@ -511,4 +511,4 @@ for name, title, sub, cells in [
     ("lab6-optimise", "Lab 6 — Optimise Murshid",
      "Day 3, hour 5 · 50 minutes · pairs, then a leaderboard", lab6),
 ]:
-    print("wrote", build(name, title, sub, cells))
+    print("wrote", build(name, title, sub, "", cells))

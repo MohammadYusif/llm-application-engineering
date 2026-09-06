@@ -341,4 +341,4 @@ for name, title, sub, cells in [
     ("lab3-tickets-and-tools", "Lab 3 — Structured tickets and the tool loop",
      "Day 2, hours 2 and 4 · 2 × 50 minutes · pairs", lab3),
 ]:
-    print("wrote", build(name, title, sub, cells))
+    print("wrote", build(name, title, sub, "", cells))

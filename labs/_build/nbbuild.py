@@ -22,21 +22,46 @@ LABS = ROOT / "labs"
 # out loud whether the gateway is answering. A lab that fails in cell 4 because
 # the gateway is down wastes ten minutes of a room's time.
 SETUP = '''\
-import os, pathlib, sys, re, subprocess, urllib.request, json
+import os, pathlib, re, subprocess, sys, time, urllib.request, json
 
 # pytest and ruff colour their output; those escapes render as noise once the
 # notebook is published, so they come off here rather than per command.
 ANSI = re.compile(chr(27) + r"\\[[0-9;]*m")
 
-for cand in [pathlib.Path.cwd(), *pathlib.Path.cwd().parents]:
-    if (cand / "src" / "murshid").is_dir():
-        os.chdir(cand); break
-    if (cand / "murshid" / "src" / "murshid").is_dir():
-        os.chdir(cand / "murshid"); break
+REPO = "https://github.com/MohammadYusif/llm-application-engineering"
+IN_COLAB = "google.colab" in sys.modules
+
+# On Colab there is no checkout and no gateway, so fetch one and start one. The
+# gateway is a local FastAPI app that answers from rules — no API key, no network
+# calls out — which is the whole reason this course runs anywhere.
+if IN_COLAB:
+    root = pathlib.Path("/content/llm-application-engineering")
+    if not root.exists():
+        subprocess.run(["git", "clone", "--depth", "1", REPO, str(root)], check=True)
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r",
+                        str(root / "murshid" / "requirements.lock")], check=True)
+    os.chdir(root / "murshid")
+else:
+    for cand in [pathlib.Path.cwd(), *pathlib.Path.cwd().parents]:
+        if (cand / "src" / "murshid").is_dir():
+            os.chdir(cand); break
+        if (cand / "murshid" / "src" / "murshid").is_dir():
+            os.chdir(cand / "murshid"); break
 
 sys.path.insert(0, "src")
 os.environ["PYTHONUTF8"] = "1"
 os.environ.setdefault("PYTHONPATH", "src")
+
+# The application logs every routing decision and every model call. That is the
+# point in production and noise in a notebook, so the default here is WARNING and
+# the few sections where the log IS the lesson turn it back up themselves.
+os.environ.setdefault("MURSHID_LOG_LEVEL", "WARNING")
+
+def logs(level="INFO"):
+    """Set the application's log level for the cells that follow."""
+    os.environ["MURSHID_LOG_LEVEL"] = level
+    from murshid.observability import configure_logging
+    configure_logging()
 
 def run(*args, quiet_logs=True, may_fail=False):
     """Run a course command and print what it printed.
@@ -100,12 +125,30 @@ def gateway_stats():
     with urllib.request.urlopen(GATEWAY + "/admin/stats", timeout=5) as r:
         return json.load(r)
 
+def gateway_models(timeout=3):
+    with urllib.request.urlopen(GATEWAY + "/healthz", timeout=timeout) as r:
+        return json.load(r)["models"]
+
 try:
-    with urllib.request.urlopen(GATEWAY + "/healthz", timeout=3) as r:
-        print("gateway:", json.load(r)["models"])
+    print("gateway:", gateway_models())
 except Exception:
-    print(f"gateway at {GATEWAY} is NOT answering — start it first:")
-    print("   make gateway      (or)   docker compose up -d gateway")
+    if IN_COLAB:
+        # Nothing is listening yet on a fresh runtime, so start it here. It runs
+        # for the life of the notebook and needs no credentials.
+        subprocess.Popen([sys.executable, "-m", "uvicorn", "app.main:app",
+                          "--host", "127.0.0.1", "--port", "8080", "--log-level", "warning"],
+                         cwd="infra/mockgw",
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        for _ in range(60):
+            try:
+                print("gateway:", gateway_models(timeout=2)); break
+            except Exception:
+                time.sleep(1)
+        else:
+            print("the course gateway did not come up — re-run this cell")
+    else:
+        print(f"gateway at {GATEWAY} is NOT answering — start it first:")
+        print("   make gateway      (or)   docker compose up -d gateway")
 print("cwd:", pathlib.Path.cwd())
 '''
 
@@ -118,9 +161,24 @@ def code(text: str) -> nbformat.NotebookNode:
     return nbformat.v4.new_code_cell(text.strip("\n"))
 
 
-def build(name: str, title: str, subtitle: str, cells: list) -> Path:
+COLAB = ("https://colab.research.google.com/github/MohammadYusif/"
+         "llm-application-engineering/blob/main/labs/")
+
+OPENS_IN_COLAB = (
+    "*Runs in Colab with no API key and nothing installed locally. The first cell "
+    "fetches the course and starts the gateway, a small local service that answers "
+    "from rules rather than from a model — so every number below is real about "
+    "this harness, and not a claim about any provider.*"
+)
+
+
+def build(name: str, title: str, subtitle: str, lead: str, cells: list) -> Path:
+    """Write one lab notebook: title, Colab badge, lead, then the walkthrough."""
+    badge = (f"[![Open In Colab](https://colab.research.google.com/assets/"
+             f"colab-badge.svg)]({COLAB}{name}.ipynb)")
     nb = nbformat.v4.new_notebook()
-    nb.cells = [md(f"# {title}\n\n*{subtitle}*"), *cells]
+    header = "\n\n".join([f"# {title}", f"*{subtitle}*", badge, OPENS_IN_COLAB, lead.strip()])
+    nb.cells = [md(header), *cells]
     nb.metadata.update({
         "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
         "language_info": {"name": "python", "version": "3.12"},
