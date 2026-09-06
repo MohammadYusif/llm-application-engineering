@@ -22,7 +22,7 @@ LABS = ROOT / "labs"
 # out loud whether the gateway is answering. A lab that fails in cell 4 because
 # the gateway is down wastes ten minutes of a room's time.
 SETUP = '''\
-import os, pathlib, re, subprocess, sys, time, urllib.request, json
+import contextlib, os, pathlib, re, subprocess, sys, time, urllib.request, json
 
 # pytest and ruff colour their output; those escapes render as noise once the
 # notebook is published, so they come off here rather than per command.
@@ -57,11 +57,26 @@ os.environ.setdefault("PYTHONPATH", "src")
 # the few sections where the log IS the lesson turn it back up themselves.
 os.environ.setdefault("MURSHID_LOG_LEVEL", "WARNING")
 
-def logs(level="INFO"):
-    """Set the application's log level for the cells that follow."""
-    os.environ["MURSHID_LOG_LEVEL"] = level
-    from murshid.observability import configure_logging
-    configure_logging()
+@contextlib.contextmanager
+def quiet():
+    """Silence the application log inside a block that logs once per item.
+
+    A loop over fifty corpus rows writes fifty validation warnings, and the
+    report underneath them is the lesson. structlog freezes each module's logger
+    on first use, so the level cannot be lowered after the fact — the writer is
+    what gets muted instead.
+    """
+    import structlog
+    levels = ("msg", "log", "debug", "info", "warn", "warning", "err", "error",
+              "critical", "exception", "fatal", "failure")
+    saved = {name: getattr(structlog.PrintLogger, name) for name in levels}
+    for name in levels:
+        setattr(structlog.PrintLogger, name, lambda self, message: None)
+    try:
+        yield
+    finally:
+        for name, fn in saved.items():
+            setattr(structlog.PrintLogger, name, fn)
 
 def run(*args, quiet_logs=True, may_fail=False):
     """Run a course command and print what it printed.
@@ -125,6 +140,12 @@ def gateway_stats():
     with urllib.request.urlopen(GATEWAY + "/admin/stats", timeout=5) as r:
         return json.load(r)
 
+def gateway_reset():
+    """Clear the gateway's prompt cache, stats and faults."""
+    req = urllib.request.Request(GATEWAY + "/admin/reset", method="POST", data=b"")
+    with urllib.request.urlopen(req, timeout=5) as r:
+        return json.load(r)
+
 def gateway_models(timeout=3):
     with urllib.request.urlopen(GATEWAY + "/healthz", timeout=timeout) as r:
         return json.load(r)["models"]
@@ -174,8 +195,11 @@ OPENS_IN_COLAB = (
 
 def build(name: str, title: str, subtitle: str, lead: str, cells: list) -> Path:
     """Write one lab notebook: title, Colab badge, lead, then the walkthrough."""
-    badge = (f"[![Open In Colab](https://colab.research.google.com/assets/"
-             f"colab-badge.svg)]({COLAB}{name}.ipynb)")
+    # Raw HTML, not markdown: `lightbox: auto` in _quarto.yml unwraps linked
+    # images, which would leave the badge as a picture that is not a link.
+    badge = (f'<a href="{COLAB}{name}.ipynb">'
+             f'<img src="https://colab.research.google.com/assets/colab-badge.svg" '
+             f'alt="Open In Colab"></a>')
     nb = nbformat.v4.new_notebook()
     header = "\n\n".join([f"# {title}", f"*{subtitle}*", badge, OPENS_IN_COLAB, lead.strip()])
     nb.cells = [md(header), *cells]
