@@ -22,7 +22,7 @@ LABS = ROOT / "labs"
 # out loud whether the gateway is answering. A lab that fails in cell 4 because
 # the gateway is down wastes ten minutes of a room's time.
 SETUP = '''\
-import contextlib, os, pathlib, re, subprocess, sys, time, urllib.request, json
+import contextlib, os, pathlib, re, socket, subprocess, sys, time, urllib.request, json
 
 # pytest and ruff colour their output; those escapes render as noise once the
 # notebook is published, so they come off here rather than per command.
@@ -41,6 +41,20 @@ if IN_COLAB:
         subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r",
                         str(root / "murshid" / "requirements.lock")], check=True)
     os.chdir(root / "murshid")
+
+    # Not port 8080: Colab's runtime already has a service there, and re-running
+    # this cell would collide with the gateway the last run started. Ask the
+    # kernel for a free port, then tell every route about it through the same
+    # variables the compose stack uses. The port is remembered on the
+    # environment, so a second run finds the gateway instead of starting another.
+    if not os.environ.get("MURSHID_GATEWAY_PORT"):
+        with socket.socket() as probe:
+            probe.bind(("127.0.0.1", 0))
+            os.environ["MURSHID_GATEWAY_PORT"] = str(probe.getsockname()[1])
+    _base = "http://127.0.0.1:" + os.environ["MURSHID_GATEWAY_PORT"]
+    for _route in ("PRIMARY", "CHEAP", "VLLM"):
+        os.environ["MURSHID_" + _route + "_BASE_URL"] = _base + "/v1"
+    os.environ["MURSHID_COMPARISON_BASE_URL"] = _base   # anthropic dialect, no /v1
 else:
     for cand in [pathlib.Path.cwd(), *pathlib.Path.cwd().parents]:
         if (cand / "src" / "murshid").is_dir():
@@ -155,18 +169,24 @@ try:
 except Exception:
     if IN_COLAB:
         # Nothing is listening yet on a fresh runtime, so start it here. It runs
-        # for the life of the notebook and needs no credentials.
-        subprocess.Popen([sys.executable, "-m", "uvicorn", "app.main:app",
-                          "--host", "127.0.0.1", "--port", "8080", "--log-level", "warning"],
-                         cwd="infra/mockgw",
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # for the life of the notebook and needs no credentials. Its output goes
+        # to a file rather than nowhere, so a failure can explain itself.
+        log_path = "/content/gateway.log"
+        with open(log_path, "w") as log_file:
+            subprocess.Popen([sys.executable, "-m", "uvicorn", "app.main:app",
+                              "--host", "127.0.0.1",
+                              "--port", os.environ["MURSHID_GATEWAY_PORT"],
+                              "--log-level", "warning"],
+                             cwd="infra/mockgw", stdout=log_file, stderr=log_file)
         for _ in range(60):
             try:
                 print("gateway:", gateway_models(timeout=2)); break
             except Exception:
                 time.sleep(1)
         else:
-            print("the course gateway did not come up — re-run this cell")
+            print("the course gateway did not come up. What it said:")
+            print(pathlib.Path(log_path).read_text()[-800:] or "(nothing)")
+            print("Runtime -> Restart session, then run this cell again.")
     else:
         print(f"gateway at {GATEWAY} is NOT answering — start it first:")
         print("   make gateway      (or)   docker compose up -d gateway")
