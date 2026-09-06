@@ -196,7 +196,7 @@ Extensions add up to **+5** (capped at 100), and only if mandatory scope scores
 
 ## How this is graded
 
-**From the artefacts first, the demo second.** The course's thesis is that the
+**Your artefacts are read first, and the demo second.** The course's thesis is that the
 repository proves the system: CI history, `EVALUATION_REPORT.md`, meter logs,
 corpus numbers.
 

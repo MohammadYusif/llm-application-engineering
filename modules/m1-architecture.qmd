@@ -29,12 +29,14 @@ returning 200s while the answers degrade.
 | **Provider coupling** | Written against one SDK, one model name, one price sheet. Procurement, residency rules and the market all change. | This module |
 
 ::: {.callout-note appearance="simple"}
-## The five-minute exercise before any of this
+## Before you read the table above, try naming it yourself
 
-Open a sixty-line "works on stage" chatbot — hardcoded model name, prompt inline,
-no timeout, no state, `print` streaming — and list what breaks in production. A
-room full of engineers finds most of the table above unprompted. Naming them
-afterwards lands better than naming them first.
+Lab 1 opens with `demo_v0.py`: a sixty-line "works on stage" chatbot — hardcoded
+model name, prompt inline, no timeout, no state, `print` streaming. Read it and
+list what would break in production before you come back here.
+
+Most of that table is findable from sixty lines of code, and the names land
+better once you have already met the thing they name.
 :::
 
 ## 2. Four patterns, as an escalation ladder
