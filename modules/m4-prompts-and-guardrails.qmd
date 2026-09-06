@@ -1,6 +1,6 @@
 ---
 title: "Module 4 — Prompt Pipelines, Templating, and Guardrails"
-subtitle: "Day 2 hour 5 into Day 3 hour 1 · theory, then the lab"
+subtitle: "Day 2 hour 5 into Day 3 hour 1 · theory, then Lab 4"
 ---
 
 By now Murshid's prompts would be scattered string literals and its inputs would

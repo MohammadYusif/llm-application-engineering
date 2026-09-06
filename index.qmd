@@ -37,9 +37,11 @@ and you will perform it rather than be told about it.
 
 ## The four days
 
-Each module is **theory first, then its lab** on the same page. The lab is work on
-Murshid itself — the project grows a component a day, so by Thursday the capstone
-is integration and one extension rather than a fresh build.
+Each module is **theory first, then its lab**: the module page teaches, and the
+lab is a notebook you run beside it. The lab is work on Murshid itself — the
+project grows a component a day, so by Thursday the capstone is integration and
+one extension rather than a fresh build. Every lab notebook is committed with its
+outputs, so you can read what should happen before you run it.
 
 ::: {.grid}
 

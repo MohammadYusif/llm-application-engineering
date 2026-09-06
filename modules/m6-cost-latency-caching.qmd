@@ -1,6 +1,6 @@
 ---
 title: "Module 6 — Cost, Latency, and Caching"
-subtitle: "Day 3, hours 4–5 · theory, then the lab"
+subtitle: "Day 3, hours 4–5 · theory, then Lab 6"
 ---
 
 > **Never trade quality you aren't measuring for cost you are.**

@@ -5,7 +5,7 @@ subtitle: "How the 100 comes together, and twenty questions to check yourself ag
 
 | Component | Weight | Evidence |
 |---|---|---|
-| Lab completion — the lab half of Modules 1–6, on your own checkout | 50% | a checkpoint commit and a `BENCHMARKS.md` entry per lab |
+| Lab completion — Labs 1–6, run on your own checkout | 50% | a checkpoint commit and a `BENCHMARKS.md` entry per lab |
 | Practical assessments PA-1 and PA-2 | 10% | artefacts plus notes |
 | Capstone project and evaluation report | 40% | the [capstone rubric](capstone.qmd#the-seven-sections) |
 
@@ -15,8 +15,8 @@ point, not the number.
 
 The labs strand (60%) and the project with its report (40%) match the catalogue
 assessment: *labs; an LLM application project with an evaluation report*. Each
-module is theory then a lab, and the lab is worked on your own checkout — its
-numbers land in your `BENCHMARKS.md` and become the capstone's evidence.
+module is theory then a lab notebook, and the lab is worked on your own checkout —
+its numbers land in your `BENCHMARKS.md` and become the capstone's evidence.
 
 Badge issuance requires ≥ 70 overall **and** capstone ≥ 70 **and** a green safety
 suite at submission **and** no academic-integrity flags. Identical golden-set edits

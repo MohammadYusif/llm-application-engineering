@@ -1,6 +1,6 @@
 ---
 title: "Module 2 — Working with LLM APIs and Open-Weight Models"
-subtitle: "Day 1, hours 4–5 · theory, then the lab"
+subtitle: "Day 1, hours 4–5 · theory, then Lab 2"
 ---
 
 Module 1 drew the boundary. This module fills it with competence: the chat/messages

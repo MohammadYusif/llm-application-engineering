@@ -1,6 +1,6 @@
 ---
 title: "Module 3 — Structured Outputs and Function Calling"
-subtitle: "Day 2, hours 1–4 · theory, then the lab"
+subtitle: "Day 2, hours 1–4 · theory, then Lab 3"
 ---
 
 Free text is where LLM output goes to be admired; structure is where it goes to be

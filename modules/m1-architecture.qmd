@@ -1,6 +1,6 @@
 ---
 title: "Module 1 — LLM Application Architecture Patterns"
-subtitle: "Day 1, hours 1–3 · theory, then the lab"
+subtitle: "Day 1, hours 1–3 · theory, then Lab 1"
 ---
 
 Most LLM products fail not because the model is weak but because the application
@@ -254,7 +254,7 @@ is an application concern. Three strategies:
 system prompt, retrieved content, tool schemas and output must fit — and cost
 scales with all of it on *every* turn. Murshid's budget is written down in
 [`docs/context_budget.md`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/docs/context_budget.md);
-you write your own in the lab below.
+you write your own in Lab 1.
 
 **Streaming is UX, not decoration.** A 500 ms time-to-first-token with streaming
 *feels* faster than a four-second complete response at identical total latency.

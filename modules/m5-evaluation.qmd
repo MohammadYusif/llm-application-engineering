@@ -1,6 +1,6 @@
 ---
 title: "Module 5 — Evaluation: Golden Sets, LLM-as-Judge, Metrics"
-subtitle: "Day 3, hours 2–3 · theory, then the lab"
+subtitle: "Day 3, hours 2–3 · theory, then Lab 5"
 ---
 
 Everything built so far changes behaviour when anyone touches a prompt, a model
