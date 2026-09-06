@@ -1,16 +1,44 @@
 ---
-title: "Capstone — Murshid, complete"
-subtitle: "Day 4 · what each rubric section is asking for"
+title: "Capstone — your own LLM application"
+subtitle: "Day 4 · pick a track, build it, and defend the evidence"
 ---
 
-The fictional **Digital Government Services Authority** is ready to pilot Murshid
-with a limited public cohort. You are the application engineer of record. The
-review board — an architect, a security assessor and a service-delivery director —
-approves the pilot on evidence: a working application, an evaluation report with
-calibrated numbers, and a cost model that survives national-scale arithmetic.
+Murshid has been the worked example all week: every module explained a discipline
+and then showed it running in one bilingual citizen-services assistant. The
+capstone is where you build **your own** application with the same disciplines.
 
-Everything you built across Modules 1–6 is a component. Today is integration, one
-extension, and the defence.
+You are the application engineer of record. A review board — an architect, a
+security assessor and a service-delivery director — approves a pilot on evidence:
+a working application, an evaluation report with calibrated numbers, and a cost
+model that survives national-scale arithmetic.
+
+## Choose one track
+
+Pick one. Each is a shape that genuinely needs everything the week covered — a
+router, validated structure, tools of different risk classes, a bilingual guard
+wall, a golden set, and a cost model. Whichever you pick, the rubric below applies
+in full.
+
+| Track | The application | What makes it need the whole week |
+|---|---|---|
+| **A · Citizen services** | Renewals, fees, documents, appointments for a fictional authority | The course's own reference shape: grounded FAQ, a booking that acts, an escalation path |
+| **B · Campus services** | Admissions, enrolment, transcripts and advisor appointments | Facts that must be quoted exactly, a side-effecting booking, and a student-privacy problem |
+| **C · Internal IT service desk** | Access requests, asset bookings, incident triage and hand-off to a human | Authorisation is the whole game: who is asking decides what may be done |
+| **D · Retail order support** | Order status, returns, exchanges, store appointments | Order lookups are read-only, returns act, and the catalogue is the grounding |
+
+::: {.callout-important}
+## Murshid is the example, not the submission
+
+You may read, borrow patterns from, and copy plumbing out of `murshid/` — that is
+what a reference implementation is for. You may **not** submit Murshid with the
+service directory swapped. The domain, the tools, the corpora, the golden set and
+the guards must be yours, because every rubric section below is scored on evidence
+you produced about **your** traffic.
+
+If your idea does not fit any of the four tracks, propose it on Day 1. Anything
+with grounded answers, at least one action that changes something, and a reason to
+refuse is likely fine.
+:::
 
 The capstone is graded on **7 sections, 100 points, pass at 70, distinction at
 90**. There is no per-section floor, but there is one rule that overrides
@@ -28,7 +56,7 @@ was written about but never actually run. Go through this page before you start,
 and again before you submit.
 
 **And one rule is absolute.** A capstone whose **safety suite is red at
-submission cannot pass**, whatever it scores elsewhere. The safety stratum tests
+submission cannot pass**, whatever it scores elsewhere. The safety cases test
 your guards, which are your code. A red safety suite is not bad luck with a model.
 :::
 
@@ -36,10 +64,9 @@ your guards, which are your code. A red safety suite is not bad luck with a mode
 ## Where "commonly lost on" comes from
 
 This course has not run a cohort yet, so unlike the older programmes these are not
-yet patterns observed in submissions. Each one is an anti-pattern the module that
-teaches the section names explicitly, or one of the four flags below that caps a
-criterion. Treat them as the marker's stated priors; the first cohort will sharpen
-them.
+yet patterns observed in submissions. Each one is an anti-pattern named explicitly
+by the module that teaches the section, or one of the four flags below that caps a
+criterion. The first cohort will sharpen them.
 :::
 
 ## The seven sections
@@ -67,11 +94,13 @@ show the drill log, it did not happen.
 
 **Where:** [Module 3 — structured outputs and tools](modules/m3-structured-outputs-and-tools.qmd)
 
-**Full marks:** validated `ServiceTicket` extraction with the validate → retry →
-repair loop, and **measured** pass rates split by language. The three-tool bounded
-loop with an authorisation gate that reads the authenticated session. `pytest
-tests/pipeline/test_tool_safety.py` all green. Every tool call logged with its risk
-class and loop iteration.
+**Full marks:** one validated request object for your domain — a ticket, an
+enrolment, a return — extracted with the validate → retry → repair loop, and
+**measured** pass rates split by language. At least three tools spanning the risk
+classes: one read-only, one side-effecting behind an authorisation gate that reads
+the authenticated session, one terminal. A bounded loop. Your own negative
+tool-safety tests, all green. Every tool call logged with its risk class and loop
+iteration.
 
 **Commonly lost on:** authorisation that lives in the prompt or in the tool
 description rather than in `session.authorize()`. Anything inside the token stream
@@ -150,8 +179,8 @@ it is re-runnable; a number you did not produce cannot be re-run.
 
 **Full marks:** a stranger clones the repository and reaches a working bilingual
 conversation in **ten minutes** following your README, through a single-command
-entry point. A five-minute live demo exercising four things — an FAQ answer, a
-tool-completed booking, a refused attack, and a graceful fallback — then one
+entry point. A five-minute live demo exercising four things — a grounded answer, a
+tool-completed action, a refused attack, and a graceful fallback — then one
 adversarial question from the floor, answered by the running system.
 
 **Commonly lost on:** a repository that only runs on the machine it was built on.
@@ -162,19 +191,19 @@ Test the README on a clean clone before the demo, not during it.
 | Extension | What it proves |
 |---|---|
 | **Conversation-summarisation memory** | the third state strategy from Module 1, with eval cases showing long conversations retain key facts |
-| **A cascade for the FAQ route** | cheap-first with a deterministic escalation signal, measured against the router baseline |
-| **Batch mode** | nightly re-answering of the golden set through a batch path, with the cost comparison |
-| **A guard dashboard** | attack attempts, verdict layers and a false-positive review queue, rendered from the logs |
-| **A second open-weight model** | a size or quantisation comparison on the vLLM route, with throughput and quality slices |
-| **Indirect-injection hardening** | the poisoned-tool-result guard wired into the service route, with five corpus cases proving it |
+| **A cascade on your busiest route** | cheap-first with a deterministic escalation signal, measured against your own router baseline |
+| **Batch mode** | overnight re-answering of your golden set through a batch path, with the cost comparison |
+| **A guard dashboard** | attack attempts, verdict layers and a false-positive review queue, rendered from your logs |
+| **A second open-weight model** | a size or quantisation comparison on the self-hosted route, with throughput and quality slices |
+| **Indirect-injection hardening** | a poisoned tool result caught by the outbound wall, with five corpus cases proving it |
 
 Extensions add up to **+5** (capped at 100), and only if mandatory scope scores
 ≥ 80. An extension is not a way to buy back a weak section.
 
 ## Deliverables
 
-1. **Repository URL** with full history — the week's build visible as commits, CI
-   green on `main`.
+1. **Repository URL** with full history — your build visible as commits rather
+   than one bulk upload, CI green on `main`.
 2. **`EVALUATION_REPORT.md`** — overall and sliced results for both backends, judge
    calibration evidence, safety suite status, and **known limitations**.
 3. **`BENCHMARKS.md`** — the Module 2 provider table, Module 3 pass rates, Module 4
@@ -188,8 +217,8 @@ Extensions add up to **+5** (capped at 100), and only if mandatory scope scores
 
 | Milestone | Due | Gate |
 |---|---|---|
-| M-A · scope confirmed, peer architecture review | Day 4, hour 1 | the review checklist, signed by another pair |
-| M-B · integrated application, both backends live | hour 2 | `make chat` does the four-part conversation |
+| M-A · track and scope confirmed, peer architecture review | Day 4, hour 1 | the review checklist, signed by another pair |
+| M-B · integrated application, both backends live | hour 2 | your CLI or API does the four-part conversation |
 | M-C · full harness run, report drafted | hour 3 | suite green on primary; comparison table filled |
 | M-D · cost budget verified, red-team survived | hour 4 | replay within budget; peer attacks logged |
 | M-E · demo and defence | hour 5 | rubric scored live |
@@ -281,12 +310,12 @@ limitations** section precisely so that honesty has somewhere to live.
 
 - [ ] **Your full name is in the README.** Submissions without names are not
       graded — this is not a formality.
-- [ ] `make test` green, and **the safety stratum at 100%**. A red safety suite
-      cannot pass.
-- [ ] `pytest tests/test_architecture.py` green — no provider SDK outside `llm/`,
-      no `LLMRequest` without `max_tokens`, no inline prompt text.
+- [ ] Your test suite green, and **the safety stratum at 100%**. A red safety
+      suite cannot pass.
+- [ ] Your architecture test green — no provider SDK outside your adapter layer,
+      no unbounded `max_tokens`, no inline prompt text.
 - [ ] Both backends actually run, switched by config, and you have shown it.
-- [ ] The drill log excerpt is in the submission — the fallback really fired.
+- [ ] The fault-drill log excerpt is in the submission — the fallback really fired.
 - [ ] Guard numbers reported **in pairs**: block rate *and* false-positive rate.
 - [ ] Judge calibration evidence included, with κ stated.
 - [ ] The gate demonstrated blocking the seeded change, with the slice table.
@@ -296,6 +325,6 @@ limitations** section precisely so that honesty has somewhere to live.
 - [ ] Cloned fresh into an empty directory and followed your own README end to end.
 - [ ] No API key in the code or in git history.
 - [ ] No `TODO` or template placeholder text left anywhere.
-- [ ] Your chosen extension is stated explicitly.
+- [ ] Your **track** is stated explicitly, and your chosen extension if you did one.
 - [ ] **README** covers the project description and how to run it, `.gitignore`
       excludes secrets, and the programme name and cohort dates are stated.

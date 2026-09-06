@@ -97,11 +97,12 @@ DELIVERABLES: list[tuple[str, str, str, str]] = [
         "2",
         "Structured Outputs &amp; Function Calling",
         "15",
-        "Validated ticket extraction: schema-constrained generation over the wire, a pydantic "
+        "One validated request object for your domain: schema-constrained generation over the "
+        "wire, a pydantic "
         "contract whose validators carry the semantics the schema cannot express, and a "
         "validate &#8594; retry &#8594; repair loop that feeds the located validation errors back "
         "once and then escalates by design. Schema-pass rates measured and reported, split by "
-        "language. A bounded tool loop over three tools of distinct risk classes, with an "
+        "language. A bounded tool loop over at least three tools spanning the risk classes, with an "
         "authorisation gate that reads the authenticated session and never the model's own "
         "arguments. The negative tool-safety tests all pass, and every tool call is logged with "
         "its risk class and loop iteration.",
@@ -278,6 +279,47 @@ def rubric_table() -> Table:
     return table
 
 
+TRACKS: list[tuple[str, str, str]] = [
+    ("A", "Citizen services",
+     "Renewals, fees, documents and appointments for a fictional authority. The course's own "
+     "reference shape: grounded FAQ, a booking that acts, an escalation path to a human."),
+    ("B", "Campus services",
+     "Admissions, enrolment, transcripts and advisor appointments. Facts that must be quoted "
+     "exactly, a side-effecting booking, and a student-privacy problem to solve."),
+    ("C", "Internal IT service desk",
+     "Access requests, asset bookings, incident triage and hand-off to a human. Authorisation "
+     "is the whole game: who is asking decides what may be done."),
+    ("D", "Retail order support",
+     "Order status, returns, exchanges and store appointments. Lookups are read-only, returns "
+     "act, and the product catalogue is the grounding."),
+]
+
+
+def tracks_table() -> Table:
+    data = [[
+        Paragraph("Track", CELL_H),
+        Paragraph("The application", CELL_H),
+        Paragraph("Why it needs the whole course", CELL_H),
+    ]]
+    for letter, name, why in TRACKS:
+        data.append([
+            Paragraph(letter, CELL_B), Paragraph(name, CELL_B), Paragraph(why, CELL),
+        ])
+    table = Table(data, colWidths=[12 * mm, 36 * mm, 119 * mm], repeatRows=1)
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), ACCENT),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BAND]),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("ALIGN", (0, 0), (0, -1), "CENTER"),
+        ("GRID", (0, 0), (-1, -1), 0.4, RULE),
+        ("TOPPADDING", (0, 0), (-1, -1), 5),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+        ("LEFTPADDING", (0, 0), (-1, -1), 5),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+    ]))
+    return table
+
+
 def requirements_table() -> Table:
     data = [[Paragraph("Requirement", CELL_H), Paragraph("What it means in practice", CELL_H)]]
     for name, meaning in REPO_REQUIREMENTS:
@@ -330,11 +372,28 @@ def build(out_dir: Path) -> Path:
             "20 training hours  |  Course code SDA-AIE-213",
             META,
         ),
-        Paragraph("1. Capstone Rubric", H2),
+        Paragraph("1. Choose One Track", H2),
+        Paragraph(
+            "The capstone is <b>your own</b> application. Murshid, the bilingual "
+            "citizen-services assistant used as the worked example throughout the course, is "
+            "what you learn from &#8212; it is not what you submit, and a submission that is "
+            "Murshid with the service directory swapped is not a submission. Pick one track "
+            "below; the rubric applies in full whichever you pick.",
+            BODY,
+        ),
+        tracks_table(),
+        Spacer(1, 4),
+        Paragraph(
+            "If your own idea does not fit a track, propose it on Day 1. Anything with grounded "
+            "answers, at least one action that changes something, and a reason to refuse is "
+            "likely fine.",
+            NOTE,
+        ),
+        Paragraph("2. Capstone Rubric", H2),
         Paragraph(
             "100 points total  |  <b>Pass mark: 70 or above. Distinction: 90 or above.</b> The "
-            "capstone integrates Labs 1&#8211;6 into one complete, evaluated, cost-managed "
-            "LLM-powered application, plus one extension of your choice.",
+            "capstone brings every discipline of Modules 1&#8211;6 together in one complete, "
+            "evaluated, cost-managed LLM-powered application, plus one extension of your choice.",
             BODY,
         ),
         rubric_table(),
@@ -348,19 +407,19 @@ def build(out_dir: Path) -> Path:
         Paragraph("How it is evaluated", H3),
         bullets(EVALUATION_NOTES),
         PageBreak(),
-        Paragraph("2. GitHub &amp; Documentation Requirements", H2),
+        Paragraph("3. GitHub &amp; Documentation Requirements", H2),
         Paragraph(
             "These apply to every project, in addition to the rubric above. They are part of how "
             "projects are evaluated.",
             BODY,
         ),
-        Paragraph("2.1 Mandatory", H3),
+        Paragraph("3.1 Mandatory", H3),
         bullets(GITHUB_MANDATORY),
         KeepTogether([
-            Paragraph("2.2 Every project repository must include", H3),
+            Paragraph("3.2 Every project repository must include", H3),
             requirements_table(),
         ]),
-        Paragraph("2.3 Encouraged: supporting the Saudi tech community", H3),
+        Paragraph("3.3 Encouraged: supporting the Saudi tech community", H3),
         Paragraph("Trainees are encouraged to support outstanding Saudi projects on GitHub by:", BODY),
         bullets(ENCOURAGED),
         Paragraph(

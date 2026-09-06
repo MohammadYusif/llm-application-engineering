@@ -5,10 +5,13 @@ toc: false
 ---
 
 Four days on the engineering that turns a model call into a product: architecture,
-structure, guardrails, evaluation, and unit economics. The course is built around
-one artefact you extend all week — **Murshid (مرشد)**, a bilingual citizen-services
-assistant — so by Thursday afternoon the "project" is assembly and one extension,
-not a fresh build.
+structure, guardrails, evaluation, and unit economics. Every discipline is taught
+against one worked example — **Murshid (مرشد)**, a bilingual citizen-services
+assistant that ships complete in this repository — so you can read a working
+version of each idea before you build your own.
+
+The capstone is **your** application, on a track you pick. Murshid is what you
+learn from; it is not what you submit.
 
 ::: {.callout-tip appearance="simple"}
 ## Everything runs offline
@@ -26,7 +29,7 @@ and you will perform it rather than be told about it.
 
 ## What you leave with
 
-| Discipline | The thing you build | The evidence it works |
+| Discipline | What your capstone must have | The evidence it works |
 |---|---|---|
 | **Architecture** | A router-first application with every model call behind one boundary | A provider swap that is a config edit, proven under a fault drill |
 | **Structure** | Validated `ServiceTicket` extraction and a bounded tool loop | Schema-pass rate by language; four negative safety tests |
@@ -38,10 +41,10 @@ and you will perform it rather than be told about it.
 ## The four days
 
 Each module is **theory first, then its lab**: the module page teaches, and the
-lab is a notebook you run beside it. The lab is work on Murshid itself — the
-project grows a component a day, so by Thursday the capstone is integration and
-one extension rather than a fresh build. Every lab notebook is committed with its
-outputs, so you can read what should happen before you run it.
+lab is a notebook you run beside it. The labs exercise the module's own points on
+Murshid, then hand the same points back to you for your capstone — every lab ends
+with a *your turn*. Notebooks are committed with their outputs, so you can read
+what should happen before you run it.
 
 ::: {.grid}
 
@@ -79,10 +82,11 @@ blocks the regression code review cannot see — and only then, optimisation.
 :::
 
 ::: {.g-col-12 .g-col-md-6}
-### Day 4 — Ship the application
-Integration, a peer architecture review, the full harness on both backends, a
-cost budget you have to meet, a red-team round from the pair next to you, and a
-five-minute demo that takes an adversarial question from the floor.
+### Day 4 — Build and ship your own
+Your application, on the track you picked: integration, a peer architecture
+review, the full harness on both backends, a cost budget you have to meet, a
+red-team round from the pair next to you, and a five-minute demo that takes an
+adversarial question from the floor.
 
 [Capstone](capstone.qmd) · [Assessment](assessment.qmd)
 :::

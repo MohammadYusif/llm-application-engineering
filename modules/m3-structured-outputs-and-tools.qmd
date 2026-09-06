@@ -4,8 +4,8 @@ subtitle: "Day 2, hours 1–4 · theory, then Lab 3"
 ---
 
 Free text is where LLM output goes to be admired; structure is where it goes to be
-*used*. This module turns Murshid from something that answers into something that
-files a ticket and books an appointment — and it is where the risk concentrates. A
+*used*. This is the module where Murshid stops merely answering and starts filing a
+ticket and booking an appointment — and it is where the risk concentrates. A
 hallucinated chat answer embarrasses. A hallucinated `national_id` passed to a
 booking API *acts*.
 

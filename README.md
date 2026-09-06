@@ -5,7 +5,7 @@
 Course site: **<https://mohammadyusif.github.io/llm-application-engineering/>**
 
 A hands-on course on engineering applications on top of LLM APIs and open-weight
-models. It is built around one artefact that grows all week — **Murshid (مرشد)**, a
+models. Every discipline is taught against one worked example — **Murshid (مرشد)**, a
 bilingual Arabic/English citizen-services assistant — so that by Day 4 the capstone
 is integration and one extension rather than a fresh build.
 

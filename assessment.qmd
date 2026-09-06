@@ -129,8 +129,8 @@ whose booking it is?
 ## Wrap-up
 
 Every capstone requirement maps back to the module that taught it, and that is the
-golden thread whole: every component built during the week is running in the
-application you just demonstrated.
+thread whole: every discipline the week taught is running in the application you
+just demonstrated — your own, not the one you read.
 
 Forward pointers: **SDA-AIE-214** adds retrieval to this exact pipeline — the
 guarded pipeline and the eval harness grow retrieval metrics on the same skeleton.
