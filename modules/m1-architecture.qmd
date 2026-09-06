@@ -111,16 +111,108 @@ flowchart TD
 The single most consequential decision in an LLM application is where the model
 boundary sits. The rule: **application code never imports a provider SDK.**
 
+### Reading the contract
+
+The whole boundary is one file. Here it is, in the order it matters — this is
+`src/murshid/llm/interfaces.py`, not a simplification of it.
+
+The **request** is what the application is allowed to ask for:
+
 ```python
-# src/murshid/llm/interfaces.py — what the application is allowed to know
+class LLMRequest(BaseModel):
+    messages: list[Message]
+    model_alias: str = "murshid-default"  # resolved via config, never a literal model id
+    temperature: float = Field(0.2, ge=0.0, le=2.0)
+    max_tokens: int = Field(1024, gt=0)  # ALWAYS bounded
+    tools: list[dict] | None = None       # provider-neutral JSON schema
+    response_format: dict | None = None   # structured outputs (Module 3)
+    cache_prefix_messages: int = 0        # how many leading messages are the stable prefix (M6)
+```
+
+Six fields, and five of them are decisions this course will come back to:
+
+- `model_alias` is a *name*, not an id. Nothing in the application ever writes
+  `gpt-4o-2024-08-06`. The alias resolves through `configs/murshid.yaml`, which is
+  why a provider swap is an environment variable rather than a search-and-replace.
+- `max_tokens` has `gt=0` and a default. It cannot be `None`, so there is no path
+  through this codebase that issues an unbounded generation. The architecture test
+  enforces the same rule a second time, at the call site.
+- `temperature` survives here even though the Anthropic Messages API no longer
+  accepts it (Module 2). The normalised type keeps the union of what providers
+  offer; each adapter drops what its own provider cannot take. Deleting the field
+  to silence one adapter's `TypeError` would be the wrong repair.
+- `tools` and `response_format` are provider-neutral JSON. Module 3 fills them.
+- `cache_prefix_messages` is a Module 6 field sitting in a Module 1 file on
+  purpose: prefix discipline is only cheap if the boundary was designed to carry it.
+
+The **response** is what the application is allowed to learn:
+
+```python
+class Usage(BaseModel):
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cached_input_tokens: int = 0  # Module 6 pays close attention to this one
+
+
+class LLMResponse(BaseModel):
+    text: str | None = None
+    tool_calls: list[ToolCall] = Field(default_factory=list)
+    finish_reason: FinishReason = "stop"
+    model_id: str = ""    # the CONCRETE model that answered, never the alias
+    usage: Usage = Field(default_factory=Usage)
+    latency_ms: float = 0.0
+    route: str = ""       # which configured route served it (set by the client)
+```
+
+`model_id` and `route` are the two fields people leave out and regret. When an
+answer is wrong, "which model, on which route, actually produced this?" is the
+first question, and if the response cannot answer it the investigation starts with
+guesswork. `usage` crossing the boundary is what makes Module 6's cost meter a
+one-line change instead of a refactor — the meter reads a field that was already
+there.
+
+And the interface itself is four lines:
+
+```python
+@runtime_checkable
 class LLMClient(Protocol):
+    """Everything the application is allowed to know about a model provider."""
+
     def complete(self, request: LLMRequest) -> LLMResponse: ...
     def stream(self, request: LLMRequest) -> Iterator[StreamChunk]: ...
 ```
 
+`Protocol` rather than a base class is deliberate: an adapter satisfies this by
+having the right shape, with no import of ours and no inheritance. `FakeClient` in
+the test suite is not a mock of the interface — it *is* an implementation, which is
+why the same contract suite runs against it and against the live routes.
+
 Three implementations sit behind it: `OpenAICompatClient` (which covers OpenAI
 *and* vLLM *and* most gateways — the chat-completions schema is the de-facto wire
 standard), `AnthropicClient`, and `FakeClient` for tests.
+
+Finally, the error type, because failure has to cross the boundary in a normalised
+shape too:
+
+```python
+class LLMError(RuntimeError):
+    """Normalised provider failure. ``retryable`` drives Module 1's retry policy."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        status: int | None = None,
+        retryable: bool = False,
+        retry_after: float | None = None,
+        raw: Any = None,
+    ) -> None:
+```
+
+`retryable` is a *decision the adapter makes*, not a status code the retry loop
+re-interprets. Each provider spells its failures differently; the adapter is where
+that vocabulary is translated once, so the policy below can be written in terms of
+one boolean instead of a growing table of status codes per provider.
 
 - **Model names are configuration, not code.** `murshid-default` resolves through
   `configs/murshid.yaml` to a concrete id. Swapping providers, pinning a snapshot,
@@ -193,6 +285,113 @@ ResilientClient(
   quality decay.
 - **`max_tokens` always set**, per-conversation spend caps, and a circuit breaker
   that stops hammering a failing provider.
+
+### Reading the retry loop
+
+This is the whole of `ResilientClient.complete()`. Two nested loops — hops on the
+outside, attempts on the inside — and every branch in it is a policy decision worth
+stopping on.
+
+```python
+def complete(self, request: LLMRequest) -> LLMResponse:
+    last_error: LLMError | None = None
+    for hop_index, (hop_name, client) in enumerate(self._chain):
+        for attempt in range(1, self._max_attempts + 1):
+            self.attempts += 1
+            try:
+                response = client.complete(request)
+            except LLMError as exc:
+                last_error = exc
+                if not exc.retryable:
+                    log.warning("llm_not_retryable", hop=hop_name,
+                                status=exc.status, error=type(exc).__name__)
+                    break                      # a 400 is a bug: move on, do not hammer
+                if attempt == self._max_attempts:
+                    log.warning("llm_hop_exhausted", hop=hop_name, attempts=attempt)
+                    break
+                delay = self._delay_for(attempt, exc)
+                log.warning("llm_retry", hop=hop_name, attempt=attempt,
+                            status=exc.status, retry_after=exc.retry_after,
+                            delay_s=round(delay, 2))
+                self._sleep(delay)
+            except Exception as exc:           # unknown failure: treat as non-retryable
+                last_error = LLMError(str(exc), retryable=False, raw=exc)
+                log.warning("llm_unexpected_error", hop=hop_name, error=type(exc).__name__)
+                break
+            else:
+                if hop_index > 0:
+                    self.fallbacks += 1
+                    log.warning("fallback_served", hop=hop_name, model_id=response.model_id)
+                return response
+    raise AllHopsExhausted(f"all {len(self._chain)} model hops exhausted", ...)
+```
+
+Line by line, the parts that carry weight:
+
+- **`if not exc.retryable: break`** — not `continue`. A non-retryable error means
+  this request is malformed or unauthorised, so retrying it on *this* hop is
+  pointless; the `break` drops to the next hop, where a different provider might
+  disagree about whether the request is valid. Retrying a 400 three times is the
+  same bug, three times slower, at three times the cost.
+- **`except Exception` is a separate, non-retryable branch.** Anything the adapter
+  did not normalise into an `LLMError` — a JSON decode failure, a bug in our own
+  code — must not be retried, because a retry loop around a deterministic crash is
+  an infinite loop with billing attached.
+- **The `else` clause on the `try`** runs only when no exception was raised. It is
+  the success path, and it is where the fallback counter increments: `hop_index > 0`
+  is the definition of "we failed over", so `fallback_served` appears in the log
+  exactly when it should and never when the primary answered.
+- **`self._sleep` is injected** in the constructor (`sleep=time.sleep`). That is
+  the only reason `tests/llm/test_resilient.py` can assert the backoff schedule
+  without actually waiting eleven seconds. A hard-coded `time.sleep` here would make
+  the retry policy untestable, and an untestable policy is one nobody changes with
+  confidence.
+
+The backoff itself is four lines, and the first of them is the one people miss:
+
+```python
+def _delay_for(self, attempt: int, error: LLMError) -> float:
+    if error.retry_after is not None:          # honour the header before guessing
+        return min(error.retry_after, self._max_delay)
+    delay = self._base_delay * (2 ** (attempt - 1))
+    return min(delay * random.uniform(0.5, 1.5), self._max_delay)   # jitter
+```
+
+The provider told you when to come back. Computing your own exponential backoff
+while ignoring `Retry-After` is how a fleet of clients synchronises into a
+thundering herd against a service that was trying to help. The jitter multiplier
+exists for the same reason at a smaller scale: identical backoff across many
+clients reproduces the spike it was meant to smooth.
+
+### Streaming fails over on one condition
+
+```python
+for chunk in client.stream(request):
+    emitted = emitted or bool(chunk.delta)
+    yield chunk
+...
+except LLMError as exc:
+    if emitted:
+        raise
+    continue                                    # nothing shown yet — try the next hop
+```
+
+Once a single token has reached the user, failing over would splice two different
+models' answers into one paragraph. `emitted` is the whole guard: before the first
+token, failover is invisible and correct; after it, the honest move is to surface
+the failure and let the UI show its designed "generation failed" state.
+
+And the last hop of every chain is not a model at all:
+
+```python
+def degraded_response(language: str = "en") -> LLMResponse:
+    """The last hop of every chain: honest, cheap, and never an error page."""
+```
+
+It returns a bilingual sentence saying the service is temporarily unavailable and
+pointing at the service centre. It costs nothing, it never fails, and it is the
+difference between a citizen who tries again later and one who concludes the portal
+is broken.
 
 Run the drill rather than reading about it:
 

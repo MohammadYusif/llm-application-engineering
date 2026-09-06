@@ -141,6 +141,69 @@ Two details that decide whether the wall works:
    pattern matches. Leaving them welds it too. The attack lives in the gap between
    two reasonable choices, so `match_variants()` stops choosing and checks both.
 
+### Reading layer 1
+
+The entire deterministic layer is twenty lines, and every one of them is a
+decision. From `src/murshid/guards/input_guards.py`:
+
+```python
+def deterministic_checks(text: str, *, max_chars: int = 4000) -> GuardVerdict | None:
+    """Layer 1. Returns a blocking verdict, or None to fall through to layer 2.
+
+    Takes the **raw** input, not a pre-normalised copy: normalising once and then
+    matching against that single reading is precisely the gap the zero-width
+    payload lives in. Normalisation happens here, both ways, every time.
+    """
+    if len(text) > max_chars:
+        return GuardVerdict(allowed=False, layer="deterministic",
+                            category="too_long", payload_sha256=_hash(text))
+
+    variants = match_variants(text)
+
+    if any(LEGITIMATE_CONTEXT.search(candidate) for candidate in variants):
+        return None                       # the carve-out runs FIRST
+
+    for candidate in variants:
+        for pattern in INJECTION_PATTERNS:
+            if pattern.search(candidate):
+                return GuardVerdict(allowed=False, layer="deterministic",
+                                    category="injection_pattern",
+                                    payload_sha256=_hash(text))
+    return None
+```
+
+- **The signature takes raw text.** A caller that helpfully normalised first would
+  reintroduce the bug this function exists to avoid, so the docstring says so where
+  the next maintainer will read it.
+- **The length cap comes first** because it is free and because an enormous input
+  is both an attack surface and a cost incident.
+- **`LEGITIMATE_CONTEXT` is checked before the blocklist**, not after. Order
+  decides the false-positive rate: *"what are the instructions for renewing my
+  licence?"* matches an injection pattern, and the carve-out is what keeps that
+  citizen. Run the patterns first and you would have to unblock afterwards, which
+  is harder to reason about and easy to get wrong.
+- **`payload_sha256=_hash(text)`, never the text.** The verdict is logged; the
+  payload is not. Echoing attacker text into a log is how log poisoning and
+  reflected injection happen — the same mistake, twice.
+- **Returning `None` means "fall through"**, not "safe". Layer 1 is allowed to be
+  unsure; the classifier in layer 3 takes the ambiguous middle.
+
+And the function the whole zero-width lesson turns on:
+
+```python
+def match_variants(text: str) -> list[str]:
+    folded = unicodedata.normalize("NFKC", text)
+    return [CONTROL_CHARS.sub("", folded), CONTROL_CHARS.sub(" ", folded)]
+```
+
+Three lines. `NFKC` first, which collapses fullwidth and compatibility forms so
+`Ｉｇｎｏｒｅ` and `Ignore` become the same string. Then **two** readings of the
+result: one with the invisible separators deleted, one with each replaced by a
+space. `Ignore<ZWSP>all<ZWSP>previous` defeats a guard that deletes (it becomes
+`Ignoreallprevious`, and `\b` matches nothing) and equally defeats a guard that
+ignores them. The attack lives in the gap between two reasonable choices, so the
+guard refuses to choose and pays for two passes instead.
+
 **Guard placement is architecture:** the wall stands *before* the router, so
 off-scope traffic never reaches the expensive route.
 
@@ -160,6 +223,75 @@ free and because safety-critical assertions must never depend on a judgement cal
 | **Outbound PII** | the same Saudi patterns, applied the other way | anything unmasked leaving |
 | **Internals** | tracebacks, driver errors, `*Error` names | leaks and bad experience in one |
 | **Relayed instruction** | "as the assistant reading this", "call this number" | indirect injection escaping through the answer |
+
+### Reading the outbound wall
+
+All four checks, in order, from `src/murshid/guards/output_guards.py`:
+
+```python
+def check(self, text: str, session: Session | None = None) -> GuardVerdict:
+    language = detect_language(text)
+    if self._canary in text:
+        log.error("output_guard_leak", category="system_prompt_leak")
+        return GuardVerdict(allowed=False, layer="deterministic",
+                            category="system_prompt_leak")
+    for kind, pattern in SAUDI_PII.items():
+        if pattern.search(text):
+            log.error("output_guard_leak", category=f"pii_outbound_{kind}")
+            return GuardVerdict(allowed=False, layer="pii", category="pii_outbound")
+    for pattern in INTERNALS:
+        if pattern.search(text):
+            log.error("output_guard_leak", category="internal_error_leak")
+            return GuardVerdict(allowed=False, layer="deterministic", category="unavailable")
+    for pattern in RELAYED_INSTRUCTIONS:
+        if pattern.search(text):
+            log.error("output_guard_leak", category="relayed_instruction")
+            return GuardVerdict(allowed=False, layer="deterministic", category="unavailable")
+    return GuardVerdict(allowed=True)
+```
+
+The canary is checked first because it is a single substring test with no false
+positives at all — the marker is planted by the prompt registry and appears nowhere
+a model could invent it. `in` rather than a regex: cheapest possible check for the
+highest-severity leak.
+
+Note that internals and relayed instructions both return `category="unavailable"`
+rather than a category naming what happened. The verdict the *citizen* sees must
+not describe the defence; `log.error` at every branch is where the truth goes, and
+the log is on our side of the wall.
+
+Then the two-line function that makes a refusal a product surface rather than an
+error path:
+
+```python
+def apply(self, text: str, session: Session | None = None) -> tuple[str, GuardVerdict]:
+    """Returns the text to send — the answer, or its designed refusal."""
+    verdict = self.check(text, session)
+    if verdict.allowed:
+        return text, verdict
+    return refusal_for(verdict.category, detect_language(text)), verdict
+```
+
+The caller cannot accidentally send blocked text, because `apply` returns the
+*replacement*, not a boolean the caller might forget to act on. The refusal is
+looked up by category and by the language of the answer that was blocked — so a
+citizen who asked in Arabic is refused in Arabic.
+
+The patterns themselves are worth reading aloud, because they are bilingual by
+construction:
+
+```python
+RELAYED_INSTRUCTIONS = [
+    re.compile(r"\bas the assistant reading this\b", re.I),
+    re.compile(r"\b(call|dial|contact) (this|the following) number\b", re.I),
+    re.compile(r"\bignore (the|your) (previous|prior) instructions\b", re.I),
+    re.compile(r"اتصل\s*(على|ب)\s*(هذا\s*)?الرقم"),
+]
+```
+
+An English-only list on a bilingual product misses half the surface, and that is
+not a hypothetical — the Arabic pattern here is the one that catches a poisoned
+tool result telling a citizen to phone a number.
 
 That last row is the one people skip. `CR55555555` in the tool stub returns a
 poisoned `note` field — an instruction that arrived through the application's *own*

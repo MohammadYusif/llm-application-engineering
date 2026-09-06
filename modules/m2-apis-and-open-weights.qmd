@@ -57,6 +57,132 @@ This is the module's real lesson in miniature: **APIs drift underneath your
 lesson.** Trust an executed run over what should work from reading the docs.
 :::
 
+### Reading both adapters against each other
+
+The same `LLMRequest` goes into both of these. Watch what each one has to do to it.
+
+**OpenAI-compatible** — `src/murshid/llm/openai_compat.py`:
+
+```python
+def complete(self, request: LLMRequest) -> LLMResponse:
+    t0 = time.perf_counter()
+    kwargs: dict = {
+        "model": self._route.resolve(request.model_alias),
+        "messages": _wire_messages(request),
+        "temperature": request.temperature,
+        "max_tokens": request.max_tokens,       # ALWAYS bounded
+    }
+    if request.tools:
+        kwargs["tools"] = request.tools
+    if request.response_format:
+        kwargs["response_format"] = request.response_format
+    try:
+        resp = self._client.chat.completions.create(**kwargs)
+    except Exception as exc:
+        raise _wrap(exc) from exc
+```
+
+**Anthropic Messages** — `src/murshid/llm/anthropic_client.py`:
+
+```python
+def complete(self, request: LLMRequest) -> LLMResponse:
+    system, turns = split_system(request.messages)      # 1. system comes OUT of messages
+    t0 = time.perf_counter()
+    kwargs: dict = {
+        "model": self._route.resolve(request.model_alias),
+        "messages": turns,
+        "max_tokens": request.max_tokens,               # 2. REQUIRED here, unlike OpenAI-compat
+    }
+    # 3. no temperature at all — see the comment in the file
+    if system:
+        kwargs["system"] = system                       # 4. top-level parameter
+    if request.tools:
+        kwargs["tools"] = to_anthropic_tools(request.tools)
+    if request.response_format:
+        schema = (request.response_format.get("json_schema") or {}).get("schema")
+        if schema:
+            kwargs["output_config"] = {                 # 5. not response_format
+                "format": {"type": "json_schema", "schema": schema}
+            }
+    try:
+        resp = self._client.messages.create(**kwargs)
+    except Exception as exc:
+        raise _wrap(exc) from exc
+```
+
+Five differences, all absorbed here and nowhere else:
+
+1. **`split_system`** pulls the system message out of the list. On the OpenAI
+   dialect the system prompt is just the first message; here it is a separate
+   argument. Forget this and the system prompt is silently ignored — no error, just
+   an assistant that has forgotten its instructions.
+2. **`max_tokens` is required**, not optional. Because the normalised
+   `LLMRequest` guarantees it is set, this adapter never has to invent a default —
+   a decision made once in Module 1 pays off here.
+3. **`temperature` is simply absent.** Not defaulted, not passed as `None` —
+   omitted, because passing it raises.
+4. **`system` is top-level**, and when `cache_prefix_messages` is set it becomes a
+   content block with `cache_control` on it, which is how this dialect marks a
+   cacheable prefix. Module 6's discipline needs adapter support on both sides.
+5. **Structured outputs live on `output_config.format`**, and the adapter has to
+   dig the schema out of the OpenAI-shaped `response_format` we normalised on.
+
+Then both converge again. Reading the response is where the dialects differ most
+and the normalised type earns its keep — OpenAI hands back a single string:
+
+```python
+choice = resp.choices[0]
+return LLMResponse(text=choice.message.content, ...)
+```
+
+while Anthropic hands back a *list of typed blocks* that has to be walked:
+
+```python
+for block in resp.content:
+    if block.type == "text":
+        text_parts.append(block.text)
+    elif block.type == "tool_use":
+        tool_calls.append(ToolCall(id=block.id, name=block.name,
+                                   arguments=json.dumps(block.input, ensure_ascii=False)))
+```
+
+An adapter that assumes `resp.content` is a string works fine until the first tool
+call, and then the tool calls simply vanish — no exception, just an assistant that
+never acts. Note `ensure_ascii=False`: Anthropic returns tool arguments as a parsed
+object, and re-serialising with the default would turn every Arabic argument into
+`\uXXXX` escapes before it reaches Module 3's validator.
+
+### One error taxonomy, mapped once per provider
+
+`_wrap` is where a provider's exception vocabulary becomes the single `retryable`
+boolean that Module 1's retry loop reads:
+
+```python
+def _wrap(exc: Exception) -> LLMError:
+    """The error taxonomy every adapter must map (Module 2 §3), in one place."""
+    if isinstance(exc, RateLimitError):
+        return LLMError(str(exc), status=429, retryable=True, retry_after=_retry_after(exc))
+    if isinstance(exc, APITimeoutError):
+        return LLMError(str(exc), status=None, retryable=True)
+    if isinstance(exc, APIConnectionError):
+        return LLMError(str(exc), status=None, retryable=True)
+    if isinstance(exc, APIStatusError):
+        status = exc.status_code
+        return LLMError(str(exc), status=status,
+                        retryable=status in RETRYABLE_STATUSES,
+                        retry_after=_retry_after(exc))
+    return LLMError(str(exc), retryable=False, raw=exc)
+```
+
+The final line is the one to point at: **anything unrecognised is not retryable.**
+That is the safe default. An unknown failure retried three times is, at best, three
+times the cost of finding out you had a bug; at worst it is a write repeated three
+times against a service that did not tell you it succeeded.
+
+`_retry_after(exc)` reads the provider's header. It is threaded all the way from
+here into `ResilientClient._delay_for`, which is why the drill log shows
+`retry_after=2.0 delay_s=2.0` rather than a backoff we invented.
+
 ### Read the response as carefully as the request
 
 `finish_reason` is control flow, not metadata:

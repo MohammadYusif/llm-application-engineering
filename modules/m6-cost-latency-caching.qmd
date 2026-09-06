@@ -28,6 +28,33 @@ makes it dangerous is the multiplication.
   foresight) flows into a per-request cost record — route, model id, prompt version,
   input/cached/output tokens, computed cost.
 
+The whole price calculation is six lines, from
+`src/murshid/observability/cost.py`:
+
+```python
+def price_of(self, model_id: str, usage) -> float:
+    p = self._prices.for_model(model_id)
+    fresh_in = max(usage.input_tokens - usage.cached_input_tokens, 0)
+    return (
+        fresh_in * p.input_per_mtok
+        + usage.cached_input_tokens * p.cached_input_per_mtok
+        + usage.output_tokens * p.output_per_mtok
+    ) / 1_000_000
+```
+
+Three rates, not one, and the middle term is the entire subject of §3. Note
+`fresh_in`: providers report `input_tokens` as the **total**, with
+`cached_input_tokens` a subset of it. Bill the full input at the full rate *and* the
+cached portion again at the cached rate and you have double-counted — a meter that
+overstates cost makes caching look like it saved more than it did, which is exactly
+the direction a cost report must not be wrong in. The `max(..., 0)` is defensive: a
+provider that reports more cached tokens than input tokens is misbehaving, and a
+negative price would be worse than a wrong one.
+
+`self._prices.for_model(model_id)` looks the rate up by the **concrete** model id
+the response carried, not by the alias that was requested. When a fallback hop
+serves a request, it is priced as the model that actually answered.
+
 ```bash
 make replay-before        # 200 conversations, metered, nothing optimised
 ```
@@ -129,12 +156,85 @@ A key that omits the prompt version serves yesterday's behaviour after today's
 deploy. Ours does not:
 
 ```python
-ResponseCache.exact_key(model_id, prompt_version, rendered, params)
+@staticmethod
+def exact_key(model_id: str, prompt_version: str, rendered: str, params: dict) -> str:
+    blob = json.dumps(
+        [model_id, prompt_version, rendered, params], sort_keys=True, ensure_ascii=False
+    )
+    return "exact:" + hashlib.sha256(blob.encode("utf-8")).hexdigest()
 ```
+
+Four inputs, and each one is something that changes the answer: the concrete model,
+the prompt version, the fully rendered text, and the sampling parameters. Drop any
+one and the cache starts lying — drop `prompt_version` and today's deploy keeps
+serving yesterday's behaviour, silently, until someone notices the fix did not
+take. `sort_keys=True` makes the key stable regardless of dict ordering;
+`ensure_ascii=False` keeps Arabic as Arabic so two identical questions hash
+identically.
 
 **Semantic caching** embeds the query and serves a cached answer above a similarity
 threshold. This is a *quality trade* and the module treats it with the suspicion
 one deserves.
+
+### Reading the two tiers
+
+```python
+def get(self, *, scope: CacheScope, query: str, exact_key: str) -> tuple[Any, str] | None:
+    self.stats.lookups += 1
+    raw = self._backend.get(exact_key)
+    if raw is not None:
+        self.stats.exact_hits += 1
+        return json.loads(raw), "exact"
+
+    if not (self.semantic_enabled and scope.semantic_eligible):
+        return None                          # the whole safety argument, in one line
+
+    index = f"sem:{scope.language}:{scope.intent}"
+    vector = embed(query)
+    best: SemanticEntry | None = None
+    best_score = 0.0
+    now = time.time()
+    for entry in self._semantic.get(index, []):
+        if now - entry.stored_at > self._ttl:
+            continue
+        score = cosine(vector, entry.vector)
+        if score > best_score:
+            best, best_score = entry, score
+    if best is not None and best_score >= self.threshold_for(scope.language):
+        self.stats.semantic_hits += 1
+        return json.loads(best.payload), "semantic"
+    if best is not None:
+        self.stats.near_scores.append(round(best_score, 3))
+    return None
+```
+
+- **Exact first, always.** It is a hash lookup; if it hits, no embedding is
+  computed and no threshold is consulted. The expensive, risky tier only runs when
+  the safe one missed.
+- **`scope.semantic_eligible` gates the entire second tier**, and it is a property,
+  not a condition written at the call site:
+
+  ```python
+  @property
+  def semantic_eligible(self) -> bool:
+      return not self.personalised and self.intent == "faq"
+  ```
+
+  Personalised content is excluded *by construction*. There is no code path where a
+  caller can opt a personalised answer into the semantic tier, because the decision
+  does not live at the call site where someone might one day "temporarily" invert
+  it. That is the difference between a cost optimisation and a data-protection
+  incident.
+- **The index key includes language and intent**, so an Arabic FAQ answer can never
+  be served for an English service question. Scoping narrows what a wrong hit could
+  even be.
+- **`threshold_for(scope.language)`** — the threshold is per language, which is
+  what lets Arabic sit at 0.92 while English sits at 0.90. A single global threshold
+  cannot express the asymmetry the near-miss suite measured.
+- **`stats.near_scores` records the best *miss*.** That list is where `closest
+  non-hits: [0.918, 0.909, 0.908]` comes from, and it is the only reason the lab can
+  say how much margin the shipped threshold actually has. A cache that only counts
+  hits cannot tell you how close it came to a wrong one.
 
 ::: {.callout-warning}
 ## "How do I renew my licence?" and "How do I cancel my licence?" are not the same question
@@ -189,9 +289,19 @@ answer is a **cascade** — cheap model first, escalate on a signal that is
 deterministic and actually correlated with being wrong:
 
 ```python
-if unsupported_amounts(text, directory):     # the SAME check the gate uses
-    answer = client.complete(request_on_flagship)
+# src/murshid/pipeline/faq.py — the SAME deterministic check the gate uses
+if self._cascade_enabled and unsupported_amounts(text, directory):
+    self.escalations += 1
+    log.warning("cascade_escalated", from_alias=self._model_alias,
+                to_alias=self._cascade_alias, reason="unsupported_amount")
+    escalated = self._client.complete(
+        LLMRequest(messages=messages, model_alias=self._cascade_alias, ...)
+    )
 ```
+
+`self.escalations` is counted, which is how `make replay-after` can report
+`cascade: 0 escalations` — the claim that the cascade cost nothing on this traffic
+is a measurement, not an assumption.
 
 | Configuration | Cost/conversation | Δ | Eval verdict |
 |---|---|---|---|

@@ -85,6 +85,74 @@ Four decisions in nine lines:
    retry is money and latency. Never relax the schema in the heat of an incident;
    failures belong on the escalation path, not in the contract.
 
+### Reading the real loop
+
+The nine lines above are the shape. This is the implementation, from
+`src/murshid/pipeline/structured.py` — one function, used by ticket extraction, by
+the router, by the guard classifier and by the judge:
+
+```python
+for attempt in range(1, max_attempts + 1):
+    response = client.complete(
+        LLMRequest(
+            messages=messages,
+            model_alias=model_alias,
+            temperature=temperature,          # 0.0 — this is extraction, not prose
+            max_tokens=max_tokens,
+            response_format=schema,           # strict json_schema over the wire
+            cache_prefix_messages=1,          # the system prompt is the stable prefix
+        )
+    )
+    responses.append(response)
+    last_raw = response.text
+    try:
+        value = schema_model.model_validate_json(response.text or "")
+    except ValidationError as exc:
+        last_errors = [
+            {"loc": list(e["loc"]), "msg": e["msg"], "type": e["type"]} for e in exc.errors()
+        ]
+        log.warning("structured_validation_failed", schema=schema_name,
+                    attempt=attempt, errors=[e["loc"] for e in last_errors])
+        if attempt == max_attempts:
+            break
+        messages = messages + [
+            Message(role="assistant", content=response.text or ""),
+            Message(role="user",
+                    content=REPAIR_INSTRUCTION.format(errors=render_errors(exc))),
+        ]
+        continue
+    except json.JSONDecodeError:
+        last_errors = [{"loc": [], "msg": "output was not valid JSON", "type": "json"}]
+        break
+```
+
+Six things in it are decisions rather than plumbing:
+
+- **`temperature=temperature`, defaulted to `0.0`.** Extraction is not writing.
+  Every degree of freedom here is a chance to invent a field.
+- **`response_format=schema`** carries a *strict* JSON Schema over the wire, so the
+  model is constrained during generation rather than corrected afterwards. The
+  `try` below is for the semantics the schema cannot express, not for syntax.
+- **`model_validate_json`, not `json.loads` then a constructor.** pydantic parses
+  and validates in one pass, and the `ValidationError` it raises carries `loc` —
+  the *path* to each bad field. That path is the entire reason the repair works.
+- **The error list is rebuilt into plain dicts** before logging. The raw pydantic
+  error objects are not JSON-serialisable, and a log line that throws while
+  reporting a failure is a bad afternoon.
+- **The repair appends two messages, and keeps the originals.** The assistant's own
+  bad output goes back in as an `assistant` turn, then the located errors as a
+  `user` turn. The model sees what it produced *and* what was wrong with it. Replace
+  `render_errors(exc)` with "please try again" and re-run the corpus — the pass rate
+  barely moves, and that experiment is the lab.
+- **`if attempt == max_attempts: break`** comes *before* the repair is appended.
+  There is no third call. The loop cannot run away, and the caller gets a
+  `StructuredOutcome` describing exactly how it failed, which is what the human
+  review queue is built on.
+
+The `json.JSONDecodeError` branch breaks immediately rather than repairing. If the
+provider returned something that is not JSON at all despite a strict schema, the
+contract with the provider is broken and another turn will not fix it.
+
 ### Measure it: schema-pass rate, split by language
 
 ```bash
@@ -205,6 +273,126 @@ pytest tests/pipeline/test_tool_safety.py -v
 | `a_past_date_is_rejected_by_the_argument_contract` | constrained decoding cannot know that 2019 is over |
 | `unverified_identity_blocks_a_side_effecting_tool` | freshness, not a boolean somebody set once |
 | `every_tool_call_is_traced_with_its_risk_class` | governance: 100% of calls logged with risk and iteration |
+
+### Reading `_execute` — the order of the checks *is* the security model
+
+Every one of those tests exercises this function, from
+`src/murshid/pipeline/tool_loop.py`. Read it top to bottom; nothing in it may be
+reordered.
+
+```python
+def _execute(
+    tool: Tool | None, call, session: Session, iteration: int, result: ToolLoopResult
+) -> dict:
+    if tool is None:                                          # 1. unknown tool
+        log.warning("tool_unknown", requested=call.name, iteration=iteration)
+        return {"error": "unknown_tool", "hint": "That tool does not exist. ..."}
+
+    try:                                                      # 2. parse
+        args = json.loads(call.arguments or "{}")
+    except json.JSONDecodeError:
+        log.warning("tool_malformed_arguments", tool=tool.name, iteration=iteration)
+        return {"error": "malformed_arguments", "hint": "Send valid JSON matching the schema."}
+    if not isinstance(args, dict):
+        return {"error": "malformed_arguments", "hint": "Arguments must be a JSON object."}
+
+    # 3. Unmask inside the trust boundary: the tool needs the real value, the model
+    #    never saw it, and nothing masked leaves this function.
+    args = {k: session.pii_vault.unmask(v) if isinstance(v, str) else v
+            for k, v in args.items()}
+
+    model = _argument_models().get(tool.name)                 # 4. validate
+    if model is not None:
+        try:
+            validated = model(**args)
+        except ValidationError as exc:
+            reason = exc.errors()[0]["msg"] if exc.errors() else "invalid arguments"
+            return {"error": "invalid_arguments", "hint": reason}
+        args = {k: (v.isoformat() if hasattr(v, "isoformat") else v)
+                for k, v in validated.model_dump().items()}
+
+    if tool.risk == "side_effecting":                         # 5. idempotency, then authz
+        replay = session.replay_side_effect(tool.name, args)
+        if replay is not None:
+            log.info("tool_idempotent_replay", tool=tool.name)
+            return replay
+        verdict = session.authorize(tool.name, args)
+        if not verdict.allowed:
+            log.warning("tool_denied", tool=tool.name, reason=verdict.reason)
+            return {"error": "not_authorized", "reason": verdict.reason, "hint": verdict.user_hint}
+
+    entry = {"tool": tool.name, "risk": tool.risk, "iteration": iteration, "args": args}
+    session.tool_trace.append(entry)                          # 6. trace BEFORE running
+    result.calls.append(entry)
+    log.info("tool_call", tool=tool.name, iteration=iteration, risk=tool.risk)
+
+    try:
+        payload = tool.fn(**args, session=session)            # 7. finally, run it
+    except ToolError as exc:        # domain errors are model input
+        return {"error": exc.code, "hint": exc.hint}
+    except Exception:               # bugs are NOT model input
+        log.exception("tool_crashed", tool=tool.name)
+        return {"error": "temporarily_unavailable", "hint": "Try again in a moment."}
+
+    if tool.risk == "side_effecting":
+        session.record_side_effect(tool.name, args, payload)  # 8. remember it happened
+    return payload
+```
+
+Why the order cannot change:
+
+1. **Unknown tool first**, and it returns a dict rather than raising. A model that
+   hallucinates a tool name gets a correction it can act on; a `KeyError` would end
+   the conversation for a citizen who did nothing wrong.
+2. **Parse before anything touches the arguments.** `call.arguments` is a raw
+   string the model produced.
+3. **Unmask after parsing, inside the function.** The model has been working with
+   masked PII since Module 4's guard layer. The real value is restored here, used,
+   and never returned — which is what makes masking compatible with a booking flow.
+4. **Validate before the gate**, so authorisation reasons about a well-formed
+   argument. The `isoformat()` pass converts `date` objects back to strings,
+   because the audit entry and the idempotency key both have to be JSON.
+5. **Idempotency check before authorisation.** A retried turn that already
+   succeeded must return the *same* result, not a fresh denial and not a second
+   booking. Then `session.authorize` — the gate reads the session, never the
+   model's arguments.
+6. **The trace is appended before the tool runs.** Log-after-success loses every
+   call that crashed, which is precisely the set you most want to see.
+7. **Two exception branches, and the distinction matters.** A `ToolError` is a
+   *domain* outcome — application not found, slot unavailable — and it goes back to
+   the model as data it can talk about. Anything else is a bug in our code; it is
+   logged with a stack trace on our side and reduced to a bland
+   `temporarily_unavailable` on the model's side. A raw traceback returned as a
+   tool result leaks implementation detail into a citizen's chat.
+
+And the gate itself, from `src/murshid/domain/session.py`:
+
+```python
+def authorize(self, tool_name: str, args: dict) -> AuthorizationVerdict:
+    """The gate every side-effecting tool passes through."""
+    if not self.identity_fresh:
+        return AuthorizationVerdict(allowed=False, reason="identity_not_verified", ...)
+
+    on_behalf_of = args.get("on_behalf_of") or args.get("citizen_id")
+    if on_behalf_of and on_behalf_of != self.citizen_id:
+        # The model's argument is user input by proxy. The session decides.
+        log.warning("authz_cross_citizen_denied", session=self.id,
+                    tool=tool_name, requested_for=on_behalf_of)
+        return AuthorizationVerdict(allowed=False, reason="cross_citizen", ...)
+
+    key = self.idempotency_key(tool_name, args)
+    if key in self.completed_side_effects:
+        return AuthorizationVerdict(allowed=False, reason="already_done", ...)
+
+    return AuthorizationVerdict(allowed=True)
+```
+
+`identity_fresh` is a property with a time window, not a boolean somebody set once
+at the start of the conversation — freshness is what makes it survive a long chat.
+And the comparison on the second check is the whole lesson in one line: the
+argument is *read*, but `self.citizen_id` is what it is compared against. Every
+verdict carries a `user_hint`, because a refusal a citizen cannot act on is a dead
+end rather than a guardrail.
 
 ## 6. Common mistakes
 
