@@ -233,7 +233,7 @@ Two properties of `eval/harness.py` are load-bearing:
 2. **It slices.** Language, intent, difficulty, risk class, on every run.
 
 ```
-eval | route=default | 126 cases | pass 126/126 (100%) | 14.2s | 65.0 halalas
+eval | route=default | 126 cases | pass 126/126 (100%) | 14.0s | 60.5 halalas
   language    ar 100% | en 100%
   intent      escalate 100% | faq 100% | safety 100% | service 100%
   difficulty  hard 100% | routine 100%
@@ -252,9 +252,12 @@ make gate LABEL=seeded
 
 ```
 BLOCKED:
-  overall: 89% vs baseline 100% (-11.1pt, margin 2pt)
-  slice:intent=faq: 80% vs baseline 92% (-12.5pt, margin 3pt)
-  slice:difficulty=hard: 87% vs baseline 99% (-11.3pt, margin 3pt)
+  overall: overall 94% vs baseline 100% (-6.3pt, margin 2pt)
+  slice:language=ar: language=ar 94% vs baseline 100% (-6.2pt, margin 3pt)
+  slice:language=en: language=en 94% vs baseline 100% (-6.5pt, margin 3pt)
+  slice:intent=faq: intent=faq 88% vs baseline 100% (-12.5pt, margin 3pt)
+  slice:difficulty=hard: difficulty=hard 89% vs baseline 100% (-11.3pt, margin 3pt)
+  slice:risk=normal: risk=normal 89% vs baseline 100% (-10.8pt, margin 3pt)
 ```
 
 Code review sees a tone change. The gate sees eight invented fees.
@@ -348,15 +351,17 @@ make eval-vllm
 ```
 
 ```
-eval | route=default | 126 cases | pass 126/126 (100%) | 14.2s | 65.0 halalas
+eval | route=default | 126 cases | pass 126/126 (100%) | 14.0s | 60.5 halalas
   language    ar 100% | en 100%
   intent      escalate 100% | faq 100% | safety 100% | service 100%
   difficulty  hard 100% | routine 100%
   risk        false_positive 100% | normal 100% | safety 100%
 
-eval | route=vllm    | 126 cases | pass 118/126 (94%)  | 24.6s | 26.0 halalas
+eval | route=vllm | 126 cases | pass 118/126 (94%) | 24.4s | 26.0 halalas
   language    ar 92% | en 95%
   intent      escalate 100% | faq 92% | safety 100% | service 75%
+  difficulty  hard 94% | routine 93%
+  risk        false_positive 100% | normal 89% | safety 100%
 ```
 
 Find the stratum where the open-weight route loses most. It is `service` — tool
@@ -479,15 +484,24 @@ make gate LABEL=seeded
 ```
 | stratum            | baseline | this run | delta   |
 |--------------------|----------|----------|---------|
-| **overall**        | 100%     | 89%      | -11.1pt |
-| language=ar        | 100%     | 91%      | -9.4pt  |
-| intent=faq         | 100%     | 80%      | -20.3pt |
-| difficulty=hard    | 100%     | 87%      | -12.7pt |
+| **overall**        | 100%     | 94%      | -6.3pt  |
+| language=ar        | 100%     | 94%      | -6.2pt  |
+| language=en        | 100%     | 94%      | -6.5pt  |
+| intent=faq         | 100%     | 88%      | -12.5pt |
+| difficulty=hard    | 100%     | 89%      | -11.3pt |
+| risk=normal        | 100%     | 89%      | -10.8pt |
 | risk=safety        | 100%     | 100%     | +0.0pt  |
 
 BLOCKED:
-  overall: 89% vs baseline 100% (-11.1pt, margin 2pt)
-  slice:intent=faq: 80% vs baseline 100% (-20.3pt, margin 3pt)
+  overall: overall 94% vs baseline 100% (-6.3pt, margin 2pt)
+  slice:language=ar: language=ar 94% vs baseline 100% (-6.2pt, margin 3pt)
+  slice:language=en: language=en 94% vs baseline 100% (-6.5pt, margin 3pt)
+  slice:intent=faq: intent=faq 88% vs baseline 100% (-12.5pt, margin 3pt)
+  slice:difficulty=hard: difficulty=hard 89% vs baseline 100% (-11.3pt, margin 3pt)
+  slice:risk=normal: risk=normal 89% vs baseline 100% (-10.8pt, margin 3pt)
+
+The gate is not asking you to be perfect. It is asking whether this change
+made something worse than the last known-good run, and it just answered yes.
 ```
 
 Read the slice rows before the overall row, and sit with what they say.

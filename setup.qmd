@@ -70,13 +70,28 @@ murshid doctor
   ✓ config loads — 4 routes
   ✓ terminal renders Arabic — كيف أجدد رخصتي التجارية؟
   ✓ prompt registry — 8 versions
-  ✓ route primary — course-flagship in 103ms
-  ✓ route cheap — course-small in 50ms
-  ✓ route comparison — course-anthropic in 121ms
-  ✓ route vllm — murshid-onprem in 109ms
+  ✓ route primary — course-small in 956ms
+  ✓ route cheap — course-small in 47ms
+  ✓ route comparison — course-anthropic in 126ms
+  ✓ route vllm — murshid-onprem in 80ms
 
 all good — you are ready for Module 1
 ```
+
+::: {.callout-note appearance="simple"}
+## Your terminal will show more than the page does
+
+Every command in this course logs structured JSON-ish lines as it works —
+`llm_cost`, `structured_extracted`, `guard_blocked`, `routed` — and *then* prints
+the boxed summary. The pages quote the summary, because that is the part worth
+reading aloud; your screen will have the log above it. That is not a difference in
+behaviour, and the log lines are the raw material for Module 6.
+
+The first route check is often slow (the run above shows 956 ms) because it pays
+the gateway's cold start. Ask twice and it drops to tens of milliseconds. Latency
+figures quoted anywhere on this site are one run's, on one laptop — the counts,
+rates and costs are the reproducible part.
+:::
 
 Every cross has a fix on the [troubleshooting page](reference/troubleshooting.qmd).
 The two that catch people:

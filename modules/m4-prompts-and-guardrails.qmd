@@ -309,9 +309,9 @@ make guard-eval
 ```
 
 ```
-attack_corpus_40:  blocked 40/40 (100%)  [deterministic 34, classifier 6]
+attack_corpus_40:  blocked 40/40 (100%)  [classifier 6, deterministic 34]
 legit_corpus_60:   passed 60/60 (FP rate 0%)
-guard latency:     deterministic 0.1ms | classifier 35.6ms | pii 0.0ms
+guard latency:     deterministic 0.1ms | classifier 38.8ms | pii 0.0ms
 ```
 
 | Configuration | Attack block | Legitimate FP | Added p50 |
@@ -443,9 +443,9 @@ legit_corpus_60:   passed 60/60 (FP rate 0%)
 Then the whole wall:
 
 ```
-attack_corpus_40:  blocked 40/40 (100%)  [deterministic 34, classifier 6]
+attack_corpus_40:  blocked 40/40 (100%)  [classifier 6, deterministic 34]
 legit_corpus_60:   passed 60/60 (FP rate 0%)
-guard latency:     deterministic 0.1ms | classifier 35.6ms | pii 0.0ms
+guard latency:     deterministic 0.1ms | classifier 38.8ms | pii 0.0ms
 ```
 
 **Both numbers go in `BENCHMARKS.md`, side by side, in the same table.**
@@ -467,6 +467,42 @@ folded = unicodedata.normalize("NFKC", text)
 return [CONTROL_CHARS.sub("", folded), CONTROL_CHARS.sub(" ", folded)]
 ```
 :::
+
+The three layers are one method, and the timings in the output above are taken at
+each seam:
+
+```python
+def check(self, text: str, session: Session) -> GuardedInput:
+    t0 = time.perf_counter()
+    language = detect_language(text)
+    normalised = normalise(text)
+
+    # The raw text, deliberately: the check normalises both ways itself.
+    verdict = deterministic_checks(text, max_chars=self._max_chars)
+    self.last_layer_timings = {"deterministic": (time.perf_counter() - t0) * 1000}
+    if verdict is not None:
+        log.warning("guard_blocked", layer=verdict.layer, category=verdict.category,
+                    payload_sha256=verdict.payload_sha256)
+        return GuardedInput(original=text, text=normalised, language=language,
+                            verdict=verdict,
+                            refusal=refusal_for(verdict.category, language))
+
+    t1 = time.perf_counter()
+    masked = mask_pii(normalised, session)
+    self.last_layer_timings["pii"] = (time.perf_counter() - t1) * 1000
+
+    if self._classifier_enabled:
+        t2 = time.perf_counter()
+        category = self._classify(masked)
+        self.last_layer_timings["classifier"] = (time.perf_counter() - t2) * 1000
+```
+
+Read the argument passed to each layer. `deterministic_checks` gets **`text`**, the
+raw input — the comment says why. `mask_pii` gets `normalised`. And `_classify`
+gets **`masked`**, never the original: the cheap model that decides whether this is
+an attack must not be shown a national ID in order to decide it. Each layer also
+returns early, so a message blocked at layer 1 never pays for the classifier — which
+is why the deterministic timing is 0.1 ms and the total for a blocked attack is too.
 
 Also verify the PII layer, which is the one people forget is a guard at all:
 

@@ -516,15 +516,16 @@ make ask Q="How do I renew my commercial licence?"
 ```
 
 ```
-[faq → course-flagship via primary] 508ms, 1413 in (1180 cached) / 138 out, 0.418 halalas
+[faq → course-flagship via primary] 692ms, 1413 in (1378 cached) / 138 out, 0.971 halalas
 About Renewing a commercial registration (CR):
 - Fee: SAR 200 for each year of renewal
 - Processing time: Same working day once payment clears
 ...
 ```
 
-Every field in that first line matters later. `1180 cached` is Module 6. `0.418
-halalas` is the meter. `course-flagship` is the concrete model, not the alias.
+Every field in that first line matters later. `1378 cached` is Module 6. `0.971
+halalas` is the meter. `course-flagship` is the concrete model, not the alias. Ask twice and watch the
+cached count climb — that is Module 6 arriving early.
 
 ## 3 · Windowed state and the CLI (10 min)
 
@@ -616,7 +617,7 @@ make stream Q="What documents do I need to renew my commercial registration?"
 ```
 About Renewing a commercial registration (CR): ...
 
-[TTFT 118ms · total 486ms · 1413 in (1180 cached) / 138 out]
+[TTFT 567ms · total 676ms · 1406 in (1378 cached) / 138 out]
 ```
 
 Note that TTFT and total are reported separately. That distinction is tomorrow's

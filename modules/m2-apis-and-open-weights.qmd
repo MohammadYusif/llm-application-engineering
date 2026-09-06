@@ -360,7 +360,7 @@ Measured on this repository ([`BENCHMARKS.md`](https://github.com/MohammadYusif/
 
 | Backend | Overall | ar | safety | service | Cost per suite |
 |---|---|---|---|---|---|
-| flagship | 100% | 100% | 100% | 100% | 65.0 halalas |
+| flagship | 100% | 100% | 100% | 100% | 60.5 halalas |
 | small | 95% | 95% | 100% | 83% | 2.7 halalas |
 | open-weight | 94% | 92% | 100% | 75% | 26.0 halalas |
 
@@ -447,8 +447,10 @@ make ask ROUTE=vllm Q="ما هي خطوات إصدار سجل تجاري؟"
 ```
 
 ```
-[faq → murshid-onprem via vllm] 431ms, 1674 in (0 cached) / 187 out, 0.304 halalas
-بخصوص إصدار سجل تجاري جديد لمؤسسة فردية: ...
+[service → murshid-onprem via vllm] 745ms, 1674 in (0 cached) / 161 out, 0.334 halalas
+بخصوص إصدار سجل تجاري جديد لمؤسسة فردية:
+- الرسوم: ٢٠٠ ريال رسوم إصدار و٨٠٠ ريال اشتراك النشاط السنوي
+- المدة: يومان من أيام العمل
 ```
 
 Note the `model_id`: `murshid-onprem`. **Nothing in `src/` changed.** In the
@@ -483,7 +485,7 @@ make stream Q="What documents do I need to renew my commercial registration?"
 ```
 About Renewing a commercial registration (CR): ...
 
-[TTFT 593ms · total 707ms · 1406 in (0 cached) / 138 out]
+[TTFT 567ms · total 676ms · 1406 in (1378 cached) / 138 out]
 ```
 
 Record **both** numbers in `BENCHMARKS.md`. Then answer, in one sentence: does
@@ -557,10 +559,10 @@ make token-report
 ```
 route            p50     p95  p50 ar  p50 en  ar/en tok  hal/call  residency
 ----------------------------------------------------------------------------
-primary         103ms    115ms    108ms     99ms       1.16     0.954  cloud
-cheap            50ms     54ms     53ms     47ms       1.16     0.041  cloud
-comparison      121ms    167ms    127ms    117ms       1.16     1.241  cloud
-vllm            109ms    117ms    113ms    107ms       1.16     0.301  on_premise
+primary         104ms    145ms    108ms     98ms       1.16     1.035  cloud
+cheap            49ms     68ms     52ms     47ms       1.16    0.0481  cloud
+comparison      123ms    166ms    126ms    116ms       1.16    1.2409  cloud
+vllm            110ms    159ms    114ms    106ms       1.16    0.3006  on_premise
 ```
 
 Commit the table to `BENCHMARKS.md` with **one sentence**: which route would you

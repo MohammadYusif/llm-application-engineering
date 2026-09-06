@@ -446,6 +446,27 @@ def valid_national_id(cls, v: str | None) -> str | None:
     return v
 ```
 
+Its neighbour is worth reading in the same breath, because it shows the same idea
+carrying a different kind of knowledge:
+
+```python
+@field_validator("phone")
+@classmethod
+def valid_phone(cls, v: str | None) -> str | None:
+    if v is None:
+        return v
+    digits = v.replace(" ", "").replace("-", "")
+    if not (digits.startswith(("+9665", "05", "9665")) and sum(c.isdigit() for c in digits) >= 9):
+        raise ValueError("must be a Saudi mobile number, e.g. +9665XXXXXXXX")
+    return digits
+```
+
+Three things to point at. `if v is None: return v` — absent is legal, *invented* is
+not, and that distinction is the whole of the never-invent rule expressed in a type.
+The normalisation happens before the check, so `05x xxx xxxx` and `+9665xxxxxxxx`
+are the same number to this contract. And the error message names the expected
+shape, because that message is what the repair turn sees.
+
 That rule cannot live in a JSON Schema. The schema constrains syntax; pydantic
 validates semantics. Confirm the contract still fits the strict subset:
 
@@ -498,9 +519,11 @@ make extract-audit
 
 ```
 50 messages | first-try pass: 45/50 (90%) | after repair: 48/50 (96%) | escalated: 2
-   by language: ar 32/35 (91%) → 34/35 (97%) | en 12/14 (86%) → 13/14 (93%)
+   by language: ar 32/35 (91%) → 34/35 (97%) | en 12/14 (86%) → 13/14 (93%) | mixed 1/1 (100%) → 1/1 (100%)
    invented-field audit: 0 invented across 15 annotated cases
    escalated to human review: 2
+     m010: [['urgency']]
+     m013: [['urgency']]
 ```
 
 **Record all six numbers in `BENCHMARKS.md`.** Then notice the two escalations —
@@ -550,11 +573,11 @@ make tool-smoke
 ```
 
 ```
-  OK  status lookup with a reference                   called=['check_application_status']
-  OK  documents question — must NOT call a tool        called=[]
-  OK  status question without a reference — must ask   called=[]
-  OK  booking with everything confirmed                called=['book_appointment']
-  OK  asks for a human                                 called=['escalate_to_agent']
+  OK  status lookup with a reference                   called=['check_application_status'] expected=['check_application_status']
+  OK  documents question — must NOT call a tool        called=[] expected=[]
+  OK  status question without a reference — must ask, not guess called=[] expected=[]
+  OK  booking with everything confirmed                called=['book_appointment'] expected=['book_appointment']
+  OK  asks for a human                                 called=['escalate_to_agent'] expected=['escalate_to_agent']
 
 5/5 as expected
 ```
