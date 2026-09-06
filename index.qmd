@@ -14,8 +14,8 @@ not a fresh build.
 ## Everything runs offline
 
 No API key, no network, no GPU. The repository ships a course gateway that speaks
-both provider dialects and answers from rules, so every walkthrough, test and
-evaluation run works on a laptop on a plane — and every drill (the rate-limit storm, the
+both provider dialects and answers from rules, so every lab, test and evaluation
+run works on a laptop on a plane — and every drill (the rate-limit storm, the
 provider outage) fires on command instead of when a provider happens to have a bad
 afternoon.
 
@@ -36,6 +36,10 @@ and you will perform it rather than be told about it.
 | **Comparison** | The same suite against commercial and open-weight backends | A routing recommendation with a break-even, not a leaderboard quote |
 
 ## The four days
+
+Each module is **theory first, then its lab** on the same page. The lab is work on
+Murshid itself — the project grows a component a day, so by Thursday the capstone
+is integration and one extension rather than a fresh build.
 
 ::: {.grid}
 

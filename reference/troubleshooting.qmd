@@ -41,7 +41,7 @@ curl -s localhost:8080/healthz
 If you set `MURSHID_*_BASE_URL` for a real provider, `doctor` is now telling you
 about that provider. A 401 means the key; a connection error means the URL.
 
-## Things that go wrong mid-walkthrough
+## Things that go wrong during labs
 
 | Symptom | Cause | Fix |
 |---|---|---|

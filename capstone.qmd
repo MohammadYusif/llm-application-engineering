@@ -1,6 +1,6 @@
 ---
 title: "Capstone — Murshid, complete"
-subtitle: "Day 4 · a working application, an evaluation report, and a defence"
+subtitle: "Day 4 · what each rubric section is asking for"
 ---
 
 The fictional **Digital Government Services Authority** is ready to pilot Murshid
@@ -12,60 +12,150 @@ calibrated numbers, and a cost model that survives national-scale arithmetic.
 Everything you built across Modules 1–6 is a component. Today is integration, one
 extension, and the defence.
 
-## Requirements
+The capstone is graded on **7 sections, 100 points, pass at 70, distinction at
+90**. There is no per-section floor, but there is one rule that overrides
+everything else — see the callout below.
 
-Each maps to a rubric criterion. Each is checkable by a command.
+This page maps each section to the module that teaches it, states what full marks
+looks like, and names the mistake that most often costs the points.
 
-### 1 · Architecture (LO1)
+::: {.callout-important}
+## Read this first
 
-- Router-first: FAQ single-call, service workflow with tools, escalation.
-- **Every** model call through the `LLMClient` boundary — `pytest tests/test_architecture.py` green.
-- Two live backends, commercial and open-weight, **switchable by config**.
-- Reliability policy demonstrated: `make drill-429` and `make drill-outage`, with
-  the log excerpt in your submission.
-- One ADR recording the pattern and model choices.
+Most lost marks are **not** from difficult work done badly. They are from a
+requirement nobody noticed — a deliverable that was never attempted, or one that
+was written about but never actually run. Go through this page before you start,
+and again before you submit.
 
-### 2 · Structured outputs and tools (LO2)
+**And one rule is absolute.** A capstone whose **safety suite is red at
+submission cannot pass**, whatever it scores elsewhere. The safety stratum tests
+your guards, which are your code. A red safety suite is not bad luck with a model.
+:::
 
-- Validated `ServiceTicket` extraction with the repair loop and **measured** pass
-  rates, split by language.
-- The three-tool bounded loop with an authorisation gate.
-- `pytest tests/pipeline/test_tool_safety.py` — all green.
-- A tool-call audit trail: every call logged with its risk class and iteration.
+::: {.callout-note appearance="simple"}
+## Where "commonly lost on" comes from
 
-### 3 · Prompt pipeline and guardrails (LO3)
+This course has not run a cohort yet, so unlike the older programmes these are not
+yet patterns observed in submissions. Each one is an anti-pattern the module that
+teaches the section names explicitly, or one of the four flags below that caps a
+criterion. Treat them as the marker's stated priors; the first cohort will sharpen
+them.
+:::
 
-- All prompts versioned in the registry; **zero inline prompts**, CI-enforced.
-- The five-stage guarded pipeline, each stage testable alone.
-- Attack corpus ≥ 95% blocked with **0% false positives** on the legitimate corpus.
-- Canary output guard intact; bilingual designed refusals.
+## The seven sections
 
-### 4 · Evaluation harness (LO4)
+### 1. Architecture and the model boundary — 15 pts
 
-- Golden set ≥ 120 cases with strata; every stratum ≥ 8 cases.
-- A judge calibrated to **κ ≥ 0.6**, with the calibration evidence included.
-- Safety stratum at 100%.
-- A CI regression gate demonstrated **blocking a seeded change**.
-- `EVALUATION_REPORT.md` generated from real runs.
+**Where:** [Module 1 — architecture patterns](modules/m1-architecture.qmd) ·
+[Module 2 — APIs and open weights](modules/m2-apis-and-open-weights.qmd)
 
-### 5 · Cost and latency (LO5)
+**Full marks:** router-first design — FAQ single-call, service workflow with tools,
+escalation to a human. **Every** model call through the `LLMClient` boundary, with
+`pytest tests/test_architecture.py` green. Two live backends, one commercial and
+one open-weight, **switchable by config rather than by code**. Reliability
+demonstrated under a real fault (`make drill-429`, `make drill-outage`) with the
+log excerpt in your submission. One ADR recording the pattern and the model
+choices.
 
-- Full cost metering — 100% of model calls, guards and router included.
-- Prompt-cache utilisation ≥ 65%.
-- `BENCHMARKS.md` with before/after and **≥ 60% cost reduction at green evals**.
-- p95 conversation latency within your stated budget.
+**Commonly lost on:** a provider SDK imported somewhere in `pipeline/` or
+`domain/` "just to test". The architecture test walks the AST and will find it, and
+the whole course rests on the claim it protects. Second most likely: a fallback
+chain that exists in the config and has never once been exercised — if you cannot
+show the drill log, it did not happen.
 
-### 6 · Model comparison (LO6)
+### 2. Structured outputs and function calling — 15 pts
 
-- The commercial-versus-open-weight comparison run on **your** golden set — quality
-  slices, cost, latency.
-- A routing recommendation and a break-even worksheet in the ADR.
+**Where:** [Module 3 — structured outputs and tools](modules/m3-structured-outputs-and-tools.qmd)
 
-### 7 · The application, complete
+**Full marks:** validated `ServiceTicket` extraction with the validate → retry →
+repair loop, and **measured** pass rates split by language. The three-tool bounded
+loop with an authorisation gate that reads the authenticated session. `pytest
+tests/pipeline/test_tool_safety.py` all green. Every tool call logged with its risk
+class and loop iteration.
 
-A stranger clones the repository and reaches a working bilingual `make chat` in ten
-minutes, following your README. The demo conversation exercises **four** things:
-an FAQ answer, a tool-completed booking, a refused attack, and a graceful fallback.
+**Commonly lost on:** authorisation that lives in the prompt or in the tool
+description rather than in `session.authorize()`. Anything inside the token stream
+is something an attacker can write to, and Module 4 exists to make that concrete.
+Also: relaxing the schema to `str` so a failing corpus goes green — that is the
+validation wall dismantled, and it reads as a fix in the diff.
+
+### 3. Prompt pipeline and guardrails — 15 pts
+
+**Where:** [Module 4 — prompts and guardrails](modules/m4-prompts-and-guardrails.qmd)
+
+**Full marks:** every prompt a versioned artefact in the registry with front matter
+and a changelog, **zero inline prompt text**, CI-enforced, and the served version in
+the request log. The five-stage pipeline with each stage testable alone. Attack
+corpus **≥ 95% blocked with 0% false positives** on the legitimate corpus. Canary
+intact; refusals designed, bilingual, and never echoing the payload.
+
+**Commonly lost on:** reporting a block rate without its false-positive pair. It is
+one of the four capping flags, and it is the easiest to avoid — the two numbers come
+out of the same command. Close behind: patterns matched against raw text instead of
+normalised text, which quietly lets every Arabic and homoglyph payload through a
+guard that looks correct.
+
+### 4. Evaluation harness — 20 pts
+
+**Where:** [Module 5 — evaluation](modules/m5-evaluation.qmd)
+
+**Full marks:** a golden set of **≥ 120 cases**, stratified by intent, language,
+difficulty and risk, Arabic-majority, safety oversampled, every stratum ≥ 8 cases
+and every expectation owner-approved. The harness runs the **real** pipeline.
+Deterministic asserts carry every safety claim; the judge is calibrated to
+**Cohen's κ ≥ 0.6** with the evidence included. Safety stratum 100%. A CI gate
+demonstrated **blocking a seeded change**, reading slices rather than the average.
+`EVALUATION_REPORT.md` generated from real runs, including known limitations.
+
+**Commonly lost on:** editing golden cases so failures pass. The set is diffed
+against its generator, it is a capping flag, and it is the one dishonesty this
+course cares most about. Also frequent: a judge wired to a gate with no calibration
+run at all — a κ = 0.3 judge blocking merges is a random-number generator with
+authority.
+
+### 5. Cost and latency engineering — 15 pts
+
+**Where:** [Module 6 — cost, latency and caching](modules/m6-cost-latency-caching.qmd)
+
+**Full marks:** a meter covering **100%** of model calls, guards and router
+included. Prompt-cache discipline proven by `usage.cached_input_tokens` rather than
+asserted, at ≥ 65% of input tokens cached. A response cache whose key carries
+everything that changes an answer, with a semantic tier thresholded on measured
+data and **zero wrong hits** on the near-miss suite. `BENCHMARKS.md` showing
+**≥ 60% cost reduction** with the eval verdict recorded beside every step.
+
+**Commonly lost on:** a saving with no eval verdict next to it — the third capping
+flag, and the whole point of the module's one sentence. Also: optimising before
+metering, which reliably produces a week of work on the 4% line item while the 92%
+one sits unexamined.
+
+### 6. Model comparison and recommendation — 10 pts
+
+**Where:** [Module 2](modules/m2-apis-and-open-weights.qmd) ·
+[Module 5](modules/m5-evaluation.qmd) ·
+[Module 6](modules/m6-cost-latency-caching.qmd)
+
+**Full marks:** both backends run over **your own** golden set, reported by slice
+rather than as one number, with cost and latency alongside quality. A self-host
+break-even computed from throughput **you measured**, and a routing recommendation
+that follows from both. Recorded in the ADR with the evidence attached.
+
+**Commonly lost on:** quoting a leaderboard or a vendor throughput figure instead
+of measuring on your own traffic. The recommendation is only worth points because
+it is re-runnable; a number you did not produce cannot be re-run.
+
+### 7. The application, complete — 10 pts
+
+**Where:** all six modules, integrated
+
+**Full marks:** a stranger clones the repository and reaches a working bilingual
+conversation in **ten minutes** following your README, through a single-command
+entry point. A five-minute live demo exercising four things — an FAQ answer, a
+tool-completed booking, a refused attack, and a graceful fallback — then one
+adversarial question from the floor, answered by the running system.
+
+**Commonly lost on:** a repository that only runs on the machine it was built on.
+Test the README on a clean clone before the demo, not during it.
 
 ## Pick one extension
 
@@ -78,20 +168,21 @@ an FAQ answer, a tool-completed booking, a refused attack, and a graceful fallba
 | **A second open-weight model** | a size or quantisation comparison on the vLLM route, with throughput and quality slices |
 | **Indirect-injection hardening** | the poisoned-tool-result guard wired into the service route, with five corpus cases proving it |
 
+Extensions add up to **+5** (capped at 100), and only if mandatory scope scores
+≥ 80. An extension is not a way to buy back a weak section.
+
 ## Deliverables
 
-1. **Repository URL** with full history — the week's build visible as commits, CI green on
-   `main`.
+1. **Repository URL** with full history — the week's build visible as commits, CI
+   green on `main`.
 2. **`EVALUATION_REPORT.md`** — overall and sliced results for both backends, judge
-   calibration evidence, safety suite status, and **known limitations**. Honesty
-   scores points here; a report with no limitations section is a report nobody
-   believes.
+   calibration evidence, safety suite status, and **known limitations**.
 3. **`BENCHMARKS.md`** — the Module 2 provider table, Module 3 pass rates, Module 4
    guard rates (both numbers), Module 6 before/after.
 4. **`DECISIONS.md`** and the ADRs — pattern choice, model and routing choice with
    the break-even, and **one trade-off you reversed and why**.
-5. **A five-minute live demo**: the four-part conversation, then one adversarial
-   question from the floor, answered by the running system.
+5. **A five-minute live demo** — the four-part conversation, then one adversarial
+   question from the floor.
 
 ## Milestones
 
@@ -103,51 +194,108 @@ an FAQ answer, a tool-completed booking, a refused attack, and a graceful fallba
 | M-D · cost budget verified, red-team survived | hour 4 | replay within budget; peer attacks logged |
 | M-E · demo and defence | hour 5 | rubric scored live |
 
-## Grading rubric — 100 points
-
-| Criterion | Weight | 90–100% | 70–89% | Below 70% |
-|---|---|---|---|---|
-| Architecture and model boundary | 15 | router-first, both backends config-switchable, reliability demonstrated live, clean ADR | boundary holds; one backend weak or fallback untested | SDK leaks, one hardwired model, no reliability policy |
-| Structured outputs and tools | 15 | pass rates at target, repair loop measured, authorisation gate and all negative tests, audit trail complete | extraction solid; one safety test thin or the audit partial | regex-parsed JSON, unbounded loop, or authorisation in the prompt |
-| Prompt pipeline and guards | 15 | registry complete, both corpus numbers at target, canary intact, refusals designed and bilingual | minor gaps — one inline prompt, FP rate slightly high | unversioned prompts, unmeasured guards, echoed payloads |
-| Evaluation harness | 20 | stratified set, calibrated judge with evidence, gate demonstrated, honest report including limitations | harness runs; calibration thin or slices unread | no calibration, average-only reporting, decorative gate |
-| Cost and latency engineering | 15 | ≥ 60% reduction, every step eval-verified, meter covers everything, sane forecast | reduction achieved; one step unverified or meter gaps | optimised blind, red suite, no meter |
-| Model comparison and recommendation | 10 | comparison on your own golden set with slices; routing and break-even defensible | comparison run; recommendation weakly argued | leaderboard-quoting, no measurement on your own traffic |
-| Demo and engineering judgment | 10 | four-part demo plus the floor question; trade-offs articulated; the repo runs cold | demo works; rationale thin | cannot run your own repo; hand-waves the numbers |
-
-**Pass ≥ 70. Distinction ≥ 90.** Extensions add up to +5 (capped at 100) only if
-mandatory scope scores ≥ 80.
-
-::: {.callout-important}
-## The absolute rule
-
-Any capstone whose **safety suite is red at submission cannot pass**, regardless of
-every other score. The safety stratum tests your guards, which are your code. A red
-safety suite is not bad luck with a model.
-:::
-
 ## How this is graded
 
 **From the artefacts first, the demo second.** The course's thesis is that the
 repository proves the system: CI history, `EVALUATION_REPORT.md`, meter logs,
 corpus numbers.
 
-The instructor runs a held-out set against your pipeline before the demos. A large
-gap between your reported numbers and the holdout run is the first discussion
-point, not an automatic penalty — hill-climbing contamination is a *teachable*
-offence, and the conversation is the lesson.
+**Presence is not effect.** A library imported but never called, a guard nothing
+runs, a gate that cannot fail, or a golden case that asserts nothing does not
+satisfy a deliverable.
 
-Four flags cap a criterion at 70%:
+A **held-out set** is run against your pipeline before the demos. A large gap
+between your reported numbers and that run is the first discussion point, not an
+automatic penalty — hill-climbing contamination is teachable, and the conversation
+is worth more than the deduction.
+
+**Four flags cap a criterion at 70%:**
 
 - golden cases edited to make failures pass (the set is diffed against its
   generator);
 - guard numbers reported without the false-positive pair;
 - cost savings with no eval verdict beside them;
-- judge gating without calibration evidence.
+- a judge gating anything without calibration evidence.
 
 The floor question in the demo is deliberately adversarial — an injection attempt,
 or an out-of-directory fee question. What is graded is **the system's behaviour and
-your reading of its logs**, not whether the model happened to be graceful.
-
-Expect to be asked to break something live: lower the semantic threshold, unpin a
+your reading of its logs**, not whether the model happened to be graceful. Expect
+also to be asked to break something live: lower the semantic threshold, unpin a
 model, drop a guard layer. Show which gate catches it.
+
+| Section | Points |
+|---|---|
+| 1 · Architecture and the model boundary | 15 |
+| 2 · Structured outputs and function calling | 15 |
+| 3 · Prompt pipeline and guardrails | 15 |
+| 4 · Evaluation harness | 20 |
+| 5 · Cost and latency engineering | 15 |
+| 6 · Model comparison and recommendation | 10 |
+| 7 · The application, complete | 10 |
+
+## GitHub &amp; documentation requirements
+
+These apply to **every project in every SDAIA Academy programme**, on top of the
+seven sections above, and they are part of how the project is evaluated — not
+paperwork. Your repository must include:
+
+- A clear, comprehensive **project description**
+- A **professional README** — the project idea, plus how to run and use it
+- Proper **technical documentation**
+- Good **Git practices** — meaningful, incremental commits, a sane structure, and a
+  `.gitignore` that excludes secrets and generated files
+- A statement of **which training programme** the project was completed under
+  (programme name + cohort dates)
+- A link to **[SDAIA Academy's GitHub](https://github.com/SDAIAAcademy)** where
+  relevant
+
+Every trainee needs an active GitHub account, and projects are expected to stay
+documented and updated there.
+
+*Encouraged, not scored:* star and follow strong Saudi repositories and accounts,
+contribute to open source, engage through forks, pull requests and issues, and
+share standout projects with the community.
+
+## The write-up
+
+One short paragraph per section, saying which approach you took and why. This is
+how understanding is verified, and it is worth real marks on its own.
+
+::: {.callout-warning}
+## Write it from your results, not from your plan
+
+Graders check the write-up against the code and the captured output. Claims that
+contradict your own artefacts are worse than an admitted gap — and on this course
+they are unusually easy to spot, because almost every claim has a command behind
+it. A write-up saying the guard blocks 100% sits next to a `guard-eval` run that
+says otherwise; a claimed 60% saving sits next to a `BENCHMARKS.md` that does not
+show it.
+
+If something did not work, say so and describe what you inspected instead. An
+honest gap costs a few points. A claim your own output contradicts costs
+credibility across the whole submission — and `EVALUATION_REPORT.md` has a **known
+limitations** section precisely so that honesty has somewhere to live.
+:::
+
+## Before you submit
+
+- [ ] **Your full name is in the README.** Submissions without names are not
+      graded — this is not a formality.
+- [ ] `make test` green, and **the safety stratum at 100%**. A red safety suite
+      cannot pass.
+- [ ] `pytest tests/test_architecture.py` green — no provider SDK outside `llm/`,
+      no `LLMRequest` without `max_tokens`, no inline prompt text.
+- [ ] Both backends actually run, switched by config, and you have shown it.
+- [ ] The drill log excerpt is in the submission — the fallback really fired.
+- [ ] Guard numbers reported **in pairs**: block rate *and* false-positive rate.
+- [ ] Judge calibration evidence included, with κ stated.
+- [ ] The gate demonstrated blocking the seeded change, with the slice table.
+- [ ] Every cost row in `BENCHMARKS.md` carries its eval verdict.
+- [ ] The break-even quotes **both** comparisons, not just the flattering one.
+- [ ] `EVALUATION_REPORT.md` has its known-limitations section, and it is honest.
+- [ ] Cloned fresh into an empty directory and followed your own README end to end.
+- [ ] No API key in the code or in git history.
+- [ ] No `TODO` or template placeholder text left anywhere.
+- [ ] Your chosen extension is stated explicitly.
+- [ ] **README** covers the project description and how to run it, `.gitignore`
+      excludes secrets, and the programme name and cohort dates are stated.
