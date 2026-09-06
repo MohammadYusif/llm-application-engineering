@@ -436,7 +436,7 @@ You finish with
   `docs/context_budget.md` with six justified lines.
 :::
 
-### 0 · Five minutes with a demo that works on stage
+## 0 · Five minutes with a demo that works on stage
 
 `demo_v0.py` is sixty lines: hardcoded model name, prompt inline, no timeout, no
 state, `print` streaming. It works. Read it and list **three defects it ships
@@ -471,7 +471,7 @@ mode this entire course is arranged around, and it is on screen in the first ten
 minutes of the lab.
 :::
 
-### 1 · The skeleton (10 min)
+## 1 · The skeleton (10 min)
 
 ```
 src/murshid/
@@ -493,7 +493,7 @@ Run it now, and again after every task in this lab:
 make test
 ```
 
-### 2 · The boundary (15 min)
+## 2 · The boundary (15 min)
 
 Open [`src/murshid/llm/interfaces.py`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/src/murshid/llm/interfaces.py).
 Everything the application is allowed to know about a provider is in that file.
@@ -525,7 +525,7 @@ About Renewing a commercial registration (CR):
 Every field in that first line matters later. `1180 cached` is Module 6. `0.418
 halalas` is the meter. `course-flagship` is the concrete model, not the alias.
 
-### 3 · Windowed state and the CLI (10 min)
+## 3 · Windowed state and the CLI (10 min)
 
 `ConversationState` ships with `max_turns=8`. Hold a bilingual conversation and
 watch history do its job.
@@ -560,7 +560,7 @@ implementation detail.
 The test that pins it: `tests/domain/test_ticket_and_session.py::test_the_window_forgets_the_oldest_turn`.
 :::
 
-### 4 · The context budget (10 min)
+## 4 · The context budget (10 min)
 
 Write `docs/context_budget.md`: allocate a 16k-token request budget across the
 system prompt, the service directory, tool schemas, windowed history, this turn,
@@ -572,7 +572,7 @@ Measure rather than guess:
 python -c "import sys; sys.path.insert(0,'src'); \
 from murshid.domain.directory import rendered_directory; from murshid.llm.tokens import count; \
 print({lang: count(rendered_directory(lang)) for lang in ('en','ar')})"
-## {'en': 1127, 'ar': 1352}
+# {'en': 1127, 'ar': 1352}
 ```
 
 Then answer two questions in the document:
@@ -586,14 +586,14 @@ The reference version is in
 [`docs/context_budget.md`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/docs/context_budget.md).
 Compare after you have written yours, not before.
 
-### 5 · Commit (5 min)
+## 5 · Commit (5 min)
 
 ```bash
 git add -A
 git commit -m "feat: murshid skeleton with provider boundary and windowed state"
 ```
 
-### Troubleshooting
+## Troubleshooting
 
 | Symptom | Cause | Fix |
 |---|---|---|
@@ -604,7 +604,7 @@ git commit -m "feat: murshid skeleton with provider boundary and windowed state"
 | `finish_reason="length"` mid-sentence | `max_tokens` too low | raise it per your budget — and note that truncation is *silent* |
 | Everything is slow (~2 s per call) | `localhost` resolving to IPv6 first | the config uses `127.0.0.1` for exactly this reason |
 
-### If you finish early
+## If you finish early
 
 Add `stream()` to the adapter and stream the CLI output:
 
@@ -625,7 +625,7 @@ undercounts every streamed request.
 
 # After this module
 
-### Benchmarks after this module
+## Benchmarks after this module
 
 | Metric | Target | How measured |
 |---|---|---|
@@ -635,7 +635,7 @@ undercounts every streamed request.
 | Pattern decision recorded | 1 ADR | [`docs/adr/001`](https://github.com/MohammadYusif/llm-application-engineering/blob/main/murshid/docs/adr/001-architecture-pattern.md) |
 | Context budget written | all six lines justified | `docs/context_budget.md` |
 
-### Discussion
+## Discussion
 
 - Your product manager wants "an agent" because a competitor announced one. The
   traffic analysis says 78% FAQ. What do you build, and what do you tell them?

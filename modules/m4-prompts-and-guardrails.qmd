@@ -369,7 +369,7 @@ You finish with
   that Module 5's lab turns into permanent tests.
 :::
 
-### 1 · Prompts into the registry (8 min)
+## 1 · Prompts into the registry (8 min)
 
 Every prompt is a versioned file with front matter. Prove no text escaped back
 into code:
@@ -391,7 +391,7 @@ pytest tests/test_architecture.py::test_every_prompt_file_has_front_matter_and_a
 
 A prompt version without a changelog line is a version nobody can review.
 
-### 2 · Assemble the pipeline (12 min)
+## 2 · Assemble the pipeline (12 min)
 
 ```
 guard_input | route_intent | (faq | service | escalate) | guard_output
@@ -419,7 +419,7 @@ test_pipeline_end_to_end_with_stubs PASSED
 If a stage cannot be run alone in a test, it is not a stage — it is a lump of the
 pipeline that happens to have a name.
 
-### 3 · The guards, and both numbers (15 min)
+## 3 · The guards, and both numbers (15 min)
 
 Three layers, cheapest first. Run them one at a time so you can see what each is
 worth.
@@ -478,7 +478,7 @@ Masked *before* any model or log sees the text, reversibly, inside the trust
 boundary only — the booking flow needs the real value at the tool gate and nowhere
 else.
 
-### 4 · The canary (8 min)
+## 4 · The canary (8 min)
 
 The registry plants a marker in every rendered system prompt. The output guard
 blocks any response containing it.
@@ -505,7 +505,7 @@ gets tuned into refusing curious citizens.
 Check the refusals themselves: designed template, right language, and **no echo of
 the payload**. Reflected injection and log poisoning are the same mistake twice.
 
-### 5 · The trade-off, as a product decision (7 min)
+## 5 · The trade-off, as a product decision (7 min)
 
 Your false-positive rate is above target because the legitimate corpus contains
 questions that *mention* the word "instructions" innocently:
@@ -535,7 +535,7 @@ scores it. Put the false-positive number beside it in `BENCHMARKS.md`, in the
 commit message, and in anything you say out loud about the guards.
 :::
 
-### 6 · Record the misses — do not fix them
+## 6 · Record the misses — do not fix them
 
 Two attacks get through today: an Arabic authority claim and a zero-width payload.
 
@@ -543,7 +543,7 @@ Two attacks get through today: an Arabic authority claim and a zero-width payloa
 cases, then into passing ones, and that sequence — red, then green, then permanent
 — is the whole regression discipline in one hour.
 
-### Troubleshooting
+## Troubleshooting
 
 | Symptom | Cause | Fix |
 |---|---|---|
@@ -554,7 +554,7 @@ cases, then into passing ones, and that sequence — red, then green, then perma
 | PII masking breaks the booking flow | the masked token reached the tool | the session vault round-trips *inside* the boundary; unmask at the gate |
 | A stage test hits the real gateway | wired to real dependencies | stage tests take stubs; only `make guard-eval` spends tokens |
 
-### If you finish early — the red-team round
+## If you finish early — the red-team round
 
 Write three novel attacks: one Arabic, one English, one mixed or obfuscated. Run
 them against a neighbouring pair's build. Every attack that lands gets added to
@@ -574,7 +574,7 @@ one module before anybody says the word.
 
 # After this module
 
-### Benchmarks after this module
+## Benchmarks after this module
 
 | Metric | Target | Command |
 |---|---|---|

@@ -395,7 +395,7 @@ You finish with
   `BENCHMARKS.md` seeded with real numbers.
 :::
 
-### 1 · The Anthropic adapter (12 min)
+## 1 · The Anthropic adapter (12 min)
 
 Read `AnthropicClient.complete()`. Four differences from the OpenAI dialect are
 load-bearing, and the adapter is where each one stops:
@@ -438,7 +438,7 @@ test_adapter_contract.py::TestAdapterContract::test_satisfies_the_protocol[vllm]
 
 "Implements the protocol" is a test, not a docstring claim.
 
-### 2 · The open-weight route, with no code change (8 min)
+## 2 · The open-weight route, with no code change (8 min)
 
 The route already exists in `configs/murshid.yaml`. Read it, then use it:
 
@@ -471,7 +471,7 @@ Twenty-four participants hitting one vLLM instance is not a problem to fix. It i
 continuous batching, and it is the best explanation of the idea you will ever give.
 :::
 
-### 3 · Streaming and time-to-first-token (12 min)
+## 3 · Streaming and time-to-first-token (12 min)
 
 Run the streaming path. `stream_options={"include_usage": True}` is what keeps
 usage on the final frame.
@@ -508,7 +508,7 @@ assert final.usage is not None, (
 ```
 :::
 
-### 4 · The fault drill (10 min)
+## 4 · The fault drill (10 min)
 
 Your instructor may fire this without warning. You can also fire it yourself.
 
@@ -547,7 +547,7 @@ Try the harder one too:
 make drill-outage    # the primary model returns 529 for five minutes
 ```
 
-### 5 · The bench table (8 min)
+## 5 · The bench table (8 min)
 
 ```bash
 make bench
@@ -577,7 +577,7 @@ The "Arabic costs about twice as much" rule of thumb is a fact about a tokenizer
 generation. On a current vocabulary it is gone. The rule that survives is the one
 underneath: count with the route's own tokenizer.
 
-### Troubleshooting
+## Troubleshooting
 
 | Symptom | Cause | Fix |
 |---|---|---|
@@ -588,7 +588,7 @@ underneath: count with the route's own tokenizer.
 | The drill does nothing | a fault targets one model | `make stats` — check `fault` and `faults_served` |
 | vLLM route slow for everyone at once | 24 participants at concurrency 24 | expected. Discuss continuous batching; do not "fix" it |
 
-### If you finish early
+## If you finish early
 
 Compute the estimate for the Module 6 kickoff. Murshid handles 30,000
 conversations a day, averaging six turns, roughly 900 input and 150 output tokens
@@ -601,7 +601,7 @@ optimistic in another.
 
 # After this module
 
-### Benchmarks after this module
+## Benchmarks after this module
 
 | Metric | Target | How measured |
 |---|---|---|

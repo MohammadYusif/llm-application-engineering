@@ -451,7 +451,7 @@ validates semantics. Confirm the contract still fits the strict subset:
 
 ```bash
 make schema-check
-## 5/5 contracts strict-safe
+# 5/5 contracts strict-safe
 ```
 
 Break it deliberately — remove `additionalProperties: false` from `_tighten` — and
@@ -469,9 +469,9 @@ Then read what happens on a message with almost nothing in it:
 
 ```python
 extract_ticket(client, "كيف أجدد رخصتي التجارية؟")
-## applicant.national_id  -> None
-## applicant.phone        -> None
-## city                   -> "unknown"
+# applicant.national_id  -> None
+# applicant.phone        -> None
+# city                   -> "unknown"
 ```
 
 `None` is the correct answer, and `extract_ticket.v3`'s "never invent" rule plus
@@ -620,7 +620,7 @@ murshid> تم الحجز. رقم التأكيد AP3F2A91C7 في الرياض ب�
 Then verify three things:
 
 ```bash
-## the audit trail
+# the audit trail
 jq 'select(.event=="tool_call")' logs/*.jsonl
 ```
 
@@ -656,7 +656,7 @@ authorisation already cover it?
 
 # After this module
 
-### Benchmarks after this module
+## Benchmarks after this module
 
 | Metric | Target | Command |
 |---|---|---|
@@ -667,7 +667,7 @@ authorisation already cover it?
 | Tool-safety negative tests | all green | `pytest tests/pipeline/test_tool_safety.py` |
 | Tool-call audit completeness | 100% logged with risk class and iteration | `jq 'select(.event=="tool_call")' logs/*.jsonl` |
 
-### Discussion
+## Discussion
 
 - The case system's schema has 31 fields; your ticket has 8. Product wants "just
   add the rest". What does field count do to extraction quality, and what is the

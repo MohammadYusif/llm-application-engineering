@@ -389,7 +389,7 @@ The leaderboard at the end of this lab ranks the **cheapest green** Murshid. A r
 suite is disqualified regardless of cost, however good the number beside it looks.
 :::
 
-### 1 · Meter first, and name where the money goes (8 min)
+## 1 · Meter first, and name where the money goes (8 min)
 
 ```bash
 make replay-before
@@ -413,7 +413,7 @@ you are committed to an answer. This is the module in miniature: 92% of the spen
 is the FAQ route's resent prompt, and skipping this step is how an hour goes into
 optimising the 1%.
 
-### 2 · Prompt-cache discipline (10 min)
+## 2 · Prompt-cache discipline (10 min)
 
 The baseline runs `answer_faq.v4`. Diff it against `v5`:
 
@@ -460,7 +460,7 @@ Murshid's directory travels in the prefix rather than being fetched per request.
 
 Then run `make eval && make gate`. Green. Record the row.
 
-### 3 · The response cache, and its safety suite (12 min)
+## 3 · The response cache, and its safety suite (12 min)
 
 The exact tier serves the router and guard-classifier calls; the semantic tier
 serves impersonal FAQ only:
@@ -493,7 +493,7 @@ Then break it deliberately and watch a wrong hit appear:
 
 ```bash
 python scripts/eval_cache.py --threshold 0.85 --threshold-ar 0.85
-## WRONG HIT 0.836 [ar] كيف أجدد سجلي التجاري؟ || كيف أجدد سجل ابني التجاري؟
+# WRONG HIT 0.836 [ar] كيف أجدد سجلي التجاري؟ || كيف أجدد سجل ابني التجاري؟
 ```
 
 "My commercial record" and "my *son's* commercial record" are not the same
@@ -518,7 +518,7 @@ suite measured that; instinct would have got it backwards.
 
 `make eval && make gate` → green, wrong hits 0. Record the row.
 
-### 4 · The routing table, and the correction (12 min)
+## 4 · The routing table, and the correction (12 min)
 
 Now the routing table, run against the **full** suite through the routed pipeline:
 
@@ -576,7 +576,7 @@ deterministic and correlated with being wrong. A schema-validation failure or a
 groundedness check qualifies. "Was that hard?" does not — model self-assessment is
 weak and sycophantic.
 
-### 5 · The break-even, and the ADR (5 min)
+## 5 · The break-even, and the ADR (5 min)
 
 ```bash
 make breakeven
@@ -591,7 +591,7 @@ Write the three-line recommendation into `docs/adr/002`. Both lines belong in it
 quoting only the flagship comparison is how this arithmetic gets used dishonestly,
 and quoting only the cheap one is how a residency requirement gets argued away.
 
-### 6 · The leaderboard (3 min)
+## 6 · The leaderboard (3 min)
 
 Post your final table. Cheapest **green** wins.
 
@@ -610,7 +610,7 @@ on the board.
 git commit -am "perf: cost/latency optimisation, eval-verified at every step"
 ```
 
-### Troubleshooting
+## Troubleshooting
 
 | Symptom | Cause | Fix |
 |---|---|---|
@@ -621,7 +621,7 @@ git commit -am "perf: cost/latency optimisation, eval-verified at every step"
 | p95 got worse after caching | the cache lookup was added serially to the *miss* path | a cache must be cheap to miss |
 | The cascade escalates constantly | the escalation signal is too broad | it should fire on unsupported *amounts*, not on any number |
 
-### If you finish early — the forecast
+## If you finish early — the forecast
 
 Murshid launches nationally: 250,000 conversations a day, same intent mix. Using
 your *after* numbers, forecast monthly spend with a ±30% band, name the two biggest
@@ -631,7 +631,7 @@ One page, written for a director who will read the first paragraph and the table
 
 # After this module
 
-### Benchmarks after this module
+## Benchmarks after this module
 
 | Metric | Target | Command |
 |---|---|---|
