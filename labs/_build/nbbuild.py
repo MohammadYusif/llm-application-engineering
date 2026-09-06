@@ -206,9 +206,9 @@ def build(name: str, title: str, subtitle: str, lead: str, cells: list) -> Path:
     nb.metadata.update({
         "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
         "language_info": {"name": "python", "version": "3.12"},
-        # Quarto reads these; the title comes from the first heading otherwise.
-        "title": title,
-        "subtitle": subtitle,
+        # No title/subtitle here on purpose: Quarto would render its own title
+        # block from them AND keep the H1 below, printing the name twice. The
+        # heading is the single source, and it is also what Colab and GitHub show.
     })
     LABS.mkdir(exist_ok=True)
     path = LABS / f"{name}.ipynb"
