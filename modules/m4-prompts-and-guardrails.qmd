@@ -143,7 +143,7 @@ Two details that decide whether the wall works:
 
 ### Reading layer 1
 
-The entire deterministic layer is twenty lines, and every one of them is a
+The entire deterministic layer is one short function, and every line in it is a
 decision. From `src/murshid/guards/input_guards.py`:
 
 ```python

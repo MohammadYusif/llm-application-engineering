@@ -28,7 +28,7 @@ makes it dangerous is the multiplication.
   foresight) flows into a per-request cost record — route, model id, prompt version,
   input/cached/output tokens, computed cost.
 
-The whole price calculation is six lines, from
+The whole price calculation is eight lines, from
 `src/murshid/observability/cost.py`:
 
 ```python

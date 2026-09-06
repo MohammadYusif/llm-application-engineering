@@ -129,7 +129,8 @@ class LLMRequest(BaseModel):
     cache_prefix_messages: int = 0        # how many leading messages are the stable prefix (M6)
 ```
 
-Six fields, and five of them are decisions this course will come back to:
+Seven fields. `messages` is the obvious one; the other six are decisions this
+course keeps coming back to:
 
 - `model_alias` is a *name*, not an id. Nothing in the application ever writes
   `gpt-4o-2024-08-06`. The alias resolves through `configs/murshid.yaml`, which is
