@@ -160,9 +160,9 @@ prompt artefacts give you for free.
 
 ## Wrap-up
 
-Map each capstone requirement to the module that taught it, and let the class see
-the golden thread whole: every component built during the week is running in the application they
-just demonstrated.
+Every capstone requirement maps back to the module that taught it, and that is the
+golden thread whole: every component built during the week is running in the
+application you just demonstrated.
 
 Forward pointers: **SDA-AIE-214** adds retrieval to this exact pipeline — the
 guarded pipeline and the eval harness grow retrieval metrics on the same skeleton.
@@ -170,7 +170,7 @@ guarded pipeline and the eval harness grow retrieval metrics on the same skeleto
 fine-tune) into strategy. **SDA-AIE-312/313/315** build LLMOps, security and
 solution architecture on this substrate.
 
-Last word to the room:
+The last word:
 
 > The model will be replaced within a year. Every discipline in this course
 > survives that replacement — and the harness is how you will prove the replacement

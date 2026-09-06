@@ -105,8 +105,8 @@ make token-report      # 100 parallel Arabic/English sentence pairs
 
 The "Arabic costs 1.5–2.5× more" figure that has been in course material for years
 is a fact about a *tokenizer generation*, not about Arabic — and it largely
-vanished between two vocabularies. The rule underneath it survives and is the one
-worth teaching:
+vanished between two vocabularies. The rule underneath it survives, and it is the
+one that matters:
 
 > **Count with the route's own tokenizer.** `tiktoken` for OpenAI-dialect models,
 > the provider's count-tokens endpoint for Anthropic, the model's own Hugging Face
@@ -160,7 +160,7 @@ on-premise route, and a citizen who got an answer.
 
 ## 4. Serving open-weight models with vLLM
 
-Two ideas make self-hosting economically real, and both are worth teaching
+Two ideas make self-hosting economically real, and both are worth understanding
 properly:
 
 - **PagedAttention** manages the KV cache — the per-sequence attention state that
@@ -200,8 +200,8 @@ argument, proven.
 
 Benchmarking vLLM at concurrency 1 and concluding self-hosting is slow is the most
 common mistake in this section. Continuous batching's benefits appear *under load*.
-Twenty-four participants hitting the class GPU at once is not a problem to fix — it
-is the demonstration.
+A whole cohort hitting one vLLM instance at once is not a problem to fix — it is
+the demonstration.
 :::
 
 ## 5. Commercial versus open-weight, decided like an engineer
@@ -216,7 +216,7 @@ is the demonstration.
 | Customisation | prompting, provider fine-tunes | full: LoRA, logit control, tokenizer access |
 | Snapshot control | provider deprecates on their schedule | you pin forever |
 
-Four teaching points:
+Four things that follow from it:
 
 1. **The answer is usually a portfolio, not either/or.** Murshid routes general
    traffic to a commercial API and residency-classified traffic to vLLM, through
@@ -339,7 +339,7 @@ That single config entry is Module 1's boundary argument, and this is the moment
 it stops being an argument.
 
 ::: {.callout-note appearance="simple"}
-### On the real GPU box, watch `nvidia-smi` on the projector
+### On a real GPU box, watch `nvidia-smi` while it happens
 
 Twenty-four participants hitting one vLLM instance is not a problem to fix. It is
 continuous batching, and it is the best explanation of the idea you will ever give.
@@ -384,7 +384,7 @@ assert final.usage is not None, (
 
 ### 4 · The fault drill (10 min)
 
-The instructor fires this without warning. You can also fire it yourself.
+Your instructor may fire this without warning. You can also fire it yourself.
 
 ```bash
 make drill-429       # 429s with Retry-After: 2 on the primary model, three minutes
@@ -406,14 +406,14 @@ make drill-off
 make stats           # faults_served, and what the gateway saw
 ```
 
-Paste the log excerpt into your lab worksheet. Three things to notice:
+Keep the log excerpt — it is capstone evidence. Three things to notice in it:
 
 1. the retry **honoured the header** rather than guessing a backoff;
 2. attempts were **capped** — retries multiply cost and tail latency;
 3. the citizen got an answer, from the on-premise route, and never knew.
 
-A pair whose Module 1 lab skipped the `ResilientClient` wiring crashes publicly here. That
-is the lesson; handle it kindly.
+If your Module 1 lab left the `ResilientClient` wiring incomplete, this is where
+you find out. That is what the drill is for.
 
 Try the harder one too:
 

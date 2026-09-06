@@ -300,11 +300,11 @@ which are application code. A weaker model does not weaken them.
 
 ### 3 · Calibrate the judge (12 min) — the centrepiece
 
-The class labels 40 groundedness cases: each pair labels ten, then the pool is
-argued in public. **Argue the human disagreements first**, before anybody looks at
-a judge. Inter-human agreement is the ceiling for any instrument, and seeing κ
-between humans land around 0.8 permanently recalibrates what people expect from a
-model.
+Your cohort labels 40 groundedness cases between you — ten per pair — and then
+argues the pool out loud. **Settle the human disagreements first**, before anyone
+looks at a judge. Inter-human agreement is the ceiling for any instrument, and
+watching κ between humans land around 0.8 recalibrates what you can reasonably
+expect from a model.
 
 ```bash
 make calibrate
@@ -422,7 +422,7 @@ BLOCKED:
   slice:intent=faq: 80% vs baseline 100% (-20.3pt, margin 3pt)
 ```
 
-Let that land in silence before explaining it.
+Read the slice rows before the overall row, and sit with what they say.
 
 **Code review sees a tone change. The gate sees eight invented fees.** Revert, push,
 green.

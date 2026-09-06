@@ -87,7 +87,7 @@ The rule that keeps this honest: **if a stage cannot be run alone in a test, it 
 not a stage.** `tests/pipeline/test_stages.py` runs all five against stubs, with no
 network and no tokens spent.
 
-Anti-patterns, named on the board:
+Three anti-patterns worth naming:
 
 - mega-chains nobody can debug — keep pipelines to ≤ 5 named stages and log at
   every seam;
@@ -192,9 +192,9 @@ guard latency:     deterministic 0.1ms | classifier 35.6ms | pii 0.0ms
 ## A guard that blocks 100% of attacks and 12% of legitimate Arabic questions is a broken product with excellent security numbers
 
 Block rate alone is gamed by blocking everything. False-positive rate alone is
-gamed by blocking nothing. **Every guard change reports both.** When a pair
-proudly announces 100% block rate, ask for the other number before congratulating
-them — do that once, publicly, and the norm sets itself for the rest of the week.
+gamed by blocking nothing. **Every guard change reports both.** If you are about to
+announce a 100% block rate, give the false-positive rate in the same breath — and
+expect to be asked for it if you do not.
 :::
 
 The false positives that matter are the ordinary ones. The legitimate corpus
@@ -396,11 +396,11 @@ LEGITIMATE_CONTEXT = re.compile(
 Re-run both corpora. Commit with **both numbers in the commit message**.
 
 ::: {.callout-warning}
-### The public moment
+### Report the pair, every time
 
-When a pair announces 100% block rate, ask for their false-positive number before
-congratulating them. Do it once, in front of everyone, and the norm sets itself for
-the rest of the week.
+A 100% block rate on its own is not a result — a guard that blocks everything
+scores it. Put the false-positive number beside it in `BENCHMARKS.md`, in the
+commit message, and in anything you say out loud about the guards.
 :::
 
 ### 6 · Record the misses — do not fix them

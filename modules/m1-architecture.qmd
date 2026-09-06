@@ -62,7 +62,7 @@ flowchart TB
 | Router | 1 cheap + 1 handler | mis-routing, and it is measurable | heterogeneous traffic |
 | Agentic loop | unbounded unless capped | largest: loops, tool misuse, runaway cost | you genuinely cannot enumerate the steps in advance |
 
-Three teaching points worth arguing about:
+Three points worth arguing about:
 
 - **Workflows beat agents when the decomposition is known.** A fixed chain is
   testable step by step, has bounded cost, and fails locally. Start at the simplest
@@ -76,7 +76,7 @@ Three teaching points worth arguing about:
 
 ### Murshid's target architecture
 
-Keep this on the wall for four days.
+This is the diagram to keep open for the next four days.
 
 ```{mermaid}
 flowchart TD
@@ -128,7 +128,7 @@ standard), `AnthropicClient`, and `FakeClient` for tests.
 - **The gateway layer** centralises keys, budgets, rate limiting, logging and
   failover. In Saudi enterprise practice it is often mandated — it is where PDPL
   logging controls and per-department cost attribution live. This classroom runs
-  behind one, which is worth pointing at: the classroom *is* the reference
+  behind one, which is worth noticing: the classroom *is* the reference
   architecture.
 - **What crosses the boundary:** a normalised request (messages, tools,
   response-format, parameters) and a normalised response (text, tool calls, finish
@@ -248,7 +248,8 @@ cd murshid
 cat demo_v0.py
 ```
 
-Compare against the board from Module 1 hour 1. Most pairs find five or six.
+Check your list against the failure table in the theory above. Most people find
+five or six.
 
 ::: {.callout-warning appearance="simple"}
 ### Then run it
@@ -266,7 +267,7 @@ The directory says SAR 200. The demo invented a fee, fluently, for the exact
 question it was built to demo — because its service facts live in a string literal
 that nothing checks and it has no rule about what to do when it does not know.
 
-Nobody in the room notices unless they know the right answer. That is the failure
+Nobody notices unless they already know the right answer. That is the failure
 mode this entire course is arranged around, and it is on screen in the first ten
 minutes of the lab.
 :::

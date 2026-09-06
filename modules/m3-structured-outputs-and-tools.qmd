@@ -402,10 +402,10 @@ test_unverified_identity_blocks_a_side_effecting_tool PASSED
 ::: {.callout-important}
 ### Where else could that identity check live?
 
-Ask the class, and let them list the alternatives: in the prompt; in the tool
-description; in the model's good judgement.
+List the alternatives before reading on: in the prompt; in the tool description;
+in the model's good judgement.
 
-Then ask what happens to each of them under Module 4's injection scenarios. Every
+Now ask what happens to each of them under Module 4's injection scenarios. Every
 answer that lives inside the token stream is an answer an attacker can write to.
 The session object is the only one that is not.
 

@@ -41,9 +41,9 @@ by stage:  faq_handler 752.4 | service_workflow 45.9 | input_guard 8.7 | router 
 ::: {.callout-important}
 ## Say where the money goes before you touch anything
 
-This is the module's ritual and it is not optional. Run the replay, aggregate the
-log, and say the answer out loud. Pairs who skip it optimise the 4% line item while
-the 92% one sits unexamined — and the leaderboard shows it.
+Not optional. Run the replay, aggregate the log, and answer the question before
+you change anything. Skip it and you will spend the hour on the 4% line item while
+the 92% one sits unexamined — and the leaderboard will show it.
 
 ```bash
 jq -s 'group_by(.intent) | map({intent: .[0].intent, halalas: (map(.cost_halalas)|add)})' \
@@ -271,16 +271,15 @@ You finish with
 :::
 
 ::: {.callout-important}
-### The rule, stated before anyone touches anything
+### The rule, before you touch anything
 
 > Never trade quality you aren't measuring for cost you are.
 
-The leaderboard at the end ranks the **cheapest green** Murshid. A red suite is
-disqualified regardless of cost. State this at the start of the hour, and mean it —
-one disqualified red-but-cheap entry teaches more than a lecture.
+The leaderboard at the end of this lab ranks the **cheapest green** Murshid. A red
+suite is disqualified regardless of cost, however good the number beside it looks.
 :::
 
-### 1 · Meter first, and say it out loud (8 min)
+### 1 · Meter first, and name where the money goes (8 min)
 
 ```bash
 make replay-before
@@ -299,9 +298,10 @@ jq -s 'group_by(.intent) | map({intent: .[0].intent, halalas: (map(.cost_halalas
    logs/llm_cost_before.jsonl
 ```
 
-**Say where the money goes before touching anything.** Out loud, to your pair. This
-ritual is the module in miniature: 92% of the spend is the FAQ route's resent
-prompt, and every pair who skips this step spends the hour optimising the 1%.
+**Name where the money goes before you touch anything** — say it to your pair, so
+you are committed to an answer. This is the module in miniature: 92% of the spend
+is the FAQ route's resent prompt, and skipping this step is how an hour goes into
+optimising the 1%.
 
 ### 2 · Prompt-cache discipline (10 min)
 
@@ -400,8 +400,8 @@ Take the trade or refuse it, but do it explicitly and write down which, because
 that margin is the whole argument. This course refuses it: for a government
 assistant a wrong hit is not a slightly worse answer.
 
-And note the asymmetry, which nobody guesses: **Arabic needs a higher threshold
-than English.** Arabic spelling variants of the same question score ~0.94 while
+And note the asymmetry, which is easy to get backwards: **Arabic needs a higher
+threshold than English.** Arabic spelling variants of the same question score ~0.94 while
 English paraphrases score ~0.87, so Arabic sits closer to its own near-misses. The
 suite measured that; instinct would have got it backwards.
 :::
