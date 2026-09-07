@@ -11,7 +11,7 @@ The rubric text here and `grader/grading/rubrics/llm-application-engineering.yam
 are the same rubric in two forms: this one is what a participant reads, that one
 is what the engine can check. When they disagree, this file is the requirement
 and the YAML is an approximation of it - the engine cannot see a measured pass
-rate, a false-positive pair, or a live demo, and says so in its own header.
+rate or a false-positive pair, and says so in its own header.
 """
 
 from __future__ import annotations
@@ -166,27 +166,25 @@ DELIVERABLES: list[tuple[str, str, str, str]] = [
         "10",
         "Your notebook, opened fresh in Colab and run top to bottom (Runtime &#8594; Run all), "
         "reaches a working bilingual conversation with zero setup &#8212; no clone, no local "
-        "install, no key required by default. A five-minute live walkthrough of your notebook's "
-        "own cells exercising four things: an FAQ answer, a tool-completed booking, a refused "
-        "attack, and a graceful fallback; then one adversarial question from the floor, answered "
-        "by re-running the relevant cell.",
+        "install, no key required by default. All four disciplines above are already "
+        "demonstrated inline, as real cells: an FAQ answer, a tool-completed booking, a refused "
+        "attack, and a graceful fallback under a fault &#8212; captured as notebook output, not "
+        "narrated.",
     ),
 ]
 
 EVALUATION_NOTES = [
-    "<b>Grade from the artefacts first, the demo second.</b> The notebook's own execution "
+    "<b>Grade from the artefacts.</b> The notebook's own execution "
     "history, its Evaluation Report, the meter output and the corpus numbers are the evidence; "
     "the course's thesis is that the notebook proves the system.",
     "<b>Presence is not effect.</b> A library imported but never called, a guard that nothing "
     "runs, a gate that cannot fail, or a golden case that asserts nothing does not satisfy a "
     "deliverable.",
-    "<b>A held-out set is run against every submission before the demos.</b> A large gap between "
+    "<b>A held-out set is run against every submission before grading.</b> A large gap between "
     "your reported numbers and that run is the first discussion point, not an automatic penalty.",
     "<b>Four things cap a criterion at 70%:</b> golden cases edited to make failures pass; guard "
     "numbers reported without the false-positive pair; cost savings with no eval verdict beside "
     "them; a judge gating anything without calibration evidence.",
-    "<b>Expect to be asked to break something live</b> and show which gate catches it: lower the "
-    "semantic threshold, unpin a model, remove a guard layer.",
 ]
 
 GITHUB_MANDATORY = [
@@ -404,7 +402,7 @@ def build(out_dir: Path) -> Path:
         ),
         Paragraph("2. Capstone Rubric", H2),
         Paragraph(
-            "100 points total  |  <b>Pass mark: 70 or above. Distinction: 90 or above.</b> The "
+            "100 points total  |  <b>Pass mark: 60 or above. Distinction: 90 or above.</b> The "
             "capstone brings every discipline of Modules 1&#8211;6 together in one complete, "
             "evaluated, cost-managed LLM-powered application, plus one extension of your choice.",
             BODY,

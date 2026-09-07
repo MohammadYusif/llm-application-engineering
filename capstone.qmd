@@ -54,7 +54,7 @@ with grounded answers, at least one action that changes something, and a reason 
 refuse is likely fine.
 :::
 
-The capstone is graded on **7 sections, 100 points, pass at 70, distinction at
+The capstone is graded on **7 sections, 100 points, pass at 60, distinction at
 90**. There is no per-section floor, but there is one rule that overrides
 everything else — see the callout below.
 
@@ -206,11 +206,10 @@ it is re-runnable; a number you did not produce cannot be re-run.
 
 **Full marks:** your notebook, opened fresh in Colab and run top to bottom
 (**Runtime → Run all**), reaches a working bilingual conversation with **zero
-setup** — no clone, no local install, no key required by default. A five-minute
-live walkthrough of your notebook's own cells, exercising four things live — a
+setup** — no clone, no local install, no key required by default. All four of
+the disciplines above are already demonstrated inline, as real cells: a
 grounded answer, a tool-completed action, a refused attack, and a graceful
-fallback — then one adversarial question from the floor, answered by re-running
-the relevant cell.
+fallback under a fault — captured as notebook output, not narrated.
 
 **Commonly lost on:** a notebook that only runs because of local state left over
 from a previous run. Restart the runtime and run it fresh, top to bottom, before
@@ -245,8 +244,6 @@ Extensions add up to **+5** (capped at 100), and only if mandatory scope scores
 4. **A decisions record** (a notebook section, or `DECISIONS.md` and ADRs) —
    pattern choice, model and routing choice with the break-even, and **one
    trade-off you reversed and why**.
-5. **A five-minute live walkthrough** — the four-part demonstration above, run
-   live from your notebook, then one adversarial question from the floor.
 
 ## Milestones
 
@@ -256,11 +253,11 @@ Extensions add up to **+5** (capped at 100), and only if mandatory scope scores
 | M-B · integrated notebook, both backends live | hour 2 | your notebook does the four-part conversation |
 | M-C · full harness run, report drafted | hour 3 | suite green on primary; comparison table filled |
 | M-D · cost budget verified, red-team survived | hour 4 | replay within budget; peer attacks logged |
-| M-E · demo and defence | hour 5 | rubric scored live |
+| M-E · final read-through | hour 5 | rubric scored from the notebook and write-up |
 
 ## How this is graded
 
-**Your artefacts are read first, and the demo second.** The course's thesis is that
+**Your artefacts are read first.** The course's thesis is that
 the notebook proves the system: its own execution history, the Evaluation Report,
 meter output, corpus numbers.
 
@@ -269,7 +266,7 @@ runs, a gate that cannot fail, or a golden case that asserts nothing does not
 satisfy a deliverable.
 
 A **held-out set** is run against your pipeline (the functions your notebook
-defines) before the demos. A large gap between your reported numbers and that run
+defines) before grading. A large gap between your reported numbers and that run
 is the first discussion point, not an automatic penalty — hill-climbing
 contamination is teachable, and the conversation is worth more than the
 deduction.
@@ -280,12 +277,6 @@ deduction.
 - guard numbers reported without the false-positive pair;
 - cost savings with no eval verdict beside them;
 - a judge gating anything without calibration evidence.
-
-The floor question in the demo is deliberately adversarial — an injection attempt,
-or an out-of-directory fee question. What is graded is **the system's behaviour and
-your reading of its logs**, not whether the model happened to be graceful. Expect
-also to be asked to break something live: lower the semantic threshold, unpin a
-model, drop a guard layer. Show which gate catches it.
 
 | Section | Points |
 |---|---|
