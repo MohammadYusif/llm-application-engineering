@@ -5,12 +5,26 @@ subtitle: "Day 4 · pick a track, build it, and defend the evidence"
 
 Murshid has been the worked example all week: every module explained a discipline
 and then showed it running in one bilingual citizen-services assistant. The
-capstone is where you build **your own** application with the same disciplines.
+capstone is where you build **your own** application with the same disciplines —
+**in one Colab notebook**, the same way every lab this week ran.
 
 You are the application engineer of record. A review board — an architect, a
 security assessor and a service-delivery director — approves a pilot on evidence:
-a working application, an evaluation report with calibrated numbers, and a cost
+a working notebook, an evaluation report with calibrated numbers, and a cost
 model that survives national-scale arithmetic.
+
+::: {.callout-note appearance="simple"}
+## One notebook, zero setup — the same template the labs already used
+
+No Docker, no CI pipeline, no local install. Your submission is **one Colab
+notebook** (plus a couple of small supporting files if you want them — your own
+golden-set data, your own prompt-version files) that opens with a setup cell
+modeled on the one every lab this week already used: on Colab it clones your
+repo, installs what it needs, and starts a backend with no API key required by
+default. If a stranger opens your notebook link and hits **Runtime → Run all**,
+it should reach a working conversation with nothing else installed. That *is*
+your reproducibility proof — there is no separate CI pipeline to keep green.
+:::
 
 ## Choose one track
 
@@ -57,7 +71,8 @@ and again before you submit.
 
 **And one rule is absolute.** A capstone whose **safety suite is red at
 submission cannot pass**, whatever it scores elsewhere. The safety cases test
-your guards, which are your code. A red safety suite is not bad luck with a model.
+your guards, which are your code, run as cells in your notebook. A red safety
+suite is not bad luck with a model.
 :::
 
 ::: {.callout-note appearance="simple"}
@@ -77,18 +92,22 @@ criterion. The first cohort will sharpen them.
 [Module 2 — APIs and open weights](modules/m2-apis-and-open-weights.qmd)
 
 **Full marks:** router-first design — FAQ single-call, service workflow with tools,
-escalation to a human. **Every** model call through the `LLMClient` boundary, with
-`pytest tests/test_architecture.py` green. Two live backends, one commercial and
-one open-weight, **switchable by config rather than by code**. Reliability
-demonstrated under a real fault (`make drill-429`, `make drill-outage`) with the
-log excerpt in your submission. One ADR recording the pattern and the model
+escalation to a human. **Every** model call through your `LLMClient` boundary,
+proven with an `assert` cell in your notebook: no provider SDK import appears
+anywhere outside one clearly-marked adapter section — the same claim
+`tests/test_architecture.py` makes in the course repo, run inline instead of in
+CI. Two live backends, one commercial and one open-weight, **switchable by config
+rather than by code**. Reliability demonstrated under a real, scripted fault — a
+rate-limit and an outage, faked the way `FakeClient` does in Lab 1 — with the
+transcript captured as notebook output. One ADR (a notebook section, or a
+separate `DECISIONS.md` if you prefer) recording the pattern and the model
 choices.
 
-**Commonly lost on:** a provider SDK imported somewhere in `pipeline/` or
-`domain/` "just to test". The architecture test walks the AST and will find it, and
-the whole course rests on the claim it protects. Second most likely: a fallback
-chain that exists in the config and has never once been exercised — if you cannot
-show the drill log, it did not happen.
+**Commonly lost on:** a provider SDK imported somewhere outside your one adapter
+section "just to test." A reader going through your notebook top to bottom will
+find it, and the whole course rests on the claim it protects. Second most likely:
+a fallback chain that exists in config and has never once been exercised — if you
+cannot show the fault transcript, it did not happen.
 
 ### 2. Structured outputs and function calling — 15 pts
 
@@ -99,8 +118,8 @@ enrolment, a return — extracted with the validate → retry → repair loop, a
 **measured** pass rates split by language. At least three tools spanning the risk
 classes: one read-only, one side-effecting behind an authorisation gate that reads
 the authenticated session, one terminal. A bounded loop. Your own negative
-tool-safety tests, all green. Every tool call logged with its risk class and loop
-iteration.
+tool-safety cases, run as `assert` cells that each print pass/fail, all green.
+Every tool call logged with its risk class and loop iteration.
 
 **Commonly lost on:** authorisation that lives in the prompt or in the tool
 description rather than in `session.authorize()`. Anything inside the token stream
@@ -112,15 +131,17 @@ validation wall dismantled, and it reads as a fix in the diff.
 
 **Where:** [Module 4 — prompts and guardrails](modules/m4-prompts-and-guardrails.qmd)
 
-**Full marks:** every prompt a versioned artefact in the registry with front matter
-and a changelog, **zero inline prompt text**, CI-enforced, and the served version in
-the request log. The five-stage pipeline with each stage testable alone. Attack
-corpus **≥ 95% blocked with 0% false positives** on the legitimate corpus. Canary
-intact; refusals designed, bilingual, and never echoing the payload.
+**Full marks:** every prompt a versioned artefact — files in your repo, or clearly
+labelled sections in your notebook — with a changelog, **zero inline prompt
+text**, and the served version recorded in your logging. The five-stage pipeline
+with each stage demonstrated alone in its own cell. Attack corpus (**≥ 30 cases,
+bilingual**) **≥ 95% blocked with 0% false positives** on a legitimate corpus of
+the same size (≥ 30 cases, with deliberate traps). Canary intact; refusals
+designed, bilingual, and never echoing the payload.
 
 **Commonly lost on:** reporting a block rate without its false-positive pair. It is
 one of the four capping flags, and it is the easiest to avoid — the two numbers come
-out of the same command. Close behind: patterns matched against raw text instead of
+out of the same cell. Close behind: patterns matched against raw text instead of
 normalised text, which quietly lets every Arabic and homoglyph payload through a
 guard that looks correct.
 
@@ -128,19 +149,23 @@ guard that looks correct.
 
 **Where:** [Module 5 — evaluation](modules/m5-evaluation.qmd)
 
-**Full marks:** a golden set of **≥ 120 cases**, stratified by intent, language,
+**Full marks:** a golden set of **≥ 40 cases**, stratified by intent, language,
 difficulty and risk, Arabic-majority, safety oversampled, every stratum ≥ 8 cases
-and every expectation owner-approved. The harness runs the **real** pipeline.
+and every expectation owner-approved (that's you). The harness runs the **real**
+pipeline — the functions your notebook actually calls, not a simplified copy.
 Deterministic asserts carry every safety claim; the judge is calibrated to
-**Cohen's κ ≥ 0.6** with the evidence included. Safety stratum 100%. A CI gate
-demonstrated **blocking a seeded change**, reading slices rather than the average.
-`EVALUATION_REPORT.md` generated from real runs, including known limitations.
+**Cohen's κ ≥ 0.6** with the evidence included. Safety stratum 100%. A
+regression-gate **function**, demonstrated blocking a seeded change: run it once
+clean and once against a deliberately-degraded prompt, both outputs captured in
+the notebook, reading slices rather than the average. An Evaluation Report (a
+notebook section, or `EVALUATION_REPORT.md`) generated from real runs, including
+known limitations.
 
-**Commonly lost on:** editing golden cases so failures pass. The set is diffed
-against its generator, it is a capping flag, and it is the one dishonesty this
-course cares most about. Also frequent: a judge wired to a gate with no calibration
-run at all — a κ = 0.3 judge blocking merges is a random-number generator with
-authority.
+**Commonly lost on:** editing golden cases so failures pass. The set should be
+diffable against whatever generated it, and this is the one dishonesty this
+course cares most about. Also frequent: a judge wired to a gate with no
+calibration run at all — a κ = 0.3 judge blocking merges is a random-number
+generator with authority.
 
 ### 5. Cost and latency engineering — 15 pts
 
@@ -150,8 +175,9 @@ authority.
 included. Prompt-cache discipline proven by `usage.cached_input_tokens` rather than
 asserted, at ≥ 65% of input tokens cached. A response cache whose key carries
 everything that changes an answer, with a semantic tier thresholded on measured
-data and **zero wrong hits** on the near-miss suite. `BENCHMARKS.md` showing
-**≥ 60% cost reduction** with the eval verdict recorded beside every step.
+data and **zero wrong hits** on your own near-miss suite. A before/after cost
+table (a notebook section, or `BENCHMARKS.md`) showing **≥ 60% cost reduction**
+with the eval verdict recorded beside every step.
 
 **Commonly lost on:** a saving with no eval verdict next to it — the third capping
 flag, and the whole point of the module's one sentence. Also: optimising before
@@ -167,7 +193,8 @@ one sits unexamined.
 **Full marks:** both backends run over **your own** golden set, reported by slice
 rather than as one number, with cost and latency alongside quality. A self-host
 break-even computed from throughput **you measured**, and a routing recommendation
-that follows from both. Recorded in the ADR with the evidence attached.
+that follows from both. Recorded in your decisions section with the evidence
+attached.
 
 **Commonly lost on:** quoting a leaderboard or a vendor throughput figure instead
 of measuring on your own traffic. The recommendation is only worth points because
@@ -177,14 +204,17 @@ it is re-runnable; a number you did not produce cannot be re-run.
 
 **Where:** all six modules, integrated
 
-**Full marks:** a stranger clones the repository and reaches a working bilingual
-conversation in **ten minutes** following your README, through a single-command
-entry point. A five-minute live demo exercising four things — a grounded answer, a
-tool-completed action, a refused attack, and a graceful fallback — then one
-adversarial question from the floor, answered by the running system.
+**Full marks:** your notebook, opened fresh in Colab and run top to bottom
+(**Runtime → Run all**), reaches a working bilingual conversation with **zero
+setup** — no clone, no local install, no key required by default. A five-minute
+live walkthrough of your notebook's own cells, exercising four things live — a
+grounded answer, a tool-completed action, a refused attack, and a graceful
+fallback — then one adversarial question from the floor, answered by re-running
+the relevant cell.
 
-**Commonly lost on:** a repository that only runs on the machine it was built on.
-Test the README on a clean clone before the demo, not during it.
+**Commonly lost on:** a notebook that only runs because of local state left over
+from a previous run. Restart the runtime and run it fresh, top to bottom, before
+you submit — the same discipline Colab already forces on every lab this week.
 
 ## Pick one extension
 
@@ -203,45 +233,50 @@ Extensions add up to **+5** (capped at 100), and only if mandatory scope scores
 ## Deliverables
 
 1. **Repository URL** with full history — your build visible as commits rather
-   than one bulk upload, CI green on `main`.
-2. **`EVALUATION_REPORT.md`** — overall and sliced results for both backends, judge
-   calibration evidence, safety suite status, and **known limitations**.
-3. **`BENCHMARKS.md`** — the Module 2 provider table, Module 3 pass rates, Module 4
-   guard rates (both numbers), Module 6 before/after.
-4. **`DECISIONS.md`** and the ADRs — pattern choice, model and routing choice with
-   the break-even, and **one trade-off you reversed and why**.
-5. **A five-minute live demo** — the four-part conversation, then one adversarial
-   question from the floor.
+   than one bulk upload — holding your notebook and any small supporting files.
+   No CI is required; the reproducibility proof is the notebook itself, restarted
+   and run fresh.
+2. **An Evaluation Report** (a notebook section, or `EVALUATION_REPORT.md`) —
+   overall and sliced results for both backends, judge calibration evidence,
+   safety suite status, and **known limitations**.
+3. **A benchmarks table** (a notebook section, or `BENCHMARKS.md`) — the Module 2
+   provider comparison, Module 3 pass rates, Module 4 guard rates (both numbers),
+   Module 6 before/after.
+4. **A decisions record** (a notebook section, or `DECISIONS.md` and ADRs) —
+   pattern choice, model and routing choice with the break-even, and **one
+   trade-off you reversed and why**.
+5. **A five-minute live walkthrough** — the four-part demonstration above, run
+   live from your notebook, then one adversarial question from the floor.
 
 ## Milestones
 
 | Milestone | Due | Gate |
 |---|---|---|
 | M-A · track and scope confirmed, peer architecture review | Day 4, hour 1 | the review checklist, signed by another pair |
-| M-B · integrated application, both backends live | hour 2 | your CLI or API does the four-part conversation |
+| M-B · integrated notebook, both backends live | hour 2 | your notebook does the four-part conversation |
 | M-C · full harness run, report drafted | hour 3 | suite green on primary; comparison table filled |
 | M-D · cost budget verified, red-team survived | hour 4 | replay within budget; peer attacks logged |
 | M-E · demo and defence | hour 5 | rubric scored live |
 
 ## How this is graded
 
-**Your artefacts are read first, and the demo second.** The course's thesis is that the
-repository proves the system: CI history, `EVALUATION_REPORT.md`, meter logs,
-corpus numbers.
+**Your artefacts are read first, and the demo second.** The course's thesis is that
+the notebook proves the system: its own execution history, the Evaluation Report,
+meter output, corpus numbers.
 
 **Presence is not effect.** A library imported but never called, a guard nothing
 runs, a gate that cannot fail, or a golden case that asserts nothing does not
 satisfy a deliverable.
 
-A **held-out set** is run against your pipeline before the demos. A large gap
-between your reported numbers and that run is the first discussion point, not an
-automatic penalty — hill-climbing contamination is teachable, and the conversation
-is worth more than the deduction.
+A **held-out set** is run against your pipeline (the functions your notebook
+defines) before the demos. A large gap between your reported numbers and that run
+is the first discussion point, not an automatic penalty — hill-climbing
+contamination is teachable, and the conversation is worth more than the
+deduction.
 
 **Four flags cap a criterion at 70%:**
 
-- golden cases edited to make failures pass (the set is diffed against its
-  generator);
+- golden cases edited to make failures pass;
 - guard numbers reported without the false-positive pair;
 - cost savings with no eval verdict beside them;
 - a judge gating anything without calibration evidence.
@@ -269,7 +304,8 @@ seven sections above, and they are part of how the project is evaluated — not
 paperwork. Your repository must include:
 
 - A clear, comprehensive **project description**
-- A **professional README** — the project idea, plus how to run and use it
+- A **professional README** — the project idea, plus how to open and run the
+  notebook
 - Proper **technical documentation**
 - Good **Git practices** — meaningful, incremental commits, a sane structure, and a
   `.gitignore` that excludes secrets and generated files
@@ -295,14 +331,14 @@ how understanding is verified, and it is worth real marks on its own.
 
 Graders check the write-up against the code and the captured output. Claims that
 contradict your own artefacts are worse than an admitted gap — and on this course
-they are unusually easy to spot, because almost every claim has a command behind
-it. A write-up saying the guard blocks 100% sits next to a `guard-eval` run that
-says otherwise; a claimed 60% saving sits next to a `BENCHMARKS.md` that does not
-show it.
+they are unusually easy to spot, because almost every claim has a cell behind it.
+A write-up saying the guard blocks 100% sits next to a guard-eval cell that says
+otherwise; a claimed 60% saving sits next to a benchmarks table that does not show
+it.
 
 If something did not work, say so and describe what you inspected instead. An
 honest gap costs a few points. A claim your own output contradicts costs
-credibility across the whole submission — and `EVALUATION_REPORT.md` has a **known
+credibility across the whole submission — and your Evaluation Report has a **known
 limitations** section precisely so that honesty has somewhere to live.
 :::
 
@@ -310,21 +346,25 @@ limitations** section precisely so that honesty has somewhere to live.
 
 - [ ] **Your full name is in the README.** Submissions without names are not
       graded — this is not a formality.
-- [ ] Your test suite green, and **the safety stratum at 100%**. A red safety
+- [ ] Your test cells all green, and **the safety stratum at 100%**. A red safety
       suite cannot pass.
-- [ ] Your architecture test green — no provider SDK outside your adapter layer,
-      no unbounded `max_tokens`, no inline prompt text.
+- [ ] Re-read your own notebook: no provider SDK import outside your one adapter
+      section, no unbounded `max_tokens`, no inline prompt text.
 - [ ] Both backends actually run, switched by config, and you have shown it.
-- [ ] The fault-drill log excerpt is in the submission — the fallback really fired.
+- [ ] The fault-drill transcript is captured as notebook output — the fallback
+      really fired, not just written about.
 - [ ] Guard numbers reported **in pairs**: block rate *and* false-positive rate.
 - [ ] Judge calibration evidence included, with κ stated.
-- [ ] The gate demonstrated blocking the seeded change, with the slice table.
-- [ ] Every cost row in `BENCHMARKS.md` carries its eval verdict.
+- [ ] The regression-gate function demonstrated blocking the seeded change, with
+      the slice table.
+- [ ] Every cost row in your benchmarks table carries its eval verdict.
 - [ ] The break-even quotes **both** comparisons, not just the flattering one.
-- [ ] `EVALUATION_REPORT.md` has its known-limitations section, and it is honest.
-- [ ] Cloned fresh into an empty directory and followed your own README end to end.
-- [ ] No API key in the code or in git history.
+- [ ] Your Evaluation Report has its known-limitations section, and it is honest.
+- [ ] Restarted the Colab runtime and run your notebook fresh, top to bottom, with
+      no leftover local state.
+- [ ] No API key in the notebook or in git history.
 - [ ] No `TODO` or template placeholder text left anywhere.
 - [ ] Your **track** is stated explicitly, and your chosen extension if you did one.
-- [ ] **README** covers the project description and how to run it, `.gitignore`
-      excludes secrets, and the programme name and cohort dates are stated.
+- [ ] **README** covers the project description and how to open and run the
+      notebook, `.gitignore` excludes secrets, and the programme name and cohort
+      dates are stated.

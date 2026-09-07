@@ -111,27 +111,30 @@ DELIVERABLES: list[tuple[str, str, str, str]] = [
         "3",
         "Prompt Pipeline &amp; Guardrails",
         "15",
-        "All prompts are versioned artefacts in a registry with front-matter and a changelog; "
-        "zero prompt text inline in code, enforced in CI; the served prompt version appears in "
-        "the request log. A five-stage pipeline whose every stage is testable alone. A layered "
-        "input wall (deterministic patterns in <b>both</b> languages, Saudi PII masking before "
-        "any model or log sees the text, then a cheap-model classifier) and an outbound wall "
-        "(canary leak check, outbound PII, relayed instructions). Attack corpus &#8805; 95% "
-        "blocked <b>with</b> 0% false positives on the legitimate corpus. Refusals are designed, "
-        "bilingual, and never echo the payload.",
+        "All prompts are versioned artefacts &#8212; files, or clearly labelled sections in your "
+        "notebook &#8212; with a changelog; zero prompt text inline in code; the served prompt "
+        "version appears in the request log. A five-stage pipeline whose every stage is "
+        "demonstrated alone in its own cell. A layered input wall (deterministic patterns in "
+        "<b>both</b> languages, Saudi PII masking before any model or log sees the text, then a "
+        "cheap-model classifier) and an outbound wall (canary leak check, outbound PII, relayed "
+        "instructions). Attack corpus (&#8805; 30 cases, bilingual) &#8805; 95% blocked "
+        "<b>with</b> 0% false positives on a legitimate corpus of the same size, with deliberate "
+        "traps. Refusals are designed, bilingual, and never echo the payload.",
     ),
     (
         "4",
         "Evaluation Harness",
         "20",
-        "A golden set of at least 120 cases, stratified by intent, language, difficulty and risk "
+        "A golden set of at least 40 cases, stratified by intent, language, difficulty and risk "
         "class, Arabic-majority, with safety cases oversampled and every expectation owner-"
         "approved. A harness that runs the set through the <b>real</b> pipeline, not a simplified "
         "copy. Deterministic asserts carry every safety claim; a judge contributes tracking "
         "signal only and is calibrated against human labels to Cohen's &#954; &#8805; 0.6, with "
-        "the calibration evidence included. The safety stratum at 100%. A CI regression gate that "
-        "reads slices rather than the average, demonstrated blocking a seeded change. "
-        "EVALUATION_REPORT.md generated from real runs, including known limitations.",
+        "the calibration evidence included. The safety stratum at 100%. A regression-gate "
+        "function that reads slices rather than the average, demonstrated blocking a seeded "
+        "change &#8212; run once clean and once seeded, both outputs captured in the notebook. "
+        "An Evaluation Report (a notebook section, or EVALUATION_REPORT.md) generated from real "
+        "runs, including known limitations.",
     ),
     (
         "5",
@@ -161,18 +164,19 @@ DELIVERABLES: list[tuple[str, str, str, str]] = [
         "7",
         "The Application, Complete",
         "10",
-        "A stranger can clone the repository and reach a working bilingual conversation in ten "
-        "minutes by following the README. A single-command entry point rather than a list of "
-        "steps. A five-minute live demo exercising four things: an FAQ answer, a "
-        "tool-completed booking, a refused attack, and a graceful fallback; then one adversarial "
-        "question from the floor, answered by the running system.",
+        "Your notebook, opened fresh in Colab and run top to bottom (Runtime &#8594; Run all), "
+        "reaches a working bilingual conversation with zero setup &#8212; no clone, no local "
+        "install, no key required by default. A five-minute live walkthrough of your notebook's "
+        "own cells exercising four things: an FAQ answer, a tool-completed booking, a refused "
+        "attack, and a graceful fallback; then one adversarial question from the floor, answered "
+        "by re-running the relevant cell.",
     ),
 ]
 
 EVALUATION_NOTES = [
-    "<b>Grade from the artefacts first, the demo second.</b> CI history, EVALUATION_REPORT.md, "
-    "the meter logs and the corpus numbers are the evidence; the course's thesis is that the "
-    "repository proves the system.",
+    "<b>Grade from the artefacts first, the demo second.</b> The notebook's own execution "
+    "history, its Evaluation Report, the meter output and the corpus numbers are the evidence; "
+    "the course's thesis is that the notebook proves the system.",
     "<b>Presence is not effect.</b> A library imported but never called, a guard that nothing "
     "runs, a gate that cannot fail, or a golden case that asserts nothing does not satisfy a "
     "deliverable.",
@@ -201,9 +205,9 @@ REPO_REQUIREMENTS: list[tuple[str, str]] = [
     ),
     (
         "Professional README",
-        "Explains the project idea and how to run and use it: prerequisites, the environment "
-        "variables each route needs, install and setup steps, how to run the tests and the "
-        "harness, and the expected output.",
+        "Explains the project idea and how to open and run the notebook: the Colab link, any "
+        "environment variables or secrets each route needs, and what to expect on a fresh "
+        "Runtime &#8594; Run all.",
     ),
     (
         "Proper technical documentation",
@@ -371,6 +375,15 @@ def build(out_dir: Path) -> Path:
             "SDAIA Academy, delivered via Learning Space  |  4-day capstone  |  "
             "20 training hours  |  Course code SDA-AIE-213",
             META,
+        ),
+        Paragraph(
+            "<b>One Colab notebook, zero setup.</b> No Docker, no CI pipeline, no local install. "
+            "Your submission is one Colab notebook (plus a couple of small supporting files if "
+            "you want them) that opens with a setup cell modelled on the one every lab this week "
+            "already used. Opening the notebook and choosing Runtime &#8594; Run all should reach "
+            "a working conversation with nothing else installed &#8212; that is the "
+            "reproducibility proof; there is no separate pipeline to keep green.",
+            NOTE,
         ),
         Paragraph("1. Choose One Track", H2),
         Paragraph(
