@@ -322,4 +322,4 @@ Guards are the section most often lost on a number reported alone. On your app:
 
 if __name__ == "__main__":
     print("wrote", build("lab4-guarded-pipeline", "Lab 4 — the prompt pipeline and its walls",
-                         "Day 3 · after Module 4", LEAD, CELLS))
+                         "Day 2 · after Module 4", LEAD, CELLS))

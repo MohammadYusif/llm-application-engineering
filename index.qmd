@@ -64,7 +64,8 @@ storm.
 Structured outputs that are validated rather than hoped for, and the
 validate → retry → repair loop. Then tools: schemas the model uses correctly, a
 bounded execution loop, and an authorisation gate that no sequence of conversation
-turns can talk its way past.
+turns can talk its way past. Then prompts as versioned artefacts, and injection
+defence in layers, measured honestly.
 
 [Module 3 — structured outputs and tools](modules/m3-structured-outputs-and-tools.qmd) ·
 [Module 4 — prompts and guardrails](modules/m4-prompts-and-guardrails.qmd)
@@ -72,11 +73,9 @@ turns can talk its way past.
 
 ::: {.g-col-12 .g-col-md-6}
 ### Day 3 — Prove it, then pay less for it
-Prompts as versioned artefacts. Injection defence in layers, measured honestly.
 Golden sets that earn trust, a judge you qualify before you trust, a gate that
 blocks the regression code review cannot see — and only then, optimisation.
 
-[Module 4, continued](modules/m4-prompts-and-guardrails.qmd) ·
 [Module 5 — evaluation](modules/m5-evaluation.qmd) ·
 [Module 6 — cost, latency and caching](modules/m6-cost-latency-caching.qmd)
 :::
