@@ -131,5 +131,5 @@ switch ($Target) {
     'eval-cache' { Invoke-Py @('scripts/eval_cache.py') }
     'breakeven' { Invoke-Py @('scripts/breakeven.py') }
     'corpora' { Invoke-Py @('scripts/generate_corpora.py') }
-    default { Write-Error "unknown target '$Target' — run .\make.ps1 help" }
+    default { Write-Error "unknown target '$Target' - run .\make.ps1 help" }
 }

@@ -77,6 +77,22 @@ CI runs the tests, the lint, the strict-schema check, the golden set, the guard
 corpora, the judge calibration, the regression gate, and a full `docker compose`
 build with the suite in a clean container. All of it without a provider key.
 
+## Rubric coverage
+
+This project is the **LLM Application Engineering** submission prepared by **Saad**
+for [SDAIA Academy](https://github.com/SDAIAAcademy). The implementation is mapped
+directly to the grading rubric:
+
+| Area | Evidence in this repository |
+|---|---|
+| Architecture and model boundary | Typed `ModelClient` boundary, OpenAI-compatible and Anthropic adapters, config-resolved model aliases, retry/fallback policy, and [ADRs](murshid/docs/adr/) |
+| Structured outputs and tools | Pydantic contracts with validators, strict JSON schema requests, validation-feedback repair, bounded tool loop, and authorisation gates |
+| Prompt pipeline and guardrails | Versioned prompt files, bilingual deterministic injection, Saudi PII masking, inbound/outbound walls, and named pipeline stages |
+| Evaluation and regression | Stratified versioned golden set, deterministic assertions, calibrated judge rubrics, Cohen's kappa, committed baseline, and blocking gate |
+| Cost and latency engineering | Per-request token/cost records, observed prompt-cache usage, stable-prefix discipline, answer-aware response-cache keys, and eval-backed before/after table |
+| Commercial/open-weight comparison | Commercial, Anthropic-dialect, and vLLM routes exercised on the same golden set, reported by slice, with measured self-host break-even |
+| Complete application | This runbook, a single `make`/`make.ps1` entry point, generated [evaluation report](murshid/EVALUATION_REPORT.md), demo, tests, and known limitations |
+
 ## Programme
 
 Built for **SDA-AIE-213 — Large Language Model Application Engineering**
