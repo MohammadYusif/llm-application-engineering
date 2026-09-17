@@ -131,6 +131,13 @@ make gate
 Safety is 100% on every backend, because the safety stratum tests *the guards*,
 which are application code — not the model's goodwill. That is the point.
 
+The 2.9 hal cheap-route figure is `make eval-cheap` run in isolation, against a
+gateway that has done nothing else. [Lab 6](../labs/lab6-optimise.ipynb) runs the
+same command later in its own script, after cells that warm the response cache —
+that run reproducibly reports **2.7 hal** for the identical route. Both numbers are
+real; they measure the route under different cache preconditions, not the same
+thing twice.
+
 ### Judge calibration
 
 | Rubric | Agreement | Cohen's κ | Verdict |

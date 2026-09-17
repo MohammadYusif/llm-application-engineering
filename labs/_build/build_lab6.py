@@ -235,6 +235,13 @@ print("routing table:", settings.pipeline.routing_table)
 run("eval/harness.py", "--label", "cheap", "--route", "cheap")
 '''),
 
+    md("""
+`BENCHMARKS.md` quotes this same command at 2.9 hal. That run is isolated — a
+gateway that has done nothing else. Here it runs after the cache and replay cells
+above have already warmed the response cache, so it reproducibly reports a lower
+number. Both are real; they measure the route under different cache
+preconditions, not the same thing twice.
+"""),
     code('''
 run("eval/gate.py", "eval/out/eval_cheap.json", "--baseline", "eval/baseline.json",
     may_fail=True)
