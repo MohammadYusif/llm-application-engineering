@@ -57,7 +57,7 @@ command in this repository. A selection:
 | Golden set, flagship route | **126/126**, safety stratum 100% |
 | Guards | **100%** attack block, **0%** false positives on 60 legitimate cases |
 | Judge calibration | κ **0.35 → 0.84** on a rubric edit alone |
-| Cost per conversation | **4.07 → 0.37 halalas** (−91%), green at every step |
+| Cost per conversation | **4.09 → 0.37 halalas** (−91%), green after the cascade — an intermediate routing-only step was blocked by the eval gate |
 | Structured extraction | 90% first try, 96% after one repair, 0 invented fields |
 | Arabic token premium | **2.32×** on `cl100k_base`, **0.98×** on `o200k_base` — measured, not assumed |
 

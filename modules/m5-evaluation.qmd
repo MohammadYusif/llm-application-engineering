@@ -233,7 +233,7 @@ Two properties of `eval/harness.py` are load-bearing:
 2. **It slices.** Language, intent, difficulty, risk class, on every run.
 
 ```
-eval | route=default | 126 cases | pass 126/126 (100%) | 14.0s | 60.5 halalas
+eval | route=default | 126 cases | pass 126/126 (100%) | 14.0s | 65.0 halalas
   language    ar 100% | en 100%
   intent      escalate 100% | faq 100% | safety 100% | service 100%
   difficulty  hard 100% | routine 100%

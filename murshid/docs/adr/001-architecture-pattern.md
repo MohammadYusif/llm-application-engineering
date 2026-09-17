@@ -52,5 +52,6 @@ transactional price for conversational traffic.
 
 ## Evidence
 
-`BENCHMARKS.md`, Module 6 table: cost per conversation 4.07 → 0.37 halalas across
-the routing change, with the evaluation suite green at every step.
+`BENCHMARKS.md`, Module 6 table: cost per conversation 4.09 → 0.37 halalas across
+the routing change. An intermediate routing-only step was correctly blocked by the
+eval gate before the cascade fixed it and shipped green.

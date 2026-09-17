@@ -46,7 +46,7 @@ Measured on this repository's own golden set, not on a leaderboard:
 | Backend | Overall | ar | safety | service | Cost per suite |
 |---|---|---|---|---|---|
 | flagship | 100% | 100% | 100% | 100% | 65.0 hal |
-| small | 95% | 95% | 100% | 83% | 2.7 hal |
+| small | 95% | 95% | 100% | 83% | 2.9 hal |
 | open-weight (vLLM) | 94% | 92% | 100% | 75% | 26.0 hal |
 
 The `service` slice is where the small and open-weight models actually lose —

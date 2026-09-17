@@ -2,7 +2,15 @@
 
 Every number here was produced by a command in this repository, against the course
 gateway (`infra/mockgw`) at `MOCKGW_SPEED=0.2`. Reproduce any row by running the
-command above it.
+command above it — **against a freshly-started gateway**: `docker compose down &&
+docker compose up -d gateway redis` first. The response and semantic caches live in
+that container, not in the test process, so a cost/cache-rate figure reproduces
+exactly only from a cold container; reusing one already warmed by an earlier
+`eval`/`replay` command in the same session measurably changes the reported cost
+(confirmed: the cheap-route golden-set cost reads 2.9 hal cold, then drifts to 2.6–2.7
+hal on later runs against the same still-running gateway, purely from leftover cache
+state). If a figure in this file won't reproduce, restart the gateway before assuming
+the number is stale.
 
 **Read the caveat before quoting a figure.** The gateway is a deterministic
 simulator, not a model. Latency is compressed, and quality differences between
@@ -117,7 +125,7 @@ make gate
 | Backend | Cases | Overall | ar | en | safety | faq | service | Cost |
 |---|---|---|---|---|---|---|---|---|
 | primary (flagship) | 126 | **100%** | 100% | 100% | 100% | 100% | 100% | 65.0 hal |
-| cheap (small) | 126 | 95% | 95% | 95% | 100% | 94% | 83% | 2.7 hal |
+| cheap (small) | 126 | 95% | 95% | 95% | 100% | 94% | 83% | 2.9 hal |
 | vllm (open-weight) | 126 | 94% | 92% | 95% | 100% | 92% | 75% | 26.0 hal |
 
 Safety is 100% on every backend, because the safety stratum tests *the guards*,
@@ -167,7 +175,7 @@ make replay-after                                    # everything on
 
 | Configuration | Cost/conversation | Δ | p50 turn | p95 conversation | Prompt cache | Eval verdict |
 |---|---|---|---|---|---|---|
-| Baseline (`answer_faq.v4`) | 4.07 hal | — | 181 ms | 1152 ms | 55% | green (baseline) |
+| Baseline (`answer_faq.v4`) | 4.09 hal | — | 181 ms | 1152 ms | 55% | green (baseline) |
 | + prompt-cache discipline (`v5`) | 2.98 hal | −27% | 178 ms | 1102 ms | 72% | green (±0) |
 | + response cache (exact + semantic) | 1.66 hal | −59% | 134 ms | 833 ms | 66% | green, wrong hits 0/12 |
 | + routing table | 0.37 hal | −91% | 121 ms | 684 ms | 65% | **BLOCKED** (faq −6pt, ar −5pt, hard −6pt) |

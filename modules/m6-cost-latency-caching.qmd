@@ -61,7 +61,7 @@ make replay-before        # 200 conversations, metered, nothing optimised
 
 ```
   cache=off, semantic=off, routing=off, cascade=off, faq_prompt=answer_faq.v4
-200 conversations | cost/conv: 4.12 halalas | p50 turn 191ms | p95 conversation 1200ms | wall 105.0s
+200 conversations | cost/conv: 4.09 halalas | p50 turn 184ms | p95 conversation 1167ms | wall 101.2s
 by intent (spend): {'faq': '92%', 'service': '6%', 'guard': '1%', 'router': '1%'}
 by intent (turns): {'faq': 428, 'service': 114, 'escalate': 24}   blocked: 0   tool calls: 65
 prompt cache: 55% of input tokens at the cached rate
@@ -137,7 +137,7 @@ into the tail. Diff them, then look at the numbers:
 
 | Prompt version | Prompt-cache share | Cost per conversation |
 |---|---|---|
-| `answer_faq.v4` — timestamp at the top | 55% | 4.12 halalas |
+| `answer_faq.v4` — timestamp at the top | 55% | 4.09 halalas |
 | `answer_faq.v5` — timestamp in the tail | [72%]{.measured} | [2.98 halalas]{.measured} (−28%) |
 
 **Verify, do not assume.** `usage.cached_input_tokens` — plumbed through since
@@ -312,7 +312,7 @@ is a measurement, not an assumption.
 
 | Configuration | Cost/conversation | Δ | Eval verdict |
 |---|---|---|---|
-| Baseline (`v4`, no cache, no routing) | 4.12 hal | — | green (baseline) |
+| Baseline (`v4`, no cache, no routing) | 4.09 hal | — | green (baseline) |
 | + prompt-cache discipline (`v5`) | 2.98 hal | −28% | green |
 | + response cache (exact + semantic) | 1.66 hal | −59% | green, wrong hits 0/12 |
 | + routing table | 0.37 hal | −91% | **BLOCKED** |
